@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Relief Initiative | Make an Impact</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i data-lucide="globe-2"></i>
+                <span>GRI</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#about">Our Mission</a></li>
+                <li><a href="#impact">Impact</a></li>
+                <li><a href="#donate" class="btn btn-outline">Give Today</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <section class="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">Empower Change,<br><span class="text-gradient">Transform Lives.</span></h1>
+                <p class="hero-subtitle">Your contribution provides critical relief to communities worldwide. Join us in building a better tomorrow.</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-value">2M+</span>
+                        <span class="stat-label">Lives Impacted</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">150</span>
+                        <span class="stat-label">Active Projects</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Donation Widget -->
+            <div class="donation-card glassmorphism" id="donate">
+                <div class="card-header">
+                    <h2>Make a Donation</h2>
+                    <p>Select an amount to give</p>
+                </div>
+                
+                <div class="donation-type">
+                    <button class="type-btn active" data-type="one-time">One-time</button>
+                    <button class="type-btn" data-type="monthly">Monthly</button>
+                </div>
+
+                <div class="amount-grid">
+                    <button class="amount-btn active" data-amount="25">$25</button>
+                    <button class="amount-btn" data-amount="50">$50</button>
+                    <button class="amount-btn" data-amount="100">$100</button>
+                    <button class="amount-btn" data-amount="custom">Custom</button>
+                </div>
+
+                <div class="custom-amount-wrapper hidden">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="custom-amount" class="custom-input" placeholder="0.00" min="1">
+                </div>
+
+                <div class="donation-summary">
+                    <span>Total Donation</span>
+                    <span class="summary-amount">$25</span>
+                </div>
+
+                <button class="btn btn-primary lg" id="proceed-btn">
+                    Continue to Payment
+                    <i data-lucide="arrow-right"></i>
+                </button>
+
+                <!-- Payment Form (Initially Hidden) -->
+                <div class="payment-step hidden" id="payment-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" placeholder="Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="jane@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Card Details</label>
+                        <div class="card-input-mock">
+                            <i data-lucide="credit-card"></i>
+                            <input type="text" placeholder="0000 0000 0000 0000">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary lg w-100" id="submit-donation">
+                        Complete $25 Donation
+                    </button>
+                    <button class="btn btn-text w-100" id="back-to-amount">Back to amounts</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
