@@ -152,6 +152,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     });
 
+    // Toast Notification Logic for broken links
+    const createToast = (message) => {
+        const toastContainer = document.getElementById('toast-container') || (() => {
+            const container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        })();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast glassmorphism';
+        toast.innerHTML = `<i data-lucide="info"></i> <span style="color: white; font-weight: 500;">${message}</span>`;
+        toastContainer.appendChild(toast);
+        lucide.createIcons();
+        
+        // trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    };
+
+    const dummyLinks = document.querySelectorAll('a[href="#"]');
+    dummyLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            createToast('This feature will be available soon!');
+        });
+    });
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
     // Add spin animation class dynamically
     const style = document.createElement('style');
     style.innerHTML = `
