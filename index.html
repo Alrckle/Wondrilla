@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wondrilla | Make an Impact</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+    <title>The Gospel Foundation | Spread the Word of God</title>
+    <meta name="description" content="Join The Gospel Foundation in spreading the message of Jesus Christ to every nation. Your generous donation funds Bible distribution, missionary work, and church planting worldwide.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gospelfoundation.org/">
+    <meta property="og:title" content="The Gospel Foundation | Spread the Word of God">
+    <meta property="og:description" content="Join The Gospel Foundation in spreading the message of Jesus Christ to every nation. Your generous donation funds Bible distribution, missionary work, and church planting worldwide.">
+    <meta property="og:image" content="https://gospelfoundation.org/images/divine-light-hero.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://gospelfoundation.org/">
+    <meta property="twitter:title" content="The Gospel Foundation | Spread the Word of God">
+    <meta property="twitter:description" content="Join The Gospel Foundation in spreading the message of Jesus Christ to every nation. Your generous donation funds Bible distribution, missionary work, and church planting worldwide.">
+    <meta property="twitter:image" content="https://gospelfoundation.org/images/divine-light-hero.png">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝️</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -13,44 +29,58 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="nav-container">
             <div class="logo">
-                <i data-lucide="globe-2"></i>
-                <a href="index.html"><span>Wondrilla</span></a>
+                <svg class="logo-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                    <path d="M11 2h2v7h7v2h-7v11h-2V11H4V9h7V2z"/>
+                </svg>
+                <a href="index.html"><span>The Gospel Foundation</span></a>
             </div>
-            <ul class="nav-links">
+            <ul class="nav-links" id="nav-links">
                 <li><a href="#about">Our Mission</a></li>
-                <li><a href="#impact">Impact</a></li>
+                <li><a href="#impact">Kingdom Impact</a></li>
+                <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#donate" class="btn btn-outline">Give Today</a></li>
             </ul>
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main>
+        <!-- Hero Section -->
         <section class="hero">
-            <div class="hero-bg"></div>
-            <div class="hero-content">
-                <h1 class="hero-title">Empower Change,<br><span class="text-gradient">Transform Lives.</span></h1>
-                <p class="hero-subtitle">Your contribution provides critical relief to communities worldwide. Join us in building a better tomorrow.</p>
+            <div class="hero-bg">
+                <img src="images/divine-light-hero.png" alt="Divine light radiating — face hidden by radiant light rays" class="hero-bg-img">
+            </div>
+            <div class="hero-content reveal">
+                <div class="scripture-badge">
+                    <i data-lucide="book-open"></i>
+                    <span>Mark 16:15 — "Go into all the world and preach the gospel."</span>
+                </div>
+                <h1 class="hero-title">Carry the Light of Christ<br><span class="text-gradient">To Every Nation.</span></h1>
+                <p class="hero-subtitle">Your gift empowers missionaries, plants churches, and places the Holy Bible into the hands of those who have never heard the name of Jesus.</p>
                 <div class="hero-stats">
                     <div class="stat">
-                        <span class="stat-value">2M+</span>
-                        <span class="stat-label">Lives Impacted</span>
+                        <span class="stat-value" data-count="120" data-suffix="+">0</span>
+                        <span class="stat-label">Nations Reached</span>
                     </div>
+                    <div class="stat-divider"></div>
                     <div class="stat">
-                        <span class="stat-value">150</span>
-                        <span class="stat-label">Active Projects</span>
+                        <span class="stat-value" data-count="500" data-suffix="k+">0</span>
+                        <span class="stat-label">Souls Saved</span>
                     </div>
                 </div>
             </div>
 
             <!-- Donation Widget -->
-            <div class="donation-card glassmorphism" id="donate">
+            <div class="donation-card glassmorphism reveal" id="donate">
                 <div class="card-header">
-                    <h2>Make a Donation</h2>
-                    <p>Select an amount to give</p>
+                    <h2>Partner with Us</h2>
+                    <p>Choose an amount to spread the Gospel</p>
                 </div>
                 
                 <div class="donation-type">
@@ -70,93 +100,261 @@
                     <input type="number" id="custom-amount" class="custom-input" placeholder="0.00" min="1">
                 </div>
 
+                <div class="impact-hint" id="impact-hint">
+                    <i data-lucide="heart"></i>
+                    <span id="impact-text">$25 provides 5 Bibles to unreached villages</span>
+                </div>
+
                 <div class="donation-summary">
-                    <span>Total Donation</span>
+                    <span>Total Gift</span>
                     <span class="summary-amount">$25</span>
                 </div>
 
                 <button class="btn btn-primary lg" id="proceed-btn">
-                    Continue to Payment
+                    Give to the Kingdom
                     <i data-lucide="arrow-right"></i>
                 </button>
 
-                <!-- Payment Form (Initially Hidden) -->
+                <!-- Payment Form -->
                 <div class="payment-step hidden" id="payment-form">
                     <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" placeholder="Jane Doe">
+                        <label for="donor-name">Full Name</label>
+                        <input type="text" id="donor-name" placeholder="Jane Doe" required>
+                        <span class="error-msg hidden" id="error-name">Please enter your full name.</span>
                     </div>
                     <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" placeholder="jane@example.com">
+                        <label for="donor-email">Email Address</label>
+                        <input type="email" id="donor-email" placeholder="jane@example.com" required>
+                        <span class="error-msg hidden" id="error-email">Please enter a valid email.</span>
                     </div>
                     <div class="form-group">
-                        <label>Card Details</label>
+                        <label for="donor-card">Card Details</label>
                         <div class="card-input-mock">
                             <i data-lucide="credit-card"></i>
-                            <input type="text" placeholder="0000 0000 0000 0000">
+                            <input type="text" id="donor-card" placeholder="0000 0000 0000 0000" maxlength="19" required>
                         </div>
+                        <span class="error-msg hidden" id="error-card">Please enter a valid card number.</span>
                     </div>
                     <button class="btn btn-primary lg w-100" id="submit-donation">
-                        Complete $25 Donation
+                        Complete $25 Gift
                     </button>
                     <button class="btn btn-text w-100" id="back-to-amount">Back to amounts</button>
+                </div>
+
+                <div class="card-trust-badges">
+                    <span><i data-lucide="shield-check"></i> SSL Secured</span>
+                    <span><i data-lucide="lock"></i> 256-bit Encryption</span>
                 </div>
             </div>
         </section>
 
-        <!-- About Section -->
+        <!-- About / Mission Section -->
         <section id="about" class="content-section">
             <div class="section-container">
-                <div class="section-header">
+                <div class="section-header reveal">
+                    <span class="section-label">What We Do</span>
                     <h2>Our Mission</h2>
-                    <p>We believe in a world where everyone has access to basic necessities, education, and opportunities to thrive. Your support makes this vision a reality.</p>
+                    <p>We are called by God to take the Gospel of Jesus Christ to the ends of the earth — funding missionaries, planting churches, and transforming lives through the power of His Word.</p>
                 </div>
                 <div class="features-grid">
-                    <div class="feature-card glassmorphism">
-                        <i data-lucide="heart-handshake" class="feature-icon"></i>
-                        <h3>Direct Relief</h3>
-                        <p>Providing immediate assistance to communities affected by crises, ensuring basic needs are met promptly.</p>
+                    <div class="feature-card glassmorphism reveal">
+                        <div class="feature-img-wrap">
+                            <img src="images/bible-distribution.png" alt="Missionary distributing Bibles to children in a village" class="feature-img">
+                        </div>
+                        <div class="feature-body">
+                            <div class="feature-icon-wrap">
+                                <i data-lucide="book-open" class="feature-icon"></i>
+                            </div>
+                            <h3>Bible Distribution</h3>
+                            <p>We deliver God's Word in 60+ languages to unreached communities, persecuted believers, and nations where Scripture is forbidden.</p>
+                        </div>
                     </div>
-                    <div class="feature-card glassmorphism">
-                        <i data-lucide="book-open" class="feature-icon"></i>
-                        <h3>Education</h3>
-                        <p>Building schools and providing learning materials to empower the next generation with knowledge.</p>
+                    <div class="feature-card glassmorphism reveal">
+                        <div class="feature-img-wrap">
+                            <img src="images/missionary-preaching.png" alt="Missionary preaching the Gospel to villagers" class="feature-img">
+                        </div>
+                        <div class="feature-body">
+                            <div class="feature-icon-wrap">
+                                <i data-lucide="users" class="feature-icon"></i>
+                            </div>
+                            <h3>Missionary Support</h3>
+                            <p>We fund, train, and equip full-time missionaries serving in the hardest and most remote corners of the world for Jesus.</p>
+                        </div>
                     </div>
-                    <div class="feature-card glassmorphism">
-                        <i data-lucide="sprout" class="feature-icon"></i>
-                        <h3>Sustainability</h3>
-                        <p>Implementing long-term solutions for clean water, agriculture, and sustainable livelihoods.</p>
+                    <div class="feature-card glassmorphism reveal">
+                        <div class="feature-img-wrap">
+                            <img src="images/church-planting.png" alt="Community building a church together" class="feature-img">
+                        </div>
+                        <div class="feature-body">
+                            <div class="feature-icon-wrap">
+                                <i data-lucide="home" class="feature-icon"></i>
+                            </div>
+                            <h3>Church Planting</h3>
+                            <p>Your giving helps establish new local congregations in unreached people groups, creating lasting centers of discipleship and worship.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scripture Banner -->
+        <section class="scripture-section">
+            <div class="scripture-bg-img">
+                <img src="images/people-praying.png" alt="Diverse group of people praying together">
+            </div>
+            <div class="scripture-overlay"></div>
+            <div class="scripture-inner reveal">
+                <div class="scripture-icon">
+                    <i data-lucide="quote"></i>
+                </div>
+                <blockquote class="scripture-quote">
+                    For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.
+                </blockquote>
+                <cite>— John 3:16 (NIV)</cite>
+            </div>
+        </section>
+
+        <!-- Photo Gallery -->
+        <section id="gallery" class="content-section gallery-section">
+            <div class="section-container">
+                <div class="section-header reveal">
+                    <span class="section-label">See the Impact</span>
+                    <h2>The Gospel in Action</h2>
+                    <p>Witness the faces of those being touched by the love of Christ through your generous giving.</p>
+                </div>
+                <div class="gallery-grid reveal">
+                    <div class="gallery-item gallery-large">
+                        <img src="images/divine-light-hero.png" alt="A divine figure radiating brilliant light, face hidden by glory, reaching toward the nations">
+                        <div class="gallery-caption">
+                            <span>His Light Reaches Every Nation</span>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/bible-distribution.png" alt="Distributing Bibles to children">
+                        <div class="gallery-caption">
+                            <span>Bibles for the Unreached</span>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/missionary-preaching.png" alt="Missionary preaching outdoors">
+                        <div class="gallery-caption">
+                            <span>Preaching the Word</span>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/church-planting.png" alt="Community building a church">
+                        <div class="gallery-caption">
+                            <span>Building God's House</span>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/people-praying.png" alt="Believers praying together">
+                        <div class="gallery-caption">
+                            <span>United in Prayer</span>
+                        </div>
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/worship-service.png" alt="Congregation worshipping together">
+                        <div class="gallery-caption">
+                            <span>Joyful Worship</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Impact Section -->
-        <section id="impact" class="content-section impact-bg">
+        <section id="impact" class="content-section impact-section">
             <div class="section-container">
-                <div class="section-header">
-                    <h2>Our Global Impact</h2>
-                    <p>Transparency is our priority. Here's how your donations are changing the world.</p>
+                <div class="section-header reveal">
+                    <span class="section-label">By God's Grace</span>
+                    <h2>Kingdom Impact</h2>
+                    <p>By God's grace and your faithful generosity, the Gospel is advancing powerfully around the world.</p>
                 </div>
-                <div class="impact-stats-grid">
+                <div class="impact-stats-grid reveal">
                     <div class="impact-stat glassmorphism">
-                        <span class="stat-value text-gradient">50+</span>
-                        <span class="stat-label">Countries Reached</span>
+                        <div class="impact-stat-icon"><i data-lucide="globe"></i></div>
+                        <span class="stat-value text-gradient" data-count="120" data-suffix="+">0</span>
+                        <span class="stat-label">Nations Reached</span>
                     </div>
                     <div class="impact-stat glassmorphism">
-                        <span class="stat-value text-gradient">$10M+</span>
-                        <span class="stat-label">Funds Distributed</span>
+                        <div class="impact-stat-icon"><i data-lucide="book-open"></i></div>
+                        <span class="stat-value text-gradient" data-count="2" data-suffix="M+">0</span>
+                        <span class="stat-label">Bibles Distributed</span>
                     </div>
                     <div class="impact-stat glassmorphism">
-                        <span class="stat-value text-gradient">100k</span>
-                        <span class="stat-label">Volunteers Worldwide</span>
+                        <div class="impact-stat-icon"><i data-lucide="home"></i></div>
+                        <span class="stat-value text-gradient" data-count="8500" data-suffix="+">0</span>
+                        <span class="stat-label">Churches Planted</span>
                     </div>
                     <div class="impact-stat glassmorphism">
-                        <span class="stat-value text-gradient">150</span>
-                        <span class="stat-label">Active Projects</span>
+                        <div class="impact-stat-icon"><i data-lucide="heart"></i></div>
+                        <span class="stat-value text-gradient" data-count="500" data-suffix="k+">0</span>
+                        <span class="stat-label">Souls Led to Christ</span>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="content-section testimonial-section">
+            <div class="section-container">
+                <div class="section-header reveal">
+                    <span class="section-label">Real Lives Changed</span>
+                    <h2>Stories of Grace</h2>
+                    <p>Hear from those whose lives have been transformed by the Gospel through your generosity.</p>
+                </div>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card glassmorphism reveal">
+                        <div class="testimonial-quote-icon"><i data-lucide="quote"></i></div>
+                        <p>"I received my first Bible through this ministry. I wept as I read John 3:16 — I had never known God's love before that moment. My whole village has now come to faith."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">A</div>
+                            <div>
+                                <strong>Amara K.</strong>
+                                <span>New Believer, Nigeria</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glassmorphism reveal">
+                        <div class="testimonial-quote-icon"><i data-lucide="quote"></i></div>
+                        <p>"Thanks to the missionary this foundation supports, I heard the Gospel for the first time at age 45. Christ has completely renewed my heart, my marriage, and my family."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">D</div>
+                            <div>
+                                <strong>David M.</strong>
+                                <span>New Believer, Myanmar</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glassmorphism reveal">
+                        <div class="testimonial-quote-icon"><i data-lucide="quote"></i></div>
+                        <p>"Our church was planted with support from The Gospel Foundation. We now have over 300 members and are sending our own missionaries to neighboring villages."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">P</div>
+                            <div>
+                                <strong>Pastor Paulo R.</strong>
+                                <span>Church Planter, Brazil</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Banner -->
+        <section class="cta-banner">
+            <div class="cta-bg">
+                <img src="images/divine-light-hero.png" alt="">
+            </div>
+            <div class="cta-overlay"></div>
+            <div class="cta-inner reveal">
+                <h2>Will You Help Us Take the Gospel Further?</h2>
+                <p>Every gift — no matter the size — sends the message of Christ's love to someone who has never heard it.</p>
+                <a href="#donate" class="btn btn-primary lg">
+                    Partner With Us Today
+                    <i data-lucide="arrow-right"></i>
+                </a>
             </div>
         </section>
     </main>
@@ -166,24 +364,26 @@
         <div class="footer-container">
             <div class="footer-col">
                 <div class="logo">
-                    <i data-lucide="globe-2"></i>
-                    <span>Wondrilla</span>
+                    <svg class="logo-cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                        <path d="M11 2h2v7h7v2h-7v11h-2V11H4V9h7V2z"/>
+                    </svg>
+                    <span>The Gospel Foundation</span>
                 </div>
-                <p class="footer-desc">Empowering communities worldwide through direct relief, education, and sustainable development initiatives.</p>
+                <p class="footer-desc">Bringing the hope of Jesus Christ to every nation, tribe, and tongue — until He returns.</p>
                 <div class="social-links">
-                    <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg></a>
-                    <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-                    <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
-                    <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+                    <a href="#" title="Follow us on X"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg></a>
+                    <a href="#" title="Follow us on Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+                    <a href="#" title="Follow us on Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                    <a href="#" title="Subscribe on YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"></path><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"></polygon></svg></a>
                 </div>
             </div>
             <div class="footer-col">
                 <h3>Quick Links</h3>
                 <ul>
                     <li><a href="#about">Our Mission</a></li>
-                    <li><a href="#impact">Impact</a></li>
-                    <li><a href="#donate">Donate</a></li>
-                    <li><a href="#">Volunteer</a></li>
+                    <li><a href="#impact">Kingdom Impact</a></li>
+                    <li><a href="#donate">Give Today</a></li>
+                    <li><a href="#">Pray With Us</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -197,14 +397,14 @@
             <div class="footer-col">
                 <h3>Contact</h3>
                 <ul>
-                    <li><i data-lucide="mail"></i> hello@wondrilla.org</li>
-                    <li><i data-lucide="phone"></i> +1 (555) 123-4567</li>
-                    <li><i data-lucide="map-pin"></i> 123 Hope Street, NY</li>
+                    <li><i data-lucide="mail"></i> hello@gospelfoundation.org</li>
+                    <li><i data-lucide="phone"></i> +1 (555) 777-HOPE</li>
+                    <li><i data-lucide="map-pin"></i> 1 Cross Way, Nashville, TN</li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Wondrilla. All rights reserved.</p>
+            <p>&copy; 2026 The Gospel Foundation. A 501(c)(3) nonprofit ministry. &mdash; <em>"To God be the glory."</em></p>
         </div>
     </footer>
 
