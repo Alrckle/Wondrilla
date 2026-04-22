@@ -31,11 +31,13 @@ img { display: block; max-width: 100%; }
 
 /* Reveal Animation */
 .reveal {
+    transition: all 0.8s ease-out;
+}
+.js-enabled .reveal:not(.visible) {
     opacity: 0;
     transform: translateY(30px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
 }
-.reveal.visible {
+.js-enabled .reveal.visible {
     opacity: 1;
     transform: translateY(0);
 }
