@@ -1,5 +1,6 @@
 (function() {
     function initApp() {
+        document.documentElement.classList.add('animations-ready');
         // ── Scroll Reveal ──
         const revealEls = document.querySelectorAll('.reveal');
         if ('IntersectionObserver' in window) {
