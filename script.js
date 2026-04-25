@@ -1,6 +1,9 @@
 (function() {
     function initApp() {
-        document.documentElement.classList.add('animations-ready');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!prefersReducedMotion) {
+            document.documentElement.classList.add('animations-ready');
+        }
         // ── Scroll Reveal ──
         const revealEls = document.querySelectorAll('.reveal');
         if ('IntersectionObserver' in window) {
@@ -30,10 +33,24 @@
         const menuBtn = document.getElementById('mobile-menu-btn');
         const navLinks = document.getElementById('nav-links');
         if (menuBtn && navLinks) {
-            menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
+            const closeMenu = () => {
+                navLinks.classList.remove('open');
+                menuBtn.setAttribute('aria-expanded', 'false');
+            };
+
+            menuBtn.addEventListener('click', () => {
+                const isOpen = navLinks.classList.toggle('open');
+                menuBtn.setAttribute('aria-expanded', String(isOpen));
+            });
             navLinks.querySelectorAll('a').forEach(a =>
-                a.addEventListener('click', () => navLinks.classList.remove('open'))
+                a.addEventListener('click', closeMenu)
             );
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') closeMenu();
+            });
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) closeMenu();
+            });
         }
 
         // ── Counter Animation ──
@@ -69,7 +86,7 @@
         const customWrap = document.querySelector('.custom-amount-wrapper');
         const customInput = document.getElementById('custom-amount');
         const summaryAmt = document.querySelector('.summary-amount');
-        const hintText = document.querySelector('.impact-hint-text');
+        const hintText = document.getElementById('impact-text');
         
         let donationType = 'one-time', amount = 25, isCustom = false;
 
@@ -117,13 +134,20 @@
                     isCustom = false; 
                     if (customWrap) customWrap.classList.add('hidden'); 
                     amount = parseInt(b.dataset.amount);
+                    if (customInput) {
+                        customInput.value = '';
+                        customInput.style.borderColor = '';
+                    }
                 }
                 updateSummary();
             }));
         }
 
         if (customInput) {
-            customInput.addEventListener('input', updateSummary);
+            customInput.addEventListener('input', () => {
+                customInput.style.borderColor = '';
+                updateSummary();
+            });
         }
 
         // ── Payment Flow ──
@@ -232,7 +256,7 @@
 
                 if (!isValid) {
                     if (paymentForm) {
-                        paymentForm.animate([
+                        if (!prefersReducedMotion) paymentForm.animate([
                             { transform: 'translateX(0)' }, { transform: 'translateX(-4px)' },
                             { transform: 'translateX(4px)' }, { transform: 'translateX(0)' }
                         ], { duration: 300 });
@@ -279,7 +303,7 @@
             l.addEventListener('click', e => { e.preventDefault(); createToast('Coming soon — God bless you! 🙏'); })
         );
 
-        updateHint(amount);
+        updateSummary();
 
         // Spin animation
         const s = document.createElement('style');

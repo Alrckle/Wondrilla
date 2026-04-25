@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Gospel Foundation | Spread the Word of God</title>
     <meta name="description" content="Join The Gospel Foundation in spreading the message of Jesus Christ to every nation. Your generous donation funds Bible distribution, missionary work, and church planting worldwide.">
+    <meta name="theme-color" content="#0c0804">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -43,7 +44,7 @@
                 <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#donate" class="btn btn-outline">Give Today</a></li>
             </ul>
-            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links" type="button">
                 <span></span><span></span><span></span>
             </button>
         </div>
@@ -97,20 +98,20 @@
 
                 <div class="custom-amount-wrapper hidden">
                     <span class="currency-symbol">$</span>
-                    <input type="number" id="custom-amount" class="custom-input" placeholder="0.00" min="1">
+                    <input type="number" id="custom-amount" class="custom-input" placeholder="0.00" min="1" inputmode="decimal" aria-label="Custom donation amount">
                 </div>
 
                 <div class="impact-hint" id="impact-hint">
                     <i data-lucide="heart"></i>
-                    <span id="impact-text">$25 provides 5 Bibles to unreached villages</span>
+                    <span id="impact-text" class="impact-hint-text" aria-live="polite">$25 provides 5 Bibles to unreached villages</span>
                 </div>
 
-                <div class="donation-summary">
+                <div class="donation-summary" aria-live="polite">
                     <span>Total Gift</span>
                     <span class="summary-amount">$25</span>
                 </div>
 
-                <button class="btn btn-primary lg" id="proceed-btn">
+                <button class="btn btn-primary lg" id="proceed-btn" type="button">
                     Give to the Kingdom
                     <i data-lucide="arrow-right"></i>
                 </button>
@@ -135,10 +136,10 @@
                         </div>
                         <span class="error-msg hidden" id="error-card">Please enter a valid card number.</span>
                     </div>
-                    <button class="btn btn-primary lg w-100" id="submit-donation">
+                    <button class="btn btn-primary lg w-100" id="submit-donation" type="button">
                         Complete $25 Gift
                     </button>
-                    <button class="btn btn-text w-100" id="back-to-amount">Back to amounts</button>
+                    <button class="btn btn-text w-100" id="back-to-amount" type="button">Back to amounts</button>
                 </div>
 
                 <div class="card-trust-badges">
