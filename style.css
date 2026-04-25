@@ -75,6 +75,7 @@ img { display: block; max-width: 100%; }
 .nav-container {
     max-width: 1200px; margin: 0 auto; padding: 0 2rem;
     display: flex; justify-content: space-between; align-items: center;
+    position: relative;
 }
 .logo {
     display: flex; align-items: center; gap: 0.6rem;
@@ -90,7 +91,8 @@ img { display: block; max-width: 100%; }
 /* Mobile Menu */
 .mobile-menu-btn {
     display: none; flex-direction: column; gap: 5px; background: none;
-    border: none; cursor: pointer; padding: 4px;
+    border: none; cursor: pointer; padding: 4px; position: relative; z-index: 102;
+    touch-action: manipulation;
 }
 .mobile-menu-btn span {
     width: 24px; height: 2px; background: var(--text-main);
@@ -396,7 +398,7 @@ cite { color: var(--secondary); font-style: normal; font-weight: 600; font-size:
     .gallery-large { grid-column: span 2; grid-row: span 1; }
 }
 @media (max-width: 768px) {
-    .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; background: rgba(12,8,4,0.97); padding: 1.5rem; gap: 1rem; border-bottom: 1px solid var(--border); }
+    .nav-links { display: none; position: absolute; top: calc(100% + 1px); left: 0; right: 0; flex-direction: column; background: rgba(12,8,4,0.97); padding: 1.5rem; gap: 1rem; border-bottom: 1px solid var(--border); z-index: 101; }
     .nav-links.open { display: flex; }
     .mobile-menu-btn { display: flex; }
     .hero-stats { flex-direction: column; gap: 1rem; }

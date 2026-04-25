@@ -38,10 +38,16 @@
                 menuBtn.setAttribute('aria-expanded', 'false');
             };
 
-            menuBtn.addEventListener('click', () => {
+            const toggleMenu = () => {
                 const isOpen = navLinks.classList.toggle('open');
                 menuBtn.setAttribute('aria-expanded', String(isOpen));
-            });
+            };
+
+            menuBtn.addEventListener('click', toggleMenu);
+            menuBtn.addEventListener('touchend', e => {
+                e.preventDefault();
+                toggleMenu();
+            }, { passive: false });
             navLinks.querySelectorAll('a').forEach(a =>
                 a.addEventListener('click', closeMenu)
             );
