@@ -1,0 +1,14 @@
+{
+  "name": "wondrilla-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A unified multi-model AI workspace prototype.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  }
+}

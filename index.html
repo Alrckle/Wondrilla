@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wondrilla brings leading AI models into one focused workspace.">
+    <meta name="theme-color" content="#f4f1ea">
+    <title>Wondrilla AI | Every mind, one workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar" id="sidebar" aria-label="Workspace navigation">
+            <div class="brand-row">
+                <a class="brand" href="#" aria-label="Wondrilla home">
+                    <span class="brand-mark" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </span>
+                    <span>Wondrilla</span>
+                </a>
+                <button class="icon-btn sidebar-close" id="sidebar-close" type="button" aria-label="Close navigation">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <button class="new-chat-btn" id="new-chat-btn" type="button">
+                <span class="plus">+</span>
+                New conversation
+                <span class="key-hint">Ctrl K</span>
+            </button>
+
+            <nav class="primary-nav" aria-label="Primary">
+                <button class="nav-item active" type="button" data-view="chat">
+                    <span class="nav-icon" aria-hidden="true">⌁</span>
+                    Chats
+                </button>
+                <button class="nav-item" type="button" data-view="compare">
+                    <span class="nav-icon" aria-hidden="true">◇</span>
+                    Compare
+                    <span class="nav-badge">New</span>
+                </button>
+                <button class="nav-item" type="button" data-view="library">
+                    <span class="nav-icon" aria-hidden="true">▱</span>
+                    Library
+                </button>
+            </nav>
+
+            <div class="history-block">
+                <div class="section-kicker">
+                    <span>Recent</span>
+                    <button class="text-icon-btn" type="button" aria-label="Search conversations">⌕</button>
+                </div>
+                <div class="history-list" id="history-list"></div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="usage-card">
+                    <div class="usage-card-top">
+                        <div>
+                            <span class="eyebrow">Free plan</span>
+                            <strong><span id="used-messages">7</span> of 20 messages</strong>
+                        </div>
+                        <span class="usage-percent" id="usage-percent">35%</span>
+                    </div>
+                    <div class="progress-track"><span id="usage-progress"></span></div>
+                    <button class="upgrade-link" id="upgrade-sidebar" type="button">Unlock every model →</button>
+                </div>
+                <button class="profile-row" type="button">
+                    <span class="avatar">SY</span>
+                    <span>
+                        <strong>Sanatan Yashayah</strong>
+                        <small>Personal workspace</small>
+                    </span>
+                    <span class="profile-menu" aria-hidden="true">•••</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <header class="topbar">
+                <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Open navigation">☰</button>
+
+                <button class="model-picker" id="model-picker" type="button" aria-haspopup="dialog">
+                    <span class="model-avatar selected-model-avatar" id="selected-model-avatar">W</span>
+                    <span>
+                        <small>Talking with</small>
+                        <strong id="selected-model-name">Wondrilla Auto</strong>
+                    </span>
+                    <span class="chevron" aria-hidden="true">⌄</span>
+                </button>
+
+                <div class="topbar-actions">
+                    <span class="demo-pill"><span></span> Demo mode</span>
+                    <button class="ghost-btn desktop-only" id="share-btn" type="button">Share</button>
+                    <button class="primary-btn compact" id="upgrade-top" type="button">Upgrade</button>
+                </div>
+            </header>
+
+            <section class="chat-view" id="chat-view">
+                <div class="conversation" id="conversation">
+                    <section class="welcome-state" id="welcome-state">
+                        <div class="welcome-orbit" aria-hidden="true">
+                            <span class="orbit-dot dot-one"></span>
+                            <span class="orbit-dot dot-two"></span>
+                            <span class="orbit-dot dot-three"></span>
+                            <span class="welcome-mark">
+                                <span></span><span></span><span></span>
+                            </span>
+                        </div>
+                        <p class="overline">ONE PROMPT. THE RIGHT INTELLIGENCE.</p>
+                        <h1>What are we making<br><em>possible today?</em></h1>
+                        <p class="welcome-copy">Ask once, choose the best mind for the job, or compare answers side by side.</p>
+
+                        <div class="prompt-grid">
+                            <button class="prompt-card" type="button" data-prompt="Build a focused launch plan for my new AI product">
+                                <span class="prompt-icon coral">↗</span>
+                                <span>
+                                    <strong>Shape an idea</strong>
+                                    <small>Turn a rough thought into a launch plan</small>
+                                </span>
+                            </button>
+                            <button class="prompt-card" type="button" data-prompt="Compare the strongest arguments for and against remote work">
+                                <span class="prompt-icon blue">≋</span>
+                                <span>
+                                    <strong>Compare perspectives</strong>
+                                    <small>See how different models reason</small>
+                                </span>
+                            </button>
+                            <button class="prompt-card" type="button" data-prompt="Write a warm, concise homepage for a creative studio">
+                                <span class="prompt-icon gold">✦</span>
+                                <span>
+                                    <strong>Create something</strong>
+                                    <small>Draft copy, code, stories, and more</small>
+                                </span>
+                            </button>
+                            <button class="prompt-card" type="button" data-prompt="Explain quantum computing like I am a curious teenager">
+                                <span class="prompt-icon green">?</span>
+                                <span>
+                                    <strong>Learn deeply</strong>
+                                    <small>Make a difficult subject feel clear</small>
+                                </span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <div class="messages" id="messages" aria-live="polite"></div>
+                </div>
+
+                <div class="composer-wrap">
+                    <form class="composer" id="composer">
+                        <textarea id="prompt-input" rows="1" placeholder="Message Wondrilla..." aria-label="Message Wondrilla"></textarea>
+                        <div class="composer-toolbar">
+                            <div class="composer-tools">
+                                <button class="tool-btn" type="button" id="attach-btn" aria-label="Attach a file">＋</button>
+                                <button class="mode-toggle" type="button" id="compare-toggle" aria-pressed="false">
+                                    <span class="toggle-icon">◇</span>
+                                    Compare
+                                </button>
+                                <button class="mode-toggle" type="button" id="web-toggle" aria-pressed="false">
+                                    <span class="toggle-icon">◎</span>
+                                    Web
+                                </button>
+                            </div>
+                            <button class="send-btn" id="send-btn" type="submit" aria-label="Send message">↑</button>
+                        </div>
+                    </form>
+                    <p class="composer-note">Wondrilla can make mistakes. Check important information.</p>
+                </div>
+            </section>
+
+            <section class="library-view hidden" id="library-view">
+                <div class="page-heading">
+                    <span class="overline">YOUR WORK</span>
+                    <h1>Everything worth keeping.</h1>
+                    <p>Saved prompts, answers, and shared conversations will live here.</p>
+                </div>
+                <div class="library-grid">
+                    <article class="library-card"><span>01</span><strong>Launch strategy template</strong><small>Prompt collection · 8 items</small></article>
+                    <article class="library-card"><span>02</span><strong>Writing voice guide</strong><small>Saved answer · Claude</small></article>
+                    <article class="library-card"><span>03</span><strong>Research workspace</strong><small>Shared chat · 14 messages</small></article>
+                </div>
+            </section>
+        </main>
+
+        <aside class="model-dock" aria-label="Available AI models">
+            <div class="dock-heading">
+                <span>Model dock</span>
+                <span class="live-indicator"><i></i> 7 online</span>
+            </div>
+            <div class="model-list" id="model-list"></div>
+            <button class="manage-models" id="manage-models" type="button">Manage models <span>→</span></button>
+
+            <div class="dock-insight">
+                <span class="insight-mark">W</span>
+                <p><strong>Auto picks for you.</strong> Wondrilla routes each prompt to the model best suited to the task.</p>
+            </div>
+        </aside>
+    </div>
+
+    <div class="scrim hidden" id="scrim"></div>
+
+    <div class="modal-shell hidden" id="model-modal" role="dialog" aria-modal="true" aria-labelledby="model-modal-title">
+        <div class="modal model-modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="overline">MODEL ROUTER</span>
+                    <h2 id="model-modal-title">Choose your intelligence</h2>
+                </div>
+                <button class="icon-btn modal-close" type="button" aria-label="Close model picker">&times;</button>
+            </div>
+            <p class="modal-lead">Use Auto for smart routing or choose a specific provider for complete control.</p>
+            <div class="modal-model-grid" id="modal-model-grid"></div>
+        </div>
+    </div>
+
+    <div class="modal-shell hidden" id="pricing-modal" role="dialog" aria-modal="true" aria-labelledby="pricing-title">
+        <div class="modal pricing-modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="overline">SIMPLE PRICING</span>
+                    <h2 id="pricing-title">One plan. Every leading model.</h2>
+                </div>
+                <button class="icon-btn modal-close" type="button" aria-label="Close pricing">&times;</button>
+            </div>
+            <div class="billing-toggle" aria-label="Billing interval">
+                <button class="active" type="button" data-billing="monthly">Monthly</button>
+                <button type="button" data-billing="yearly">Yearly <span>Save 20%</span></button>
+            </div>
+            <div class="pricing-grid">
+                <article class="price-card">
+                    <span class="plan-name">Free</span>
+                    <div class="price"><strong>$0</strong><span>/ month</span></div>
+                    <p>Explore Wondrilla and find your favorite models.</p>
+                    <ul>
+                        <li>20 messages each month</li>
+                        <li>Standard model access</li>
+                        <li>Conversation history</li>
+                    </ul>
+                    <button class="plan-btn secondary" type="button">Current plan</button>
+                </article>
+                <article class="price-card featured">
+                    <span class="popular-tag">MOST POPULAR</span>
+                    <span class="plan-name">Pro</span>
+                    <div class="price"><strong data-monthly="$24" data-yearly="$19">$24</strong><span>/ month</span></div>
+                    <p>Serious creative and knowledge work, all in one place.</p>
+                    <ul>
+                        <li>2,000 messages each month</li>
+                        <li>All premium models</li>
+                        <li>3-model comparison</li>
+                        <li>Web research and file uploads</li>
+                    </ul>
+                    <button class="plan-btn primary choose-plan" type="button" data-plan="Pro">Start Pro</button>
+                </article>
+                <article class="price-card">
+                    <span class="plan-name">Studio</span>
+                    <div class="price"><strong data-monthly="$79" data-yearly="$63">$79</strong><span>/ month</span></div>
+                    <p>Shared intelligence for fast-moving teams.</p>
+                    <ul>
+                        <li>10,000 pooled messages</li>
+                        <li>5 team seats included</li>
+                        <li>Shared prompt library</li>
+                        <li>Priority model routing</li>
+                    </ul>
+                    <button class="plan-btn dark choose-plan" type="button" data-plan="Studio">Choose Studio</button>
+                </article>
+            </div>
+            <p class="pricing-footnote">Provider names are trademarks of their respective owners. Model availability and usage limits may change.</p>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="script.js"></script>
+</body>
+</html>
