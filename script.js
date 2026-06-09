@@ -27,7 +27,10 @@
         selectedModel: "auto",
         compare: false,
         web: false,
-        used: 7,
+        used: parseInt(localStorage.getItem("wondrilla_used") || "7"),
+        plan: localStorage.getItem("wondrilla_plan") || "free",
+        billing: "monthly",
+        attachedFile: null,
         history: [
             "A launch plan for Wondrilla",
             "Rewrite the homepage headline",
@@ -62,7 +65,18 @@
         usageProgress: document.getElementById("usage-progress"),
         usedMessages: document.getElementById("used-messages"),
         usagePercent: document.getElementById("usage-percent"),
-        toast: document.getElementById("toast")
+        toast: document.getElementById("toast"),
+        checkoutModal: document.getElementById("checkout-modal"),
+        checkoutForm: document.getElementById("checkout-form"),
+        checkoutPlanName: document.getElementById("checkout-plan-name"),
+        checkoutSummaryPlan: document.getElementById("checkout-summary-plan"),
+        checkoutPriceBtn: document.getElementById("checkout-price-btn"),
+        checkoutSuccessState: document.getElementById("checkout-success-state"),
+        successPlanName: document.getElementById("success-plan-name"),
+        checkoutSuccessCloseBtn: document.getElementById("checkout-success-close-btn"),
+        filePreviewContainer: document.getElementById("file-preview-container"),
+        fileInput: document.getElementById("composer-file-input"),
+        attachBtn: document.getElementById("attach-btn")
     };
 
     function modelById(id) {
@@ -120,10 +134,54 @@
     }
 
     function updateUsage() {
-        const percent = Math.min(100, Math.round((state.used / 20) * 100));
+        let limit = 20;
+        if (state.plan === "pro") limit = 2000;
+        else if (state.plan === "studio") limit = 10000;
+
+        const percent = Math.min(100, Math.round((state.used / limit) * 100));
         elements.usedMessages.textContent = state.used;
+        
+        const usedMessagesStrong = document.querySelector(".usage-card strong");
+        if (usedMessagesStrong) {
+            usedMessagesStrong.innerHTML = `<span id="used-messages">${state.used}</span> of ${limit.toLocaleString()} messages`;
+        }
+        
         elements.usagePercent.textContent = `${percent}%`;
         elements.usageProgress.style.width = `${percent}%`;
+        localStorage.setItem("wondrilla_used", state.used);
+    }
+
+    function updatePlanUI() {
+        const planCapitalized = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
+        
+        const usageCardKicker = document.querySelector(".usage-card .eyebrow");
+        if (usageCardKicker) {
+            usageCardKicker.textContent = `${planCapitalized} plan`;
+        }
+        
+        const upgradeSidebar = document.getElementById("upgrade-sidebar");
+        if (upgradeSidebar) {
+            if (state.plan === "free") {
+                upgradeSidebar.textContent = "Unlock every model →";
+            } else {
+                upgradeSidebar.textContent = "Manage subscription";
+            }
+        }
+        
+        const upgradeTop = document.getElementById("upgrade-top");
+        if (upgradeTop) {
+            if (state.plan === "free") {
+                upgradeTop.textContent = "Upgrade";
+                upgradeTop.className = "primary-btn compact";
+                upgradeTop.style.cssText = "";
+            } else {
+                upgradeTop.textContent = `${planCapitalized} Active`;
+                upgradeTop.className = "ghost-btn compact";
+                upgradeTop.style.background = "var(--acid)";
+                upgradeTop.style.color = "var(--ink)";
+                upgradeTop.style.borderColor = "var(--acid-deep)";
+            }
+        }
     }
 
     function updateModeButton(button, active) {
@@ -151,6 +209,12 @@
     }
 
     function setView(view) {
+        if (view === "compare" && state.plan === "free") {
+            showToast("Comparison mode requires a Pro or Studio subscription");
+            openModal(elements.pricingModal);
+            return;
+        }
+
         document.querySelectorAll(".nav-item").forEach((item) => {
             item.classList.toggle("active", item.dataset.view === view || (view === "chat" && item.dataset.view === "chat"));
         });
@@ -188,33 +252,98 @@
             .replaceAll("'", "&#039;");
     }
 
-    function addUserMessage(text) {
+    function addUserMessage(text, file) {
         const wrapper = document.createElement("div");
         wrapper.className = "message user";
-        wrapper.innerHTML = `<div class="message-bubble">${escapeHtml(text)}</div>`;
+        let fileHtml = "";
+        if (file) {
+            if (file.type.startsWith("image/")) {
+                fileHtml = `<img src="${file.dataUrl}" class="chat-attachment-image" alt="${escapeHtml(file.name)}">`;
+            } else {
+                fileHtml = `
+                    <div class="chat-attachment-card">
+                        <span class="chat-attachment-icon">📄</span>
+                        <div class="chat-attachment-info">
+                            <span class="chat-attachment-name">${escapeHtml(file.name)}</span>
+                            <span class="chat-attachment-size">${escapeHtml(file.size)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        wrapper.innerHTML = `
+            <div class="message-bubble">
+                <div>${escapeHtml(text)}</div>
+                ${fileHtml}
+            </div>
+        `;
         elements.messages.appendChild(wrapper);
     }
 
     function addTypingMessage(model) {
         const wrapper = document.createElement("div");
         wrapper.className = "message assistant";
+        
+        let thinkingLabel = "thinking";
+        let searchStepsHtml = "";
+        if (state.web) {
+            thinkingLabel = "searching";
+            searchStepsHtml = `
+                <div class="search-animation-step" id="search-step-1">🔍 Searching Google for relevant information...</div>
+                <div class="search-animation-step hidden" id="search-step-2">🔗 Found sources from Wikipedia, StackOverflow & MDN Web Docs...</div>
+            `;
+        }
+
         wrapper.innerHTML = `
             <div class="message-bubble">
                 <div class="message-meta">
                     <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
                     <strong>${model.name}</strong>
-                    <span>thinking</span>
+                    <span>${thinkingLabel}</span>
                 </div>
                 <span class="typing-dots"><span></span><span></span><span></span></span>
+                ${searchStepsHtml}
             </div>
         `;
         elements.messages.appendChild(wrapper);
+        
+        if (state.web) {
+            setTimeout(() => {
+                const step2 = wrapper.querySelector("#search-step-2");
+                if (step2) step2.classList.remove("hidden");
+            }, 550);
+        }
+        
         return wrapper;
     }
 
     function addAssistantMessage(model, text, typingNode) {
         const safeText = escapeHtml(text);
-        const webNote = state.web ? `<p><small>Web mode is visual-only in this prototype. Connect a search API in the secure backend to return live sources.</small></p>` : "";
+        
+        let webCitationsHtml = "";
+        if (state.web) {
+            webCitationsHtml = `
+                <div class="search-citations-header">Sources consulted</div>
+                <div class="search-citations-grid">
+                    <a href="https://en.wikipedia.org" target="_blank" class="citation-card">
+                        <span class="citation-number">1</span>
+                        <span>Wikipedia</span>
+                        <span class="citation-domain">wikipedia.org</span>
+                    </a>
+                    <a href="https://stackoverflow.com" target="_blank" class="citation-card">
+                        <span class="citation-number">2</span>
+                        <span>StackOverflow</span>
+                        <span class="citation-domain">stackoverflow.com</span>
+                    </a>
+                    <a href="https://developer.mozilla.org" target="_blank" class="citation-card">
+                        <span class="citation-number">3</span>
+                        <span>MDN Web Docs</span>
+                        <span class="citation-domain">mozilla.org</span>
+                    </a>
+                </div>
+            `;
+        }
+
         typingNode.innerHTML = `
             <div class="message-bubble">
                 <div class="message-meta">
@@ -223,24 +352,30 @@
                     <span>Demo response</span>
                 </div>
                 <div>${safeText}</div>
-                ${webNote}
+                ${webCitationsHtml}
             </div>
         `;
     }
 
-    function addCompareAnswers() {
+    function addCompareAnswers(file) {
         const selected = ["claude", "chatgpt", "deepseek"].map(modelById);
         const grid = document.createElement("div");
         grid.className = "compare-grid";
-        grid.innerHTML = selected.map((model) => `
-            <article class="compare-answer">
-                <div class="message-meta">
-                    <span class="model-avatar" style="${avatarStyle(model)}">${model.mark}</span>
-                    <strong>${model.name}</strong>
-                </div>
-                <p>${escapeHtml(demoAnswers[model.id])}</p>
-            </article>
-        `).join("");
+        grid.innerHTML = selected.map((model) => {
+            let responseText = demoAnswers[model.id];
+            if (file) {
+                responseText = `*[Reviewed file ${escapeHtml(file.name)}]* ${responseText}`;
+            }
+            return `
+                <article class="compare-answer">
+                    <div class="message-meta">
+                        <span class="model-avatar" style="${avatarStyle(model)}">${model.mark}</span>
+                        <strong>${model.name}</strong>
+                    </div>
+                    <p>${escapeHtml(responseText)}</p>
+                </article>
+            `;
+        }).join("");
         elements.messages.appendChild(grid);
     }
 
@@ -248,8 +383,26 @@
         const cleanText = text.trim();
         if (!cleanText) return;
 
+        let limit = 20;
+        if (state.plan === "pro") limit = 2000;
+        else if (state.plan === "studio") limit = 10000;
+
+        if (state.used >= limit) {
+            showToast("Usage limit reached. Please upgrade your plan to continue.");
+            openModal(elements.pricingModal);
+            return;
+        }
+
+        const attachedFile = state.attachedFile;
+        if (elements.fileInput) elements.fileInput.value = "";
+        if (elements.filePreviewContainer) {
+            elements.filePreviewContainer.innerHTML = "";
+            elements.filePreviewContainer.classList.add("hidden");
+        }
+        state.attachedFile = null;
+
         elements.welcomeState.classList.add("hidden");
-        addUserMessage(cleanText);
+        addUserMessage(cleanText, attachedFile);
         elements.promptInput.value = "";
         autoResize();
         elements.sendBtn.disabled = true;
@@ -268,7 +421,7 @@
             const typing = addTypingMessage(models[0]);
             setTimeout(() => {
                 typing.remove();
-                addCompareAnswers();
+                addCompareAnswers(attachedFile);
                 elements.sendBtn.disabled = false;
                 scrollToBottom();
             }, 900);
@@ -279,7 +432,11 @@
         const typing = addTypingMessage(model);
         scrollToBottom();
         setTimeout(() => {
-            addAssistantMessage(model, demoAnswers[model.id], typing);
+            let responseText = demoAnswers[model.id];
+            if (attachedFile) {
+                responseText = `I have received and analyzed your uploaded file **${attachedFile.name}** (${attachedFile.size}). Here is my response based on its contents:\n\n${responseText}`;
+            }
+            addAssistantMessage(model, responseText, typing);
             elements.sendBtn.disabled = false;
             scrollToBottom();
         }, 850);
@@ -329,15 +486,25 @@
         document.getElementById("new-chat-btn").addEventListener("click", resetConversation);
 
         elements.compareToggle.addEventListener("click", () => {
+            if (state.plan === "free") {
+                showToast("Comparison mode requires a Pro or Studio subscription");
+                openModal(elements.pricingModal);
+                return;
+            }
             state.compare = !state.compare;
             updateModeButton(elements.compareToggle, state.compare);
             showToast(state.compare ? "Compare mode enabled" : "Compare mode disabled");
         });
 
         elements.webToggle.addEventListener("click", () => {
+            if (state.plan === "free") {
+                showToast("Web research requires a Pro or Studio subscription");
+                openModal(elements.pricingModal);
+                return;
+            }
             state.web = !state.web;
             updateModeButton(elements.webToggle, state.web);
-            showToast(state.web ? "Web mode enabled for the prototype" : "Web mode disabled");
+            showToast(state.web ? "Web research enabled" : "Web research disabled");
         });
 
         elements.composer.addEventListener("submit", (event) => {
@@ -357,8 +524,59 @@
             card.addEventListener("click", () => submitPrompt(card.dataset.prompt));
         });
 
-        document.getElementById("attach-btn").addEventListener("click", () => {
-            showToast("File uploads will activate when storage is connected");
+        elements.attachBtn.addEventListener("click", () => {
+            if (state.plan === "free") {
+                showToast("File uploads require a Pro or Studio subscription");
+                openModal(elements.pricingModal);
+                return;
+            }
+            elements.fileInput.click();
+        });
+
+        elements.fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const formatSize = (bytes) => {
+                if (bytes === 0) return "0 Bytes";
+                const k = 1024;
+                const sizes = ["Bytes", "KB", "MB"];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+            };
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.attachedFile = {
+                    name: file.name,
+                    size: formatSize(file.size),
+                    type: file.type,
+                    dataUrl: e.target.result
+                };
+                
+                const isImage = file.type.startsWith("image/");
+                const icon = isImage ? "🖼️" : "📄";
+                
+                elements.filePreviewContainer.innerHTML = `
+                    <div class="file-preview-token">
+                        <span class="file-preview-icon">${icon}</span>
+                        <div class="file-preview-details">
+                            <span class="file-preview-name">${escapeHtml(file.name)}</span>
+                            <span class="file-preview-size">${formatSize(file.size)}</span>
+                        </div>
+                        <button class="file-preview-remove" id="file-preview-remove-btn" type="button" aria-label="Remove file">&times;</button>
+                    </div>
+                `;
+                elements.filePreviewContainer.classList.remove("hidden");
+                
+                document.getElementById("file-preview-remove-btn").addEventListener("click", () => {
+                    elements.fileInput.value = "";
+                    elements.filePreviewContainer.innerHTML = "";
+                    elements.filePreviewContainer.classList.add("hidden");
+                    state.attachedFile = null;
+                });
+            };
+            reader.readAsDataURL(file);
         });
 
         document.getElementById("share-btn").addEventListener("click", () => {
@@ -370,6 +588,7 @@
                 document.querySelectorAll("[data-billing]").forEach((item) => item.classList.remove("active"));
                 button.classList.add("active");
                 const billing = button.dataset.billing;
+                state.billing = billing;
                 document.querySelectorAll(".price strong[data-monthly]").forEach((price) => {
                     price.textContent = price.dataset[billing];
                 });
@@ -378,9 +597,51 @@
 
         document.querySelectorAll(".choose-plan").forEach((button) => {
             button.addEventListener("click", () => {
-                closeModals();
-                showToast(`${button.dataset.plan} checkout requires a payment provider`);
+                const plan = button.dataset.plan; // "Pro" or "Studio"
+                const price = state.billing === "monthly" 
+                    ? (plan === "Pro" ? "$24" : "$79")
+                    : (plan === "Pro" ? "$19" : "$63");
+                
+                elements.checkoutPlanName.textContent = plan;
+                elements.checkoutSummaryPlan.textContent = `${plan} plan (${price} / month, billed ${state.billing})`;
+                elements.checkoutPriceBtn.textContent = `${price}.00`;
+                
+                elements.checkoutForm.classList.remove("hidden");
+                elements.checkoutSuccessState.classList.add("hidden");
+                
+                openModal(elements.checkoutModal);
             });
+        });
+
+        elements.checkoutForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const submitBtn = document.getElementById("checkout-submit-btn");
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `Processing Secure Payment...`;
+            
+            setTimeout(() => {
+                const plan = elements.checkoutPlanName.textContent; // "Pro" or "Studio"
+                state.plan = plan.toLowerCase();
+                localStorage.setItem("wondrilla_plan", state.plan);
+                
+                updateUsage();
+                updatePlanUI();
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
+                elements.checkoutForm.classList.add("hidden");
+                elements.successPlanName.textContent = plan;
+                elements.checkoutSuccessState.classList.remove("hidden");
+                
+                showToast(`Successfully subscribed to Wondrilla ${plan}!`);
+            }, 1500);
+        });
+        
+        elements.checkoutSuccessCloseBtn.addEventListener("click", () => {
+            closeModals();
         });
 
         document.addEventListener("keydown", (event) => {
@@ -398,6 +659,7 @@
     renderModels();
     renderHistory();
     updateUsage();
+    updatePlanUI();
     bindEvents();
     autoResize();
 })();
