@@ -4,9 +4,10 @@
   "private": true,
   "description": "A unified multi-model AI workspace prototype.",
   "scripts": {
-    "dev": "vite",
+    "dev": "node server.mjs",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "node server.mjs",
+    "check": "node --check server.mjs && node --check script.js"
   },
   "devDependencies": {
     "vite": "^5.2.0"

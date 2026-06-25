@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%231f211d%22/%3E%3Ctext x=%2250%22 y=%2266%22 text-anchor=%22middle%22 font-size=%2258%22 font-family=%22Arial%22 fill=%22%23d9ff43%22%3EW%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,16 +35,16 @@
 
             <nav class="primary-nav" aria-label="Primary">
                 <button class="nav-item active" type="button" data-view="chat">
-                    <span class="nav-icon" aria-hidden="true">⌁</span>
+                    <span class="nav-icon" aria-hidden="true">C</span>
                     Chats
                 </button>
                 <button class="nav-item" type="button" data-view="compare">
-                    <span class="nav-icon" aria-hidden="true">◇</span>
+                    <span class="nav-icon" aria-hidden="true">X</span>
                     Compare
                     <span class="nav-badge">New</span>
                 </button>
                 <button class="nav-item" type="button" data-view="library">
-                    <span class="nav-icon" aria-hidden="true">▱</span>
+                    <span class="nav-icon" aria-hidden="true">L</span>
                     Library
                 </button>
             </nav>
@@ -52,7 +52,7 @@
             <div class="history-block">
                 <div class="section-kicker">
                     <span>Recent</span>
-                    <button class="text-icon-btn" type="button" aria-label="Search conversations">⌕</button>
+                    <button class="text-icon-btn" type="button" aria-label="Search conversations">?</button>
                 </div>
                 <div class="history-list" id="history-list"></div>
             </div>
@@ -67,7 +67,7 @@
                         <span class="usage-percent" id="usage-percent">35%</span>
                     </div>
                     <div class="progress-track"><span id="usage-progress"></span></div>
-                    <button class="upgrade-link" id="upgrade-sidebar" type="button">Unlock every model →</button>
+                    <button class="upgrade-link" id="upgrade-sidebar" type="button">Unlock every model -&gt;</button>
                 </div>
                 <button class="profile-row" type="button">
                     <span class="avatar">SY</span>
@@ -75,14 +75,14 @@
                         <strong>Sanatan Yashayah</strong>
                         <small>Personal workspace</small>
                     </span>
-                    <span class="profile-menu" aria-hidden="true">•••</span>
+                    <span class="profile-menu" aria-hidden="true">...</span>
                 </button>
             </div>
         </aside>
 
         <main class="workspace">
             <header class="topbar">
-                <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Open navigation">☰</button>
+                <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-label="Open navigation">Menu</button>
 
                 <button class="model-picker" id="model-picker" type="button" aria-haspopup="dialog">
                     <span class="model-avatar selected-model-avatar" id="selected-model-avatar">W</span>
@@ -90,11 +90,11 @@
                         <small>Talking with</small>
                         <strong id="selected-model-name">Wondrilla Auto</strong>
                     </span>
-                    <span class="chevron" aria-hidden="true">⌄</span>
+                    <span class="chevron" aria-hidden="true">v</span>
                 </button>
 
                 <div class="topbar-actions">
-                    <span class="demo-pill"><span></span> Demo mode</span>
+                    <span class="demo-pill demo" id="runtime-pill"><span></span> Checking API</span>
                     <button class="ghost-btn desktop-only" id="share-btn" type="button">Share</button>
                     <button class="primary-btn compact" id="upgrade-top" type="button">Upgrade</button>
                 </div>
@@ -117,21 +117,21 @@
 
                         <div class="prompt-grid">
                             <button class="prompt-card" type="button" data-prompt="Build a focused launch plan for my new AI product">
-                                <span class="prompt-icon coral">↗</span>
+                                <span class="prompt-icon coral">Go</span>
                                 <span>
                                     <strong>Shape an idea</strong>
                                     <small>Turn a rough thought into a launch plan</small>
                                 </span>
                             </button>
                             <button class="prompt-card" type="button" data-prompt="Compare the strongest arguments for and against remote work">
-                                <span class="prompt-icon blue">≋</span>
+                                <span class="prompt-icon blue">=</span>
                                 <span>
                                     <strong>Compare perspectives</strong>
                                     <small>See how different models reason</small>
                                 </span>
                             </button>
                             <button class="prompt-card" type="button" data-prompt="Write a warm, concise homepage for a creative studio">
-                                <span class="prompt-icon gold">✦</span>
+                                <span class="prompt-icon gold">*</span>
                                 <span>
                                     <strong>Create something</strong>
                                     <small>Draft copy, code, stories, and more</small>
@@ -157,17 +157,17 @@
                         <textarea id="prompt-input" rows="1" placeholder="Message Wondrilla..." aria-label="Message Wondrilla"></textarea>
                         <div class="composer-toolbar">
                             <div class="composer-tools">
-                                <button class="tool-btn" type="button" id="attach-btn" aria-label="Attach a file">＋</button>
+                                <button class="tool-btn" type="button" id="attach-btn" aria-label="Attach a file">+</button>
                                 <button class="mode-toggle" type="button" id="compare-toggle" aria-pressed="false">
-                                    <span class="toggle-icon">◇</span>
+                                    <span class="toggle-icon">C</span>
                                     Compare
                                 </button>
                                 <button class="mode-toggle" type="button" id="web-toggle" aria-pressed="false">
-                                    <span class="toggle-icon">◎</span>
+                                    <span class="toggle-icon">W</span>
                                     Web
                                 </button>
                             </div>
-                            <button class="send-btn" id="send-btn" type="submit" aria-label="Send message">↑</button>
+                            <button class="send-btn" id="send-btn" type="submit" aria-label="Send message">^</button>
                         </div>
                     </form>
                     <p class="composer-note">Wondrilla can make mistakes. Check important information.</p>
@@ -181,9 +181,9 @@
                     <p>Saved prompts, answers, and shared conversations will live here.</p>
                 </div>
                 <div class="library-grid">
-                    <article class="library-card"><span>01</span><strong>Launch strategy template</strong><small>Prompt collection · 8 items</small></article>
-                    <article class="library-card"><span>02</span><strong>Writing voice guide</strong><small>Saved answer · Claude</small></article>
-                    <article class="library-card"><span>03</span><strong>Research workspace</strong><small>Shared chat · 14 messages</small></article>
+                    <article class="library-card"><span>01</span><strong>Launch strategy template</strong><small>Prompt collection - 8 items</small></article>
+                    <article class="library-card"><span>02</span><strong>Writing voice guide</strong><small>Saved answer - Claude</small></article>
+                    <article class="library-card"><span>03</span><strong>Research workspace</strong><small>Shared chat - 14 messages</small></article>
                 </div>
             </section>
         </main>
@@ -191,10 +191,10 @@
         <aside class="model-dock" aria-label="Available AI models">
             <div class="dock-heading">
                 <span>Model dock</span>
-                <span class="live-indicator"><i></i> 7 online</span>
+                <span class="live-indicator demo"><i></i> Checking</span>
             </div>
             <div class="model-list" id="model-list"></div>
-            <button class="manage-models" id="manage-models" type="button">Manage models <span>→</span></button>
+            <button class="manage-models" id="manage-models" type="button">Manage models <span>-&gt;</span></button>
 
             <div class="dock-insight">
                 <span class="insight-mark">W</span>
@@ -272,6 +272,7 @@
             </div>
             <p class="pricing-footnote">Provider names are trademarks of their respective owners. Model availability and usage limits may change.</p>
         </div>
+    </div>
     <div class="modal-shell hidden" id="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
         <div class="modal checkout-modal-card">
             <div class="modal-header">
@@ -303,7 +304,7 @@
                         <label for="checkout-card-number">Card Number</label>
                         <div class="card-input-wrap">
                             <input type="text" id="checkout-card-number" required placeholder="4242 4242 4242 4242" maxlength="19">
-                            <span class="card-brand-icon">💳</span>
+                            <span class="card-brand-icon">Card</span>
                         </div>
                     </div>
                 </div>
@@ -320,7 +321,7 @@
                 </div>
 
                 <div class="checkout-security-note">
-                    <span>🔒 Secured by Stripe. Payments are encrypted and processed safely.</span>
+                    <span>Demo checkout only. Connect Stripe before accepting real payments.</span>
                 </div>
 
                 <button class="checkout-submit-btn" id="checkout-submit-btn" type="submit">
@@ -329,7 +330,7 @@
             </form>
             
             <div class="checkout-success-state hidden" id="checkout-success-state">
-                <div class="success-icon">✓</div>
+                <div class="success-icon">&check;</div>
                 <h3>Subscription Activated!</h3>
                 <p>Welcome to Wondrilla <span id="success-plan-name">Pro</span>. Your upgraded limits and premium features are now active.</p>
                 <button class="checkout-success-close-btn" type="button" id="checkout-success-close-btn">Start creating</button>
@@ -338,6 +339,6 @@
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

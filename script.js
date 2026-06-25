@@ -6,7 +6,7 @@
         { id: "chatgpt", name: "ChatGPT", maker: "OpenAI", mark: "O", color: "#dcebe3", text: "#275b45" },
         { id: "claude", name: "Claude", maker: "Anthropic", mark: "A", color: "#eadfd2", text: "#8a5436" },
         { id: "grok", name: "Grok", maker: "xAI", mark: "X", color: "#dedede", text: "#222222" },
-        { id: "meta", name: "Meta AI", maker: "Meta", mark: "M", color: "#dfe7f8", text: "#315da8" },
+        { id: "meta", name: "Meta AI", maker: "Meta via OpenRouter", mark: "M", color: "#dfe7f8", text: "#315da8" },
         { id: "kimi", name: "Kimi", maker: "Moonshot AI", mark: "K", color: "#e6e3f4", text: "#6553a0" },
         { id: "zai", name: "Z.ai", maker: "Zhipu AI", mark: "Z", color: "#dce8ef", text: "#32647c" },
         { id: "deepseek", name: "DeepSeek", maker: "DeepSeek", mark: "D", color: "#dce6f6", text: "#345b9d" }
@@ -27,10 +27,12 @@
         selectedModel: "auto",
         compare: false,
         web: false,
-        used: parseInt(localStorage.getItem("wondrilla_used") || "7"),
+        used: Number.parseInt(localStorage.getItem("wondrilla_used") || "7", 10),
         plan: localStorage.getItem("wondrilla_plan") || "free",
         billing: "monthly",
         attachedFile: null,
+        gatewayOnline: false,
+        providerStatus: new Map(),
         history: [
             "A launch plan for Wondrilla",
             "Rewrite the homepage headline",
@@ -76,9 +78,10 @@
         checkoutSuccessCloseBtn: document.getElementById("checkout-success-close-btn"),
         filePreviewContainer: document.getElementById("file-preview-container"),
         fileInput: document.getElementById("composer-file-input"),
-        attachBtn: document.getElementById("attach-btn")
+        attachBtn: document.getElementById("attach-btn"),
+        runtimePill: document.getElementById("runtime-pill"),
+        liveIndicator: document.querySelector(".live-indicator")
     };
-
     function modelById(id) {
         return models.find((model) => model.id === id) || models[0];
     }
@@ -87,27 +90,55 @@
         return `background:${model.color};color:${model.text}`;
     }
 
-    function renderModels() {
-        elements.modelList.innerHTML = models.map((model) => `
-            <button class="model-row ${model.id === state.selectedModel ? "active" : ""}" type="button" data-model="${model.id}">
-                <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
-                <span class="model-copy">
-                    <strong>${model.name}</strong>
-                    <small>${model.maker}</small>
-                </span>
-                <span class="model-status" title="Available"></span>
-            </button>
-        `).join("");
+    function modelStatus(id) {
+        return state.providerStatus.get(id);
+    }
 
-        elements.modalModelGrid.innerHTML = models.map((model) => `
-            <button class="modal-model-option ${model.id === state.selectedModel ? "active" : ""}" type="button" data-model="${model.id}">
-                <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
-                <span>
-                    <strong>${model.name}</strong>
-                    <small>${model.id === "auto" ? "Automatically route every prompt" : `${model.maker} · Available on Pro`}</small>
-                </span>
-            </button>
-        `).join("");
+    function isModelLive(id) {
+        if (id === "auto") {
+            return Array.from(state.providerStatus.values()).some((provider) => provider.configured);
+        }
+
+        return Boolean(modelStatus(id)?.configured);
+    }
+
+    function renderModels() {
+        elements.modelList.innerHTML = models.map((model) => {
+            const configured = isModelLive(model.id);
+            const statusLabel = configured ? "Live API ready" : "Demo fallback";
+            const detail = model.id === "auto"
+                ? (configured ? "Routes to configured APIs" : "Routes to demo answers")
+                : `${model.maker} - ${statusLabel}`;
+
+            return `
+                <button class="model-row ${model.id === state.selectedModel ? "active" : ""}" type="button" data-model="${model.id}">
+                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                    <span class="model-copy">
+                        <strong>${model.name}</strong>
+                        <small>${escapeHtml(detail)}</small>
+                    </span>
+                    <span class="model-status ${configured ? "live" : "demo"}" title="${statusLabel}"></span>
+                </button>
+            `;
+        }).join("");
+
+        elements.modalModelGrid.innerHTML = models.map((model) => {
+            const configured = isModelLive(model.id);
+            const provider = modelStatus(model.id);
+            const detail = model.id === "auto"
+                ? "Automatically route every prompt"
+                : `${model.maker} - ${configured ? provider?.model || "configured" : "add API key for live mode"}`;
+
+            return `
+                <button class="modal-model-option ${model.id === state.selectedModel ? "active" : ""}" type="button" data-model="${model.id}">
+                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                    <span>
+                        <strong>${model.name}</strong>
+                        <small>${escapeHtml(detail)}</small>
+                    </span>
+                </button>
+            `;
+        }).join("");
 
         document.querySelectorAll("[data-model]").forEach((button) => {
             button.addEventListener("click", () => selectModel(button.dataset.model));
@@ -134,41 +165,40 @@
     }
 
     function updateUsage() {
-        let limit = 20;
-        if (state.plan === "pro") limit = 2000;
-        else if (state.plan === "studio") limit = 10000;
-
+        const limit = planLimit();
         const percent = Math.min(100, Math.round((state.used / limit) * 100));
-        elements.usedMessages.textContent = state.used;
-        
         const usedMessagesStrong = document.querySelector(".usage-card strong");
+
         if (usedMessagesStrong) {
             usedMessagesStrong.innerHTML = `<span id="used-messages">${state.used}</span> of ${limit.toLocaleString()} messages`;
         }
-        
+
+        elements.usedMessages = document.getElementById("used-messages");
         elements.usagePercent.textContent = `${percent}%`;
         elements.usageProgress.style.width = `${percent}%`;
         localStorage.setItem("wondrilla_used", state.used);
     }
 
+    function planLimit() {
+        if (state.plan === "pro") return 2000;
+        if (state.plan === "studio") return 10000;
+        return 20;
+    }
+
     function updatePlanUI() {
         const planCapitalized = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
-        
         const usageCardKicker = document.querySelector(".usage-card .eyebrow");
+        const upgradeSidebar = document.getElementById("upgrade-sidebar");
+        const upgradeTop = document.getElementById("upgrade-top");
+
         if (usageCardKicker) {
             usageCardKicker.textContent = `${planCapitalized} plan`;
         }
-        
-        const upgradeSidebar = document.getElementById("upgrade-sidebar");
+
         if (upgradeSidebar) {
-            if (state.plan === "free") {
-                upgradeSidebar.textContent = "Unlock every model →";
-            } else {
-                upgradeSidebar.textContent = "Manage subscription";
-            }
+            upgradeSidebar.textContent = state.plan === "free" ? "Unlock every model ->" : "Manage subscription";
         }
-        
-        const upgradeTop = document.getElementById("upgrade-top");
+
         if (upgradeTop) {
             if (state.plan === "free") {
                 upgradeTop.textContent = "Upgrade";
@@ -181,6 +211,42 @@
                 upgradeTop.style.color = "var(--ink)";
                 upgradeTop.style.borderColor = "var(--acid-deep)";
             }
+        }
+    }
+
+    async function loadRuntimeStatus() {
+        try {
+            const [health, modelsResponse] = await Promise.all([
+                fetchJson("/api/health"),
+                fetchJson("/api/models")
+            ]);
+
+            state.gatewayOnline = Boolean(health.ok);
+            state.providerStatus = new Map((modelsResponse.models || []).map((provider) => [provider.id, provider]));
+            updateRuntimePill(health);
+            renderModels();
+        } catch {
+            state.gatewayOnline = false;
+            state.providerStatus = new Map();
+            updateRuntimePill({ mode: "browser-demo", configuredProviders: [] });
+            renderModels();
+        }
+    }
+
+    function updateRuntimePill(health) {
+        const configuredCount = health.configuredProviders?.length || 0;
+        const liveReady = configuredCount > 0;
+
+        if (elements.runtimePill) {
+            elements.runtimePill.classList.toggle("live", liveReady);
+            elements.runtimePill.classList.toggle("demo", !liveReady);
+            elements.runtimePill.innerHTML = `<span></span> ${liveReady ? `${configuredCount} API ready` : "Demo gateway"}`;
+        }
+
+        if (elements.liveIndicator) {
+            elements.liveIndicator.classList.toggle("live", liveReady);
+            elements.liveIndicator.classList.toggle("demo", !liveReady);
+            elements.liveIndicator.innerHTML = `<i></i> ${liveReady ? `${configuredCount} API ready` : "Demo ready"}`;
         }
     }
 
@@ -200,6 +266,7 @@
         elements.scrim.classList.add("hidden");
         elements.modelModal.classList.add("hidden");
         elements.pricingModal.classList.add("hidden");
+        elements.checkoutModal.classList.add("hidden");
         document.body.style.overflow = "";
     }
 
@@ -252,17 +319,21 @@
             .replaceAll("'", "&#039;");
     }
 
+    function formatText(value) {
+        return escapeHtml(value).replace(/\n/g, "<br>");
+    }
     function addUserMessage(text, file) {
         const wrapper = document.createElement("div");
         wrapper.className = "message user";
         let fileHtml = "";
+
         if (file) {
             if (file.type.startsWith("image/")) {
                 fileHtml = `<img src="${file.dataUrl}" class="chat-attachment-image" alt="${escapeHtml(file.name)}">`;
             } else {
                 fileHtml = `
                     <div class="chat-attachment-card">
-                        <span class="chat-attachment-icon">📄</span>
+                        <span class="chat-attachment-icon">File</span>
                         <div class="chat-attachment-info">
                             <span class="chat-attachment-name">${escapeHtml(file.name)}</span>
                             <span class="chat-attachment-size">${escapeHtml(file.size)}</span>
@@ -271,9 +342,10 @@
                 `;
             }
         }
+
         wrapper.innerHTML = `
             <div class="message-bubble">
-                <div>${escapeHtml(text)}</div>
+                <div>${formatText(text)}</div>
                 ${fileHtml}
             </div>
         `;
@@ -283,14 +355,14 @@
     function addTypingMessage(model) {
         const wrapper = document.createElement("div");
         wrapper.className = "message assistant";
-        
         let thinkingLabel = "thinking";
         let searchStepsHtml = "";
+
         if (state.web) {
-            thinkingLabel = "searching";
+            thinkingLabel = "preparing search context";
             searchStepsHtml = `
-                <div class="search-animation-step" id="search-step-1">🔍 Searching Google for relevant information...</div>
-                <div class="search-animation-step hidden" id="search-step-2">🔗 Found sources from Wikipedia, StackOverflow & MDN Web Docs...</div>
+                <div class="search-animation-step" id="search-step-1">Checking the web-research connector...</div>
+                <div class="search-animation-step hidden" id="search-step-2">A server search API is required for live citations.</div>
             `;
         }
 
@@ -306,40 +378,30 @@
             </div>
         `;
         elements.messages.appendChild(wrapper);
-        
+
         if (state.web) {
             setTimeout(() => {
                 const step2 = wrapper.querySelector("#search-step-2");
                 if (step2) step2.classList.remove("hidden");
             }, 550);
         }
-        
+
         return wrapper;
     }
 
-    function addAssistantMessage(model, text, typingNode) {
-        const safeText = escapeHtml(text);
-        
+    function addAssistantMessage(model, text, typingNode, result) {
+        const status = result?.mode === "live" ? "Live API" : (result?.provider ? "Demo gateway" : "Local demo");
+        const statusClass = result?.mode === "live" ? "live" : "demo";
         let webCitationsHtml = "";
+
         if (state.web) {
             webCitationsHtml = `
-                <div class="search-citations-header">Sources consulted</div>
+                <div class="search-citations-header">Web mode</div>
                 <div class="search-citations-grid">
-                    <a href="https://en.wikipedia.org" target="_blank" class="citation-card">
-                        <span class="citation-number">1</span>
-                        <span>Wikipedia</span>
-                        <span class="citation-domain">wikipedia.org</span>
-                    </a>
-                    <a href="https://stackoverflow.com" target="_blank" class="citation-card">
-                        <span class="citation-number">2</span>
-                        <span>StackOverflow</span>
-                        <span class="citation-domain">stackoverflow.com</span>
-                    </a>
-                    <a href="https://developer.mozilla.org" target="_blank" class="citation-card">
-                        <span class="citation-number">3</span>
-                        <span>MDN Web Docs</span>
-                        <span class="citation-domain">mozilla.org</span>
-                    </a>
+                    <span class="citation-card">
+                        <span class="citation-number">i</span>
+                        <span>Connect Brave, Tavily, or Google Search on the backend for live citations.</span>
+                    </span>
                 </div>
             `;
         }
@@ -349,44 +411,51 @@
                 <div class="message-meta">
                     <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
                     <strong>${model.name}</strong>
-                    <span>Demo response</span>
+                    <span class="response-status ${statusClass}">${status}</span>
                 </div>
-                <div>${safeText}</div>
+                <div>${formatText(text)}</div>
                 ${webCitationsHtml}
             </div>
         `;
     }
 
-    function addCompareAnswers(file) {
-        const selected = ["claude", "chatgpt", "deepseek"].map(modelById);
+    function addCompareAnswers(answers, file) {
+        const selected = answers?.length
+            ? answers
+            : ["claude", "chatgpt", "deepseek"].map((id) => ({
+                modelId: id,
+                mode: "demo",
+                provider: modelById(id).name,
+                text: demoAnswers[id]
+            }));
+
         const grid = document.createElement("div");
         grid.className = "compare-grid";
-        grid.innerHTML = selected.map((model) => {
-            let responseText = demoAnswers[model.id];
-            if (file) {
-                responseText = `*[Reviewed file ${escapeHtml(file.name)}]* ${responseText}`;
-            }
+        grid.innerHTML = selected.map((answer) => {
+            const model = modelById(answer.modelId);
+            const statusClass = answer.mode === "live" ? "live" : "demo";
+            const status = answer.mode === "live" ? "Live API" : "Demo gateway";
+            const filePrefix = file ? `Reviewed file metadata: ${file.name}.\n\n` : "";
+
             return `
                 <article class="compare-answer">
                     <div class="message-meta">
                         <span class="model-avatar" style="${avatarStyle(model)}">${model.mark}</span>
                         <strong>${model.name}</strong>
+                        <span class="response-status ${statusClass}">${status}</span>
                     </div>
-                    <p>${escapeHtml(responseText)}</p>
+                    <p>${formatText(`${filePrefix}${answer.text}`)}</p>
                 </article>
             `;
         }).join("");
         elements.messages.appendChild(grid);
     }
 
-    function submitPrompt(text) {
+    async function submitPrompt(text) {
         const cleanText = text.trim();
         if (!cleanText) return;
 
-        let limit = 20;
-        if (state.plan === "pro") limit = 2000;
-        else if (state.plan === "studio") limit = 10000;
-
+        const limit = planLimit();
         if (state.used >= limit) {
             showToast("Usage limit reached. Please upgrade your plan to continue.");
             openModal(elements.pricingModal);
@@ -394,12 +463,7 @@
         }
 
         const attachedFile = state.attachedFile;
-        if (elements.fileInput) elements.fileInput.value = "";
-        if (elements.filePreviewContainer) {
-            elements.filePreviewContainer.innerHTML = "";
-            elements.filePreviewContainer.classList.add("hidden");
-        }
-        state.attachedFile = null;
+        resetAttachedFile();
 
         elements.welcomeState.classList.add("hidden");
         addUserMessage(cleanText, attachedFile);
@@ -419,27 +483,113 @@
 
         if (state.compare) {
             const typing = addTypingMessage(models[0]);
-            setTimeout(() => {
+
+            try {
+                const response = await gatewayChat({
+                    modelId: state.selectedModel,
+                    prompt: cleanText,
+                    compare: true,
+                    web: state.web,
+                    file: publicFilePayload(attachedFile)
+                });
                 typing.remove();
-                addCompareAnswers(attachedFile);
+                addCompareAnswers(response.answers, attachedFile);
+            } catch (error) {
+                typing.remove();
+                addCompareAnswers(localCompareAnswers(error), attachedFile);
+            } finally {
                 elements.sendBtn.disabled = false;
                 scrollToBottom();
-            }, 900);
+            }
             return;
         }
 
-        const model = modelById(state.selectedModel);
-        const typing = addTypingMessage(model);
+        const selectedModel = modelById(state.selectedModel);
+        const typing = addTypingMessage(selectedModel);
         scrollToBottom();
-        setTimeout(() => {
-            let responseText = demoAnswers[model.id];
-            if (attachedFile) {
-                responseText = `I have received and analyzed your uploaded file **${attachedFile.name}** (${attachedFile.size}). Here is my response based on its contents:\n\n${responseText}`;
-            }
-            addAssistantMessage(model, responseText, typing);
+
+        try {
+            const response = await gatewayChat({
+                modelId: state.selectedModel,
+                prompt: cleanText,
+                compare: false,
+                web: state.web,
+                file: publicFilePayload(attachedFile)
+            });
+            const responseModel = modelById(response.modelId || state.selectedModel);
+            addAssistantMessage(responseModel, response.text, typing, response);
+        } catch (error) {
+            const fallback = localSingleAnswer(state.selectedModel, attachedFile, error);
+            addAssistantMessage(modelById(state.selectedModel), fallback.text, typing, fallback);
+        } finally {
             elements.sendBtn.disabled = false;
             scrollToBottom();
-        }, 850);
+        }
+    }
+    async function gatewayChat(payload) {
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.ok) {
+            throw new Error(data.error || "Gateway unavailable");
+        }
+
+        return data;
+    }
+
+    async function fetchJson(url) {
+        const response = await fetch(url, { headers: { Accept: "application/json" } });
+
+        if (!response.ok) {
+            throw new Error(`Request failed: ${response.status}`);
+        }
+
+        return response.json();
+    }
+
+    function localSingleAnswer(modelId, file, error) {
+        const model = modelById(modelId);
+        const fileText = file
+            ? `I received ${file.name} (${file.size}). True file analysis needs the backend file parser connected.\n\n`
+            : "";
+
+        return {
+            mode: "demo",
+            modelId: model.id,
+            text: `${fileText}${demoAnswers[model.id] || demoAnswers.auto}\n\nLocal fallback note: ${error.message}`
+        };
+    }
+
+    function localCompareAnswers(error) {
+        return ["claude", "chatgpt", "deepseek"].map((id) => ({
+            modelId: id,
+            mode: "demo",
+            provider: modelById(id).name,
+            text: `${demoAnswers[id]}\n\nLocal fallback note: ${error.message}`
+        }));
+    }
+
+    function publicFilePayload(file) {
+        if (!file) return null;
+
+        return {
+            name: file.name,
+            size: file.size,
+            type: file.type
+        };
+    }
+
+    function resetAttachedFile() {
+        if (elements.fileInput) elements.fileInput.value = "";
+        if (elements.filePreviewContainer) {
+            elements.filePreviewContainer.innerHTML = "";
+            elements.filePreviewContainer.classList.add("hidden");
+        }
+        state.attachedFile = null;
     }
 
     function scrollToBottom() {
@@ -459,6 +609,14 @@
         elements.toast.textContent = message;
         elements.toast.classList.add("show");
         toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 2400);
+    }
+
+    function formatSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB"];
+        const index = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
+        return `${Number.parseFloat((bytes / Math.pow(k, index)).toFixed(1))} ${sizes[index]}`;
     }
 
     function bindEvents() {
@@ -511,7 +669,6 @@
             event.preventDefault();
             submitPrompt(elements.promptInput.value);
         });
-
         elements.promptInput.addEventListener("input", autoResize);
         elements.promptInput.addEventListener("keydown", (event) => {
             if (event.key === "Enter" && !event.shiftKey) {
@@ -536,27 +693,19 @@
         elements.fileInput.addEventListener("change", (event) => {
             const file = event.target.files[0];
             if (!file) return;
-            
-            const formatSize = (bytes) => {
-                if (bytes === 0) return "0 Bytes";
-                const k = 1024;
-                const sizes = ["Bytes", "KB", "MB"];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-            };
 
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = (readerEvent) => {
                 state.attachedFile = {
                     name: file.name,
                     size: formatSize(file.size),
                     type: file.type,
-                    dataUrl: e.target.result
+                    dataUrl: readerEvent.target.result
                 };
-                
+
                 const isImage = file.type.startsWith("image/");
-                const icon = isImage ? "🖼️" : "📄";
-                
+                const icon = isImage ? "Image" : "File";
+
                 elements.filePreviewContainer.innerHTML = `
                     <div class="file-preview-token">
                         <span class="file-preview-icon">${icon}</span>
@@ -568,47 +717,39 @@
                     </div>
                 `;
                 elements.filePreviewContainer.classList.remove("hidden");
-                
-                document.getElementById("file-preview-remove-btn").addEventListener("click", () => {
-                    elements.fileInput.value = "";
-                    elements.filePreviewContainer.innerHTML = "";
-                    elements.filePreviewContainer.classList.add("hidden");
-                    state.attachedFile = null;
-                });
+
+                document.getElementById("file-preview-remove-btn").addEventListener("click", resetAttachedFile);
             };
             reader.readAsDataURL(file);
         });
 
         document.getElementById("share-btn").addEventListener("click", () => {
-            showToast("Private share link copied in the production app");
+            showToast("Private share links need authentication in production");
         });
 
         document.querySelectorAll("[data-billing]").forEach((button) => {
             button.addEventListener("click", () => {
                 document.querySelectorAll("[data-billing]").forEach((item) => item.classList.remove("active"));
                 button.classList.add("active");
-                const billing = button.dataset.billing;
-                state.billing = billing;
+                state.billing = button.dataset.billing;
                 document.querySelectorAll(".price strong[data-monthly]").forEach((price) => {
-                    price.textContent = price.dataset[billing];
+                    price.textContent = price.dataset[state.billing];
                 });
             });
         });
 
         document.querySelectorAll(".choose-plan").forEach((button) => {
             button.addEventListener("click", () => {
-                const plan = button.dataset.plan; // "Pro" or "Studio"
-                const price = state.billing === "monthly" 
+                const plan = button.dataset.plan;
+                const price = state.billing === "monthly"
                     ? (plan === "Pro" ? "$24" : "$79")
                     : (plan === "Pro" ? "$19" : "$63");
-                
+
                 elements.checkoutPlanName.textContent = plan;
                 elements.checkoutSummaryPlan.textContent = `${plan} plan (${price} / month, billed ${state.billing})`;
                 elements.checkoutPriceBtn.textContent = `${price}.00`;
-                
                 elements.checkoutForm.classList.remove("hidden");
                 elements.checkoutSuccessState.classList.add("hidden");
-                
                 openModal(elements.checkoutModal);
             });
         });
@@ -617,32 +758,27 @@
             event.preventDefault();
             const submitBtn = document.getElementById("checkout-submit-btn");
             const originalText = submitBtn.innerHTML;
-            
+
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `Processing Secure Payment...`;
-            
+            submitBtn.innerHTML = "Activating demo plan...";
+
             setTimeout(() => {
-                const plan = elements.checkoutPlanName.textContent; // "Pro" or "Studio"
+                const plan = elements.checkoutPlanName.textContent;
                 state.plan = plan.toLowerCase();
                 localStorage.setItem("wondrilla_plan", state.plan);
-                
                 updateUsage();
                 updatePlanUI();
-                
+
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                
                 elements.checkoutForm.classList.add("hidden");
                 elements.successPlanName.textContent = plan;
                 elements.checkoutSuccessState.classList.remove("hidden");
-                
-                showToast(`Successfully subscribed to Wondrilla ${plan}!`);
-            }, 1500);
+                showToast(`Wondrilla ${plan} demo plan activated`);
+            }, 900);
         });
-        
-        elements.checkoutSuccessCloseBtn.addEventListener("click", () => {
-            closeModals();
-        });
+
+        elements.checkoutSuccessCloseBtn.addEventListener("click", closeModals);
 
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") {
@@ -662,4 +798,5 @@
     updatePlanUI();
     bindEvents();
     autoResize();
+    loadRuntimeStatus();
 })();

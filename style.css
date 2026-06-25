@@ -1340,7 +1340,7 @@ a:focus-visible {
 
 .price-card li::before {
     color: #658e32;
-    content: "✓";
+    content: "*";
     font-weight: 800;
     margin-right: 7px;
 }
@@ -1882,4 +1882,41 @@ a:focus-visible {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
     }
+}
+/* Runtime and provider status */
+.demo-pill.demo span {
+    background: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 154, 42, 0.16);
+}
+
+.demo-pill.live span {
+    background: #6ba36a;
+    box-shadow: 0 0 0 3px rgba(107, 163, 106, 0.13);
+}
+
+.live-indicator.demo i,
+.model-status.demo {
+    background: var(--gold);
+}
+
+.live-indicator.live i,
+.model-status.live {
+    background: #6da970;
+}
+
+.response-status {
+    border-radius: 99px;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 6px;
+}
+
+.response-status.demo {
+    background: rgba(212, 154, 42, 0.14);
+    color: #8a641a;
+}
+
+.response-status.live {
+    background: rgba(107, 163, 106, 0.14);
+    color: #4f7d52;
 }
