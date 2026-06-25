@@ -3,12 +3,19 @@ import { existsSync, readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createClient } from "@supabase/supabase-js";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 loadEnv(path.join(rootDir, ".env"));
 
 const port = Number.parseInt(process.env.PORT || "4173", 10);
 const requestLimitBytes = 5 * 1024 * 1024;
+const supabaseConfig = {
+    url: process.env.SUPABASE_URL || "",
+    publishableKey: process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || "",
+    serviceRoleKey: process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+};
+const supabase = createSupabaseServerClient();
 
 const modelCatalog = [
     { id: "auto", name: "Wondrilla Auto", maker: "Smart routing" },
@@ -114,6 +121,14 @@ async function handleApi(request, response, requestUrl) {
             message: configuredProviders.length > 0
                 ? "At least one provider key is configured."
                 : "No provider keys found. The app will use safe demo responses."
+        });
+        return;
+    }
+
+    if (request.method === "GET" && requestUrl.pathname === "/api/supabase/health") {
+        sendJson(response, 200, {
+            ok: true,
+            supabase: publicSupabaseStatus()
         });
         return;
     }
@@ -421,6 +436,31 @@ function demoResponse(providerId, body, note) {
         : "\n\nGateway note: add this provider's API key to .env to switch this answer from demo mode to live API mode.";
 
     return `${fileNote}${webNote}${demoAnswers[providerId] || demoAnswers.auto}${gatewayNote}`;
+}
+
+function createSupabaseServerClient() {
+    const key = supabaseConfig.serviceRoleKey || supabaseConfig.publishableKey;
+
+    if (!supabaseConfig.url || !key) {
+        return null;
+    }
+
+    return createClient(supabaseConfig.url, key, {
+        auth: {
+            persistSession: false,
+            autoRefreshToken: false
+        }
+    });
+}
+
+function publicSupabaseStatus() {
+    return {
+        configured: Boolean(supabase),
+        url: supabaseConfig.url || null,
+        hasPublishableKey: Boolean(supabaseConfig.publishableKey),
+        hasServerSecret: Boolean(supabaseConfig.serviceRoleKey),
+        canWriteServerSide: Boolean(supabaseConfig.serviceRoleKey)
+    };
 }
 
 function publicModelStatus() {

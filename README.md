@@ -28,6 +28,8 @@ Open `http://localhost:4173`.
 
 The app checks `/api/health` and shows whether it is using live APIs or demo fallback mode. You can configure only one provider at first; Wondrilla Auto will route to configured providers when possible.
 
+Supabase connection status is available at `/api/supabase/health`. The publishable key can identify the project, but server-side database writes require `SUPABASE_SECRET_KEY` or authenticated Row Level Security policies.
+
 ## Environment variables
 
 - `OPENAI_API_KEY` for ChatGPT/OpenAI.
