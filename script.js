@@ -9,7 +9,8 @@
         { id: "meta", name: "Meta AI", maker: "Meta via OpenRouter", mark: "M", color: "#dfe7f8", text: "#315da8" },
         { id: "kimi", name: "Kimi", maker: "Moonshot AI", mark: "K", color: "#e6e3f4", text: "#6553a0" },
         { id: "zai", name: "Z.ai", maker: "Zhipu AI", mark: "Z", color: "#dce8ef", text: "#32647c" },
-        { id: "deepseek", name: "DeepSeek", maker: "DeepSeek", mark: "D", color: "#dce6f6", text: "#345b9d" }
+        { id: "deepseek", name: "DeepSeek", maker: "DeepSeek", mark: "D", color: "#dce6f6", text: "#345b9d" },
+        { id: "ollama", name: "Ollama Local", maker: "Local Llama/DeepSeek", mark: "🦙", color: "#ececec", text: "#1f211d" }
     ];
 
     const demoAnswers = {
@@ -20,7 +21,8 @@
         meta: "We can approach this collaboratively by mapping the people involved, the experience you want them to have, and the content or tools needed at each moment. That creates a clear path from idea to useful product.",
         kimi: "I would begin with a broad context scan, then synthesize the strongest patterns into a concise framework. From there, we can expand any point with deeper research, examples, and a step-by-step execution plan.",
         zai: "The task can be decomposed into objective, constraints, resources, and validation. A strong solution optimizes across all four rather than maximizing only speed or quality in isolation.",
-        deepseek: "A technically sound approach is to define interfaces before implementation, isolate the highest-risk assumption, and test that assumption first. This reduces rework and gives the rest of the build a stable foundation."
+        deepseek: "A technically sound approach is to define interfaces before implementation, isolate the highest-risk assumption, and test that assumption first. This reduces rework and gives the rest of the build a stable foundation.",
+        ollama: "Running locally with Ollama allows for completely private and free computation. Ensure you have started Ollama locally and run a model like llama3.2 to switch this from demo mode to live local execution."
     };
 
     const state = {

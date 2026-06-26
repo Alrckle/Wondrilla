@@ -25,7 +25,8 @@ const modelCatalog = [
     { id: "meta", name: "Meta AI", maker: "Meta via OpenRouter" },
     { id: "kimi", name: "Kimi", maker: "Moonshot AI" },
     { id: "zai", name: "Z.ai", maker: "Zhipu AI" },
-    { id: "deepseek", name: "DeepSeek", maker: "DeepSeek" }
+    { id: "deepseek", name: "DeepSeek", maker: "DeepSeek" },
+    { id: "ollama", name: "Ollama Local", maker: "Local Llama/DeepSeek" }
 ];
 
 const providerConfig = {
@@ -63,6 +64,11 @@ const providerConfig = {
         keyEnv: "DEEPSEEK_API_KEY",
         modelEnv: "DEEPSEEK_MODEL",
         defaultModel: "deepseek-v4-flash"
+    },
+    ollama: {
+        keyEnv: "OLLAMA_API_BASE",
+        modelEnv: "OLLAMA_MODEL",
+        defaultModel: "llama3"
     }
 };
 
@@ -74,7 +80,8 @@ const demoAnswers = {
     meta: "We can approach this collaboratively by mapping the people involved, the experience you want them to have, and the content or tools needed at each moment. That creates a clear path from idea to useful product.",
     kimi: "I would begin with a broad context scan, then synthesize the strongest patterns into a concise framework. From there, we can expand any point with deeper research, examples, and a step-by-step execution plan.",
     zai: "The task can be decomposed into objective, constraints, resources, and validation. A strong solution optimizes across objective, constraints, resources, and validation rather than maximizing only speed or quality in isolation.",
-    deepseek: "A technically sound approach is to define interfaces before implementation, isolate the highest-risk assumption, and test that assumption first. This reduces rework and gives the rest of the build a stable foundation."
+    deepseek: "A technically sound approach is to define interfaces before implementation, isolate the highest-risk assumption, and test that assumption first. This reduces rework and gives the rest of the build a stable foundation.",
+    ollama: "Running locally with Ollama allows for completely private and free computation. Ensure you have started Ollama locally and run a model like llama3.2 to switch this from demo mode to live local execution."
 };
 
 const server = http.createServer(async (request, response) => {
@@ -140,6 +147,7 @@ async function handleApi(request, response, requestUrl) {
     }
 
     if (request.method === "GET" && requestUrl.pathname === "/api/models") {
+        await checkOllamaStatus();
         sendJson(response, 200, {
             ok: true,
             models: publicModelStatus()
@@ -494,6 +502,16 @@ async function callProvider(providerId, prompt) {
         });
     }
 
+    if (providerId === "ollama") {
+        const baseUrl = process.env.OLLAMA_API_BASE || "http://localhost:11434";
+        return callOpenAiCompatible({
+            url: `${baseUrl}/v1/chat/completions`,
+            key: "ollama",
+            model: getProviderModel("ollama"),
+            prompt
+        });
+    }
+
     throw new Error(`Unsupported provider: ${providerId}`);
 }
 
@@ -667,6 +685,28 @@ function publicSupabaseStatus() {
     };
 }
 
+let ollamaOnline = false;
+let lastOllamaCheck = 0;
+
+async function checkOllamaStatus() {
+    const now = Date.now();
+    if (now - lastOllamaCheck < 10000) {
+        return ollamaOnline;
+    }
+    lastOllamaCheck = now;
+    const baseUrl = process.env.OLLAMA_API_BASE || "http://localhost:11434";
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 800);
+        const res = await fetch(`${baseUrl}/api/tags`, { signal: controller.signal });
+        clearTimeout(timeout);
+        ollamaOnline = res.ok;
+    } catch {
+        ollamaOnline = false;
+    }
+    return ollamaOnline;
+}
+
 function publicModelStatus() {
     return modelCatalog.map((model) => {
         if (model.id === "auto") {
@@ -693,6 +733,9 @@ function configuredProviderIds() {
 }
 
 function isProviderConfigured(providerId) {
+    if (providerId === "ollama") {
+        return ollamaOnline;
+    }
     const config = providerConfig[providerId];
     return Boolean(config && process.env[config.keyEnv]);
 }
