@@ -24,6 +24,7 @@
     };
 
     const state = {
+        userId: null,
         selectedModel: "auto",
         compare: false,
         web: false,
@@ -486,6 +487,7 @@
 
             try {
                 const response = await gatewayChat({
+                    userId: state.userId,
                     modelId: state.selectedModel,
                     prompt: cleanText,
                     compare: true,
@@ -494,6 +496,10 @@
                 });
                 typing.remove();
                 addCompareAnswers(response.answers, attachedFile);
+                if (response.used !== undefined) {
+                    state.used = response.used;
+                    updateUsage();
+                }
             } catch (error) {
                 typing.remove();
                 addCompareAnswers(localCompareAnswers(error), attachedFile);
@@ -510,6 +516,7 @@
 
         try {
             const response = await gatewayChat({
+                userId: state.userId,
                 modelId: state.selectedModel,
                 prompt: cleanText,
                 compare: false,
@@ -518,6 +525,10 @@
             });
             const responseModel = modelById(response.modelId || state.selectedModel);
             addAssistantMessage(responseModel, response.text, typing, response);
+            if (response.used !== undefined) {
+                state.used = response.used;
+                updateUsage();
+            }
         } catch (error) {
             const fallback = localSingleAnswer(state.selectedModel, attachedFile, error);
             addAssistantMessage(modelById(state.selectedModel), fallback.text, typing, fallback);
@@ -754,28 +765,40 @@
             });
         });
 
-        elements.checkoutForm.addEventListener("submit", (event) => {
+        elements.checkoutForm.addEventListener("submit", async (event) => {
             event.preventDefault();
             const submitBtn = document.getElementById("checkout-submit-btn");
             const originalText = submitBtn.innerHTML;
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = "Activating demo plan...";
+            submitBtn.innerHTML = "Activating plan...";
 
-            setTimeout(() => {
-                const plan = elements.checkoutPlanName.textContent;
-                state.plan = plan.toLowerCase();
+            try {
+                const plan = elements.checkoutPlanName.textContent.toLowerCase();
+                const response = await fetch("/api/upgrade", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: state.userId, plan })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.ok) throw new Error(data.error || "Upgrade failed");
+
+                state.plan = data.user.plan;
+                state.used = data.user.messages_used;
                 localStorage.setItem("wondrilla_plan", state.plan);
                 updateUsage();
                 updatePlanUI();
 
+                elements.checkoutForm.classList.add("hidden");
+                elements.successPlanName.textContent = elements.checkoutPlanName.textContent;
+                elements.checkoutSuccessState.classList.remove("hidden");
+                showToast(`Wondrilla ${elements.checkoutPlanName.textContent} plan activated`);
+            } catch (error) {
+                showToast(`Upgrade failed: ${error.message}`);
+            } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                elements.checkoutForm.classList.add("hidden");
-                elements.successPlanName.textContent = plan;
-                elements.checkoutSuccessState.classList.remove("hidden");
-                showToast(`Wondrilla ${plan} demo plan activated`);
-            }, 900);
+            }
         });
 
         elements.checkoutSuccessCloseBtn.addEventListener("click", closeModals);
@@ -792,6 +815,66 @@
         });
     }
 
+    function initUserId() {
+        let id = localStorage.getItem("wondrilla_user_id");
+        if (!id) {
+            id = "user_" + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+            localStorage.setItem("wondrilla_user_id", id);
+        }
+        state.userId = id;
+    }
+
+    function addChatBubble(role, content, modelId = "auto") {
+        const wrapper = document.createElement("div");
+        wrapper.className = `message ${role === "user" ? "user" : "assistant"}`;
+
+        if (role === "user") {
+            wrapper.innerHTML = `
+                <div class="message-bubble">
+                    <div>${formatText(content)}</div>
+                </div>
+            `;
+        } else {
+            const model = modelById(modelId);
+            wrapper.innerHTML = `
+                <div class="message-bubble">
+                    <div class="message-meta">
+                        <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                        <strong>${model.name}</strong>
+                    </div>
+                    <div>${formatText(content)}</div>
+                </div>
+            `;
+        }
+        elements.messages.appendChild(wrapper);
+    }
+
+    async function syncUserAndHistory() {
+        initUserId();
+        try {
+            const userData = await fetchJson(`/api/user?userId=${state.userId}`);
+            if (userData.ok && userData.user) {
+                state.plan = userData.user.plan || "free";
+                state.used = userData.user.messages_used || 0;
+                localStorage.setItem("wondrilla_plan", state.plan);
+                updateUsage();
+                updatePlanUI();
+            }
+
+            const messagesData = await fetchJson(`/api/messages?userId=${state.userId}`);
+            if (messagesData.ok && Array.isArray(messagesData.messages) && messagesData.messages.length > 0) {
+                elements.welcomeState.classList.add("hidden");
+                elements.messages.innerHTML = "";
+                messagesData.messages.forEach((msg) => {
+                    addChatBubble(msg.role, msg.content, msg.model_id);
+                });
+                scrollToBottom();
+            }
+        } catch (error) {
+            console.error("Failed to sync user and history with Supabase:", error);
+        }
+    }
+
     renderModels();
     renderHistory();
     updateUsage();
@@ -799,4 +882,5 @@
     bindEvents();
     autoResize();
     loadRuntimeStatus();
+    syncUserAndHistory();
 })();

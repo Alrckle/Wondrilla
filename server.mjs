@@ -105,6 +105,12 @@ server.listen(port, () => {
     console.log(`Wondrilla running at http://localhost:${port}`);
 });
 
+function getPlanLimit(plan) {
+    if (plan === "pro") return 2000;
+    if (plan === "studio") return 10000;
+    return 20;
+}
+
 async function handleApi(request, response, requestUrl) {
     if (request.method === "OPTIONS") {
         response.writeHead(204, corsHeaders());
@@ -141,13 +147,161 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "GET" && requestUrl.pathname === "/api/user") {
+        const userId = requestUrl.searchParams.get("userId");
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, {
+                ok: true,
+                user: { user_id: userId, plan: "free", messages_used: 0 }
+            });
+            return;
+        }
+
+        try {
+            let { data: user, error } = await supabase
+                .from("wondrilla_users")
+                .select("*")
+                .eq("user_id", userId)
+                .single();
+
+            if (error && error.code === "PGRST116") {
+                const { data: newUser, error: insertError } = await supabase
+                    .from("wondrilla_users")
+                    .insert([{ user_id: userId, plan: "free", messages_used: 0 }])
+                    .select()
+                    .single();
+
+                if (insertError) throw insertError;
+                user = newUser;
+            } else if (error) {
+                throw error;
+            }
+
+            sendJson(response, 200, { ok: true, user });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/upgrade") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const plan = String(body.plan || "free").trim().toLowerCase();
+
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, {
+                ok: true,
+                user: { user_id: userId, plan, messages_used: 0 }
+            });
+            return;
+        }
+
+        try {
+            const { data: user, error } = await supabase
+                .from("wondrilla_users")
+                .update({ plan, updated_at: new Date().toISOString() })
+                .eq("user_id", userId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            sendJson(response, 200, { ok: true, user });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "GET" && requestUrl.pathname === "/api/messages") {
+        const userId = requestUrl.searchParams.get("userId");
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true, messages: [] });
+            return;
+        }
+
+        try {
+            const { data: messages, error } = await supabase
+                .from("wondrilla_messages")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", { ascending: true });
+
+            if (error) throw error;
+            sendJson(response, 200, { ok: true, messages });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
     if (request.method === "POST" && requestUrl.pathname === "/api/chat") {
         const body = await readJsonBody(request);
         const prompt = String(body.prompt || "").trim();
+        const userId = String(body.userId || "").trim();
 
         if (!prompt) {
             sendJson(response, 400, { ok: false, error: "Prompt is required." });
             return;
+        }
+
+        let userPlan = "free";
+        let messagesUsed = 0;
+
+        if (supabase && userId) {
+            try {
+                const { data: user, error } = await supabase
+                    .from("wondrilla_users")
+                    .select("*")
+                    .eq("user_id", userId)
+                    .single();
+
+                if (error) {
+                    if (error.code !== "PGRST116") {
+                        console.error("Error fetching user profile:", error);
+                    }
+                } else if (user) {
+                    userPlan = user.plan || "free";
+                    messagesUsed = user.messages_used || 0;
+                }
+            } catch (err) {
+                console.error("Failed to query user profile:", err);
+            }
+        }
+
+        const limit = getPlanLimit(userPlan);
+        if (messagesUsed >= limit) {
+            sendJson(response, 403, { ok: false, error: "Usage limit reached. Please upgrade your plan to continue." });
+            return;
+        }
+
+        // Save user message to database
+        if (supabase && userId) {
+            try {
+                await supabase.from("wondrilla_messages").insert([{
+                    user_id: userId,
+                    role: "user",
+                    content: prompt,
+                    model_id: body.modelId || "auto"
+                }]);
+            } catch (err) {
+                console.error("Failed to save user message:", err);
+            }
         }
 
         if (body.compare) {
@@ -155,11 +309,35 @@ async function handleApi(request, response, requestUrl) {
             const answers = await Promise.all(
                 compareIds.map((providerId) => answerWithProvider(providerId, prompt, body))
             );
+
+            const increment = 3;
+            const updatedUsed = messagesUsed + increment;
+
+            if (supabase && userId) {
+                try {
+                    await supabase
+                        .from("wondrilla_users")
+                        .update({ messages_used: updatedUsed, updated_at: new Date().toISOString() })
+                        .eq("user_id", userId);
+
+                    const insertPayloads = answers.map((ans) => ({
+                        user_id: userId,
+                        role: "assistant",
+                        content: ans.text,
+                        model_id: ans.modelId
+                    }));
+                    await supabase.from("wondrilla_messages").insert(insertPayloads);
+                } catch (err) {
+                    console.error("Failed to update usage or save compare answers:", err);
+                }
+            }
+
             sendJson(response, 200, {
                 ok: true,
                 compare: true,
                 mode: answers.some((answer) => answer.mode === "live") ? "mixed" : "demo",
-                answers
+                answers,
+                used: updatedUsed
             });
             return;
         }
@@ -167,7 +345,33 @@ async function handleApi(request, response, requestUrl) {
         const requestedModel = String(body.modelId || "auto");
         const routedModel = chooseProvider(requestedModel, prompt, Boolean(body.web));
         const answer = await answerWithProvider(routedModel, prompt, body, requestedModel);
-        sendJson(response, 200, { ok: true, ...answer });
+
+        const increment = 1;
+        const updatedUsed = messagesUsed + increment;
+
+        if (supabase && userId) {
+            try {
+                await supabase
+                    .from("wondrilla_users")
+                    .update({ messages_used: updatedUsed, updated_at: new Date().toISOString() })
+                    .eq("user_id", userId);
+
+                await supabase.from("wondrilla_messages").insert([{
+                    user_id: userId,
+                    role: "assistant",
+                    content: answer.text,
+                    model_id: answer.modelId
+                }]);
+            } catch (err) {
+                console.error("Failed to update usage or save assistant answer:", err);
+            }
+        }
+
+        sendJson(response, 200, {
+            ok: true,
+            ...answer,
+            used: updatedUsed
+        });
         return;
     }
 
