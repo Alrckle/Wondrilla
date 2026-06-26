@@ -445,6 +445,11 @@ function buildProviderPrompt(prompt, body) {
 }
 
 async function callProvider(providerId, prompt) {
+    const config = providerConfig[providerId];
+    if (providerId !== "meta" && providerId !== "ollama" && (!config || !process.env[config.keyEnv]) && process.env.OPENROUTER_API_KEY) {
+        return callOpenRouterFallback(providerId, prompt);
+    }
+
     if (providerId === "chatgpt") {
         return callOpenAiResponses(prompt);
     }
@@ -513,6 +518,30 @@ async function callProvider(providerId, prompt) {
     }
 
     throw new Error(`Unsupported provider: ${providerId}`);
+}
+
+async function callOpenRouterFallback(providerId, prompt) {
+    const modelMap = {
+        chatgpt: "openai/gpt-4o-mini",
+        claude: "anthropic/claude-3.5-haiku",
+        grok: "x-ai/grok-2-1212",
+        kimi: "moonshotai/moonshot-v1-8k",
+        zai: "zhipu/glm-4-9b-chat",
+        deepseek: "deepseek/deepseek-chat"
+    };
+
+    const openRouterModel = modelMap[providerId] || "meta-llama/llama-3.2-3b-instruct:free";
+
+    return callOpenAiCompatible({
+        url: "https://openrouter.ai/api/v1/chat/completions",
+        key: process.env.OPENROUTER_API_KEY,
+        model: openRouterModel,
+        prompt,
+        headers: {
+            "HTTP-Referer": process.env.APP_URL || `http://localhost:${port}`,
+            "X-Title": "Wondrilla"
+        }
+    });
 }
 
 async function callOpenAiResponses(prompt) {
@@ -737,7 +766,17 @@ function isProviderConfigured(providerId) {
         return ollamaOnline;
     }
     const config = providerConfig[providerId];
-    return Boolean(config && process.env[config.keyEnv]);
+    if (!config) return false;
+
+    if (process.env[config.keyEnv]) {
+        return true;
+    }
+
+    if (process.env.OPENROUTER_API_KEY && providerId !== "auto") {
+        return true;
+    }
+
+    return false;
 }
 
 function getProviderModel(providerId) {
