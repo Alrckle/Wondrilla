@@ -338,6 +338,95 @@
         </div>
     </div>
 
+    <div class="modal-shell hidden" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <div class="modal checkout-modal-card">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <span class="overline" id="auth-overline">ACCOUNT ACCESS</span>
+                    <h2 id="auth-title">Sign In to Wondrilla</h2>
+                </div>
+                <button class="icon-btn modal-close" id="auth-modal-close" type="button" aria-label="Close authentication">&times;</button>
+            </div>
+            
+            <form class="checkout-form" id="auth-form" style="margin-top: 10px;">
+                <div class="form-group hidden" id="auth-name-group">
+                    <label for="auth-name">Full Name</label>
+                    <input type="text" id="auth-name" placeholder="John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label for="auth-email">Email Address</label>
+                    <input type="email" id="auth-email" required placeholder="you@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••" minlength="6">
+                </div>
+                
+                <button class="checkout-submit-btn" id="auth-submit-btn" type="submit" style="margin-top: 10px;">
+                    <span class="btn-text" id="auth-submit-text">Sign In</span>
+                </button>
+            </form>
+            
+            <div class="checkout-security-note" style="text-align: center; margin-top: 15px;">
+                <span id="auth-toggle-text">Don't have an account?</span>
+                <button type="button" id="auth-toggle-btn" style="background: none; border: none; color: var(--ink); font-weight: 700; text-decoration: underline; cursor: pointer; padding: 0; font-size: 11px;">Create Account</button>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; margin: 20px 0; color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; position: relative;">
+                <span style="background: var(--paper); padding: 0 10px; position: relative; z-index: 2;">or continue with</span>
+                <div style="position: absolute; left: 0; right: 0; border-bottom: 1px solid var(--line); z-index: 1;"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="model-row" id="oauth-google-btn" type="button" style="justify-content: center; font-weight: 700; font-size: 11px; padding: 10px; height: 38px;">
+                    Google
+                </button>
+                <button class="model-row" id="oauth-github-btn" type="button" style="justify-content: center; font-weight: 700; font-size: 11px; padding: 10px; height: 38px;">
+                    GitHub
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-shell hidden" id="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+        <div class="modal checkout-modal-card">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <span class="overline">USER PROFILE</span>
+                    <h2 id="profile-title">Account Details</h2>
+                </div>
+                <button class="icon-btn modal-close" id="profile-modal-close" type="button" aria-label="Close profile">&times;</button>
+            </div>
+            
+            <div class="checkout-form" style="gap: 15px; margin-top: 10px;">
+                <div class="checkout-summary" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span class="summary-label">Email:</span>
+                        <span class="summary-value" id="profile-email">guest@wondrilla.com</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span class="summary-label">Display Name:</span>
+                        <span class="summary-value" id="profile-name">Guest User</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span class="summary-label">Subscription Plan:</span>
+                        <span class="summary-value" id="profile-plan">Free Plan</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span class="summary-label">Usage count:</span>
+                        <span class="summary-value" id="profile-used">0 / 20 messages</span>
+                    </div>
+                </div>
+                
+                <button class="checkout-submit-btn" id="logout-btn" type="button" style="background: #ea5455; border-color: #d04848; color: #ffffff; margin-top: 10px;">
+                    <span class="btn-text">Sign Out</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script type="module" src="script.js"></script>
 </body>

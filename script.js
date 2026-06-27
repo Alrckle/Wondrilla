@@ -1,3 +1,5 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 (function () {
     "use strict";
 
@@ -44,6 +46,10 @@
         ]
     };
 
+    let supabaseClient = null;
+    let authMode = "signin";
+    let loggedInUser = null;
+
     const elements = {
         sidebar: document.getElementById("sidebar"),
         menuBtn: document.getElementById("menu-btn"),
@@ -83,7 +89,28 @@
         fileInput: document.getElementById("composer-file-input"),
         attachBtn: document.getElementById("attach-btn"),
         runtimePill: document.getElementById("runtime-pill"),
-        liveIndicator: document.querySelector(".live-indicator")
+        liveIndicator: document.querySelector(".live-indicator"),
+        authModal: document.getElementById("auth-modal"),
+        authForm: document.getElementById("auth-form"),
+        authNameGroup: document.getElementById("auth-name-group"),
+        authName: document.getElementById("auth-name"),
+        authEmail: document.getElementById("auth-email"),
+        authPassword: document.getElementById("auth-password"),
+        authSubmitBtn: document.getElementById("auth-submit-btn"),
+        authSubmitText: document.getElementById("auth-submit-text"),
+        authToggleBtn: document.getElementById("auth-toggle-btn"),
+        authToggleText: document.getElementById("auth-toggle-text"),
+        authClose: document.getElementById("auth-modal-close"),
+        profileRow: document.querySelector(".profile-row"),
+        profileModal: document.getElementById("profile-modal"),
+        profileEmail: document.getElementById("profile-email"),
+        profileName: document.getElementById("profile-name"),
+        profilePlan: document.getElementById("profile-plan"),
+        profileUsed: document.getElementById("profile-used"),
+        profileClose: document.getElementById("profile-modal-close"),
+        logoutBtn: document.getElementById("logout-btn"),
+        oauthGoogleBtn: document.getElementById("oauth-google-btn"),
+        oauthGithubBtn: document.getElementById("oauth-github-btn")
     };
     function modelById(id) {
         return models.find((model) => model.id === id) || models[0];
@@ -270,6 +297,8 @@
         elements.modelModal.classList.add("hidden");
         elements.pricingModal.classList.add("hidden");
         elements.checkoutModal.classList.add("hidden");
+        if (elements.authModal) elements.authModal.classList.add("hidden");
+        if (elements.profileModal) elements.profileModal.classList.add("hidden");
         document.body.style.overflow = "";
     }
 
@@ -818,6 +847,210 @@
                 resetConversation();
             }
         });
+
+        if (elements.profileRow) {
+            elements.profileRow.addEventListener("click", () => {
+                if (loggedInUser) {
+                    openProfileModal();
+                } else {
+                    openModal(elements.authModal);
+                }
+            });
+        }
+
+        if (elements.authClose) elements.authClose.addEventListener("click", closeModals);
+        if (elements.profileClose) elements.profileClose.addEventListener("click", closeModals);
+
+        if (elements.authToggleBtn) elements.authToggleBtn.addEventListener("click", toggleAuthMode);
+        if (elements.authForm) elements.authForm.addEventListener("submit", handleAuthSubmit);
+
+        if (elements.oauthGoogleBtn) elements.oauthGoogleBtn.addEventListener("click", () => handleOAuth("google"));
+        if (elements.oauthGithubBtn) elements.oauthGithubBtn.addEventListener("click", () => handleOAuth("github"));
+        if (elements.logoutBtn) elements.logoutBtn.addEventListener("click", handleLogout);
+    }
+
+    function toggleAuthMode() {
+        if (authMode === "signin") {
+            authMode = "signup";
+            const overline = document.getElementById("auth-overline");
+            if (overline) overline.textContent = "CREATE ACCOUNT";
+            elements.authTitle.textContent = "Create Wondrilla Account";
+            elements.authSubmitText.textContent = "Create Account";
+            elements.authToggleText.textContent = "Already have an account?";
+            elements.authToggleBtn.textContent = "Sign In";
+            elements.authNameGroup.classList.remove("hidden");
+            elements.authName.required = true;
+        } else {
+            authMode = "signin";
+            const overline = document.getElementById("auth-overline");
+            if (overline) overline.textContent = "ACCOUNT ACCESS";
+            elements.authTitle.textContent = "Sign In to Wondrilla";
+            elements.authSubmitText.textContent = "Sign In";
+            elements.authToggleText.textContent = "Don't have an account?";
+            elements.authToggleBtn.textContent = "Create Account";
+            elements.authNameGroup.classList.add("hidden");
+            elements.authName.required = false;
+        }
+    }
+
+    async function handleAuthSubmit(event) {
+        event.preventDefault();
+        if (!supabaseClient) {
+            showToast("Supabase Auth is not initialized. Check your config.");
+            return;
+        }
+
+        const email = elements.authEmail.value.trim();
+        const password = elements.authPassword.value;
+        const displayName = elements.authName.value.trim();
+
+        const submitBtn = elements.authSubmitBtn;
+        const originalText = elements.authSubmitText.textContent;
+        submitBtn.disabled = true;
+        elements.authSubmitText.textContent = authMode === "signin" ? "Signing In..." : "Creating Account...";
+
+        try {
+            if (authMode === "signup") {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            display_name: displayName || email.split("@")[0]
+                        }
+                    }
+                });
+                if (error) throw error;
+                showToast("Account created! Check your email for verification link.");
+                if (data?.session) {
+                    closeModals();
+                } else {
+                    toggleAuthMode();
+                }
+            } else {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                if (error) throw error;
+                showToast("Signed in successfully!");
+                closeModals();
+            }
+        } catch (error) {
+            console.error("Auth action failed:", error);
+            showToast(`Auth error: ${error.message}`);
+        } finally {
+            submitBtn.disabled = false;
+            elements.authSubmitText.textContent = originalText;
+        }
+    }
+
+    async function handleOAuth(provider) {
+        if (!supabaseClient) {
+            showToast("Supabase Auth is not initialized.");
+            return;
+        }
+        try {
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider,
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) throw error;
+        } catch (error) {
+            console.error("OAuth sign-in failed:", error);
+            showToast(`OAuth error: ${error.message}`);
+        }
+    }
+
+    async function handleLogout() {
+        if (!supabaseClient) return;
+        try {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) throw error;
+            showToast("Signed out successfully!");
+            closeModals();
+            resetConversation();
+        } catch (error) {
+            console.error("Sign out failed:", error);
+            showToast(`Error: ${error.message}`);
+        }
+    }
+
+    function openProfileModal() {
+        if (!loggedInUser) return;
+        const displayName = loggedInUser.user_metadata?.display_name || loggedInUser.email;
+        elements.profileEmail.textContent = loggedInUser.email;
+        elements.profileName.textContent = displayName;
+        elements.profilePlan.textContent = state.plan.charAt(0).toUpperCase() + state.plan.slice(1) + " Plan";
+        const limit = planLimit();
+        elements.profileUsed.textContent = `${state.used} / ${limit.toLocaleString()} messages`;
+        openModal(elements.profileModal);
+    }
+
+    function handleUserLogin(user) {
+        loggedInUser = user;
+        state.userId = user.id;
+        
+        const displayName = user.user_metadata?.display_name || user.email;
+        const initials = displayName.slice(0, 2).toUpperCase();
+        
+        const avatarEl = elements.profileRow.querySelector(".avatar");
+        const strongEl = elements.profileRow.querySelector("strong");
+        const smallEl = elements.profileRow.querySelector("small");
+        
+        if (avatarEl) avatarEl.textContent = initials;
+        if (strongEl) strongEl.textContent = displayName;
+        if (smallEl) smallEl.textContent = "Synced Account";
+        
+        syncUserAndHistory();
+    }
+
+    function handleUserLogoutState() {
+        loggedInUser = null;
+        initUserId();
+        
+        const avatarEl = elements.profileRow.querySelector(".avatar");
+        const strongEl = elements.profileRow.querySelector("strong");
+        const smallEl = elements.profileRow.querySelector("small");
+        
+        if (avatarEl) avatarEl.textContent = "?";
+        if (strongEl) strongEl.textContent = "Sign In / Sign Up";
+        if (smallEl) smallEl.textContent = "Create an account";
+        
+        syncUserAndHistory();
+    }
+
+    async function initSupabaseAuth() {
+        try {
+            const config = await fetchJson("/api/supabase/config");
+            if (config.ok && config.url && config.publishableKey) {
+                supabaseClient = createClient(config.url, config.publishableKey);
+                console.log("Supabase Client SDK initialized!");
+                
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    handleUserLogin(session.user);
+                } else {
+                    handleUserLogoutState();
+                }
+                
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (session && session.user) {
+                        handleUserLogin(session.user);
+                    } else {
+                        handleUserLogoutState();
+                    }
+                });
+            } else {
+                console.warn("Supabase url/key missing on backend.");
+                handleUserLogoutState();
+            }
+        } catch (error) {
+            console.error("Failed to init Supabase Auth:", error);
+            handleUserLogoutState();
+        }
     }
 
     function initUserId() {
@@ -855,7 +1088,9 @@
     }
 
     async function syncUserAndHistory() {
-        initUserId();
+        if (!loggedInUser) {
+            initUserId();
+        }
         try {
             const userData = await fetchJson(`/api/user?userId=${state.userId}`);
             if (userData.ok && userData.user) {
@@ -887,5 +1122,5 @@
     bindEvents();
     autoResize();
     loadRuntimeStatus();
-    syncUserAndHistory();
+    initSupabaseAuth();
 })();

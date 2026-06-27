@@ -146,6 +146,15 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "GET" && requestUrl.pathname === "/api/supabase/config") {
+        sendJson(response, 200, {
+            ok: true,
+            url: supabaseConfig.url || "",
+            publishableKey: supabaseConfig.publishableKey || ""
+        });
+        return;
+    }
+
     if (request.method === "GET" && requestUrl.pathname === "/api/models") {
         await checkOllamaStatus();
         sendJson(response, 200, {
