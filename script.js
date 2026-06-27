@@ -110,7 +110,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         profileClose: document.getElementById("profile-modal-close"),
         logoutBtn: document.getElementById("logout-btn"),
         oauthGoogleBtn: document.getElementById("oauth-google-btn"),
-        oauthGithubBtn: document.getElementById("oauth-github-btn")
+        oauthGithubBtn: document.getElementById("oauth-github-btn"),
+        authPasswordToggle: document.getElementById("auth-password-toggle")
     };
     function modelById(id) {
         return models.find((model) => model.id === id) || models[0];
@@ -867,9 +868,24 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.oauthGoogleBtn) elements.oauthGoogleBtn.addEventListener("click", () => handleOAuth("google"));
         if (elements.oauthGithubBtn) elements.oauthGithubBtn.addEventListener("click", () => handleOAuth("github"));
         if (elements.logoutBtn) elements.logoutBtn.addEventListener("click", handleLogout);
+
+        if (elements.authPasswordToggle) {
+            elements.authPasswordToggle.addEventListener("click", () => {
+                const isPassword = elements.authPassword.getAttribute("type") === "password";
+                elements.authPassword.setAttribute("type", isPassword ? "text" : "password");
+                elements.authPasswordToggle.textContent = isPassword ? "Hide" : "Show";
+            });
+        }
     }
 
     function toggleAuthMode() {
+        if (elements.authPassword) {
+            elements.authPassword.setAttribute("type", "password");
+        }
+        if (elements.authPasswordToggle) {
+            elements.authPasswordToggle.textContent = "Show";
+        }
+
         if (authMode === "signin") {
             authMode = "signup";
             const overline = document.getElementById("auth-overline");
