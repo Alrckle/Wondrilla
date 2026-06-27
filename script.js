@@ -323,7 +323,10 @@
     }
 
     function formatText(value) {
-        return escapeHtml(value).replace(/\n/g, "<br>");
+        let text = escapeHtml(value);
+        text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
+        return text.replace(/\n/g, "<br>");
     }
     function addUserMessage(text, file) {
         const wrapper = document.createElement("div");
