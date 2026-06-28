@@ -164,6 +164,14 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "GET" && requestUrl.pathname === "/api/paypal/config") {
+        sendJson(response, 200, {
+            ok: true,
+            clientId: process.env.PAYPAL_CLIENT_ID || ""
+        });
+        return;
+    }
+
     if (request.method === "GET" && requestUrl.pathname === "/api/user") {
         const userId = requestUrl.searchParams.get("userId");
         if (!userId) {
@@ -210,10 +218,28 @@ async function handleApi(request, response, requestUrl) {
         const body = await readJsonBody(request);
         const userId = String(body.userId || "").trim();
         const plan = String(body.plan || "free").trim().toLowerCase();
+        const billing = String(body.billing || "monthly").trim().toLowerCase();
+        const paypalOrderId = String(body.paypalOrderId || "").trim();
 
         if (!userId) {
             sendJson(response, 400, { ok: false, error: "userId is required." });
             return;
+        }
+
+        if (paypalOrderId) {
+            let expectedPrice = "0.00";
+            if (plan === "pro") {
+                expectedPrice = billing === "yearly" ? "19.00" : "24.00";
+            } else if (plan === "studio") {
+                expectedPrice = billing === "yearly" ? "63.00" : "79.00";
+            }
+            
+            try {
+                await verifyPayPalPayment(paypalOrderId, expectedPrice);
+            } catch (payError) {
+                sendJson(response, 400, { ok: false, error: `Payment verification failed: ${payError.message}` });
+                return;
+            }
         }
 
         if (!supabase) {
@@ -913,6 +939,58 @@ function loadEnv(envPath) {
 
         process.env[key] = rawValue.replace(/^["']|["']$/g, "");
     }
+}
+
+async function verifyPayPalPayment(orderId, expectedAmount) {
+    const clientId = process.env.PAYPAL_CLIENT_ID;
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+        console.warn("PayPal credentials missing for verification, bypassing check.");
+        return true;
+    }
+    
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+    const tokenRes = await fetch("https://api-m.sandbox.paypal.com/v1/oauth2/token", {
+        method: "POST",
+        headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "grant_type=client_credentials"
+    });
+    
+    if (!tokenRes.ok) {
+        throw new Error(`Failed to get PayPal token: ${tokenRes.statusText}`);
+    }
+    
+    const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
+    
+    const orderRes = await fetch(`https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderId}`, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+        }
+    });
+    
+    if (!orderRes.ok) {
+        throw new Error(`Failed to fetch PayPal order ${orderId}: ${orderRes.statusText}`);
+    }
+    
+    const orderData = await orderRes.json();
+    const purchaseUnit = orderData.purchase_units?.[0];
+    const amount = purchaseUnit?.amount?.value;
+    const status = orderData.status;
+    
+    if (status !== "COMPLETED" && status !== "APPROVED") {
+        throw new Error(`PayPal order ${orderId} has status ${status}, expected COMPLETED or APPROVED`);
+    }
+    
+    if (parseFloat(amount) !== parseFloat(expectedAmount)) {
+        throw new Error(`PayPal order amount ${amount} does not match expected amount ${expectedAmount}`);
+    }
+    
+    return true;
 }
 
 function sanitizeError(error) {

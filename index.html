@@ -289,44 +289,11 @@
                     <span class="summary-value" id="checkout-summary-plan">Pro plan ($24 / month)</span>
                 </div>
                 
-                <div class="form-group">
-                    <label for="checkout-email">Email Address</label>
-                    <input type="email" id="checkout-email" required placeholder="you@example.com">
-                </div>
-                
-                <div class="form-group">
-                    <label for="checkout-card-name">Cardholder Name</label>
-                    <input type="text" id="checkout-card-name" required placeholder="Sanatan Yashayah">
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group flex-2">
-                        <label for="checkout-card-number">Card Number</label>
-                        <div class="card-input-wrap">
-                            <input type="text" id="checkout-card-number" required placeholder="4242 4242 4242 4242" maxlength="19">
-                            <span class="card-brand-icon">Card</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="checkout-card-expiry">Expiry Date</label>
-                        <input type="text" id="checkout-card-expiry" required placeholder="MM / YY" maxlength="5">
-                    </div>
-                    <div class="form-group">
-                        <label for="checkout-card-cvc">CVC</label>
-                        <input type="text" id="checkout-card-cvc" required placeholder="123" maxlength="3">
-                    </div>
-                </div>
+                <div id="paypal-button-container" style="margin-top: 24px; min-height: 150px;"></div>
 
-                <div class="checkout-security-note">
-                    <span>Demo checkout only. Connect Stripe before accepting real payments.</span>
+                <div class="checkout-security-note" style="margin-top: 16px;">
+                    <span>Secure Sandbox Payments via PayPal.</span>
                 </div>
-
-                <button class="checkout-submit-btn" id="checkout-submit-btn" type="submit">
-                    <span class="btn-text">Pay <span id="checkout-price-btn">$24.00</span></span>
-                </button>
             </form>
             
             <div class="checkout-success-state hidden" id="checkout-success-state">

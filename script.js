@@ -784,56 +784,139 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             });
         });
 
+        let paypalLoaded = false;
+        let paypalClientId = null;
+        
+        async function getPayPalClientId() {
+            if (paypalClientId) return paypalClientId;
+            try {
+                const res = await fetch("/api/paypal/config");
+                const data = await res.json();
+                if (data.ok && data.clientId) {
+                    paypalClientId = data.clientId;
+                    return paypalClientId;
+                }
+            } catch (err) {
+                console.error("Failed to fetch PayPal config:", err);
+            }
+            return null;
+        }
+
+        function loadPayPalSDK(clientId) {
+            return new Promise((resolve, reject) => {
+                if (window.paypal) {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement("script");
+                script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`;
+                script.onload = () => {
+                    paypalLoaded = true;
+                    resolve();
+                };
+                script.onerror = () => reject(new Error("Failed to load PayPal SDK"));
+                document.head.appendChild(script);
+            });
+        }
+
         document.querySelectorAll(".choose-plan").forEach((button) => {
-            button.addEventListener("click", () => {
+            button.addEventListener("click", async () => {
                 const plan = button.dataset.plan;
                 const price = state.billing === "monthly"
-                    ? (plan === "Pro" ? "$24" : "$79")
-                    : (plan === "Pro" ? "$19" : "$63");
-
+                    ? (plan === "Pro" ? "24.00" : "79.00")
+                    : (plan === "Pro" ? "19.00" : "63.00");
+ 
                 elements.checkoutPlanName.textContent = plan;
-                elements.checkoutSummaryPlan.textContent = `${plan} plan (${price} / month, billed ${state.billing})`;
-                elements.checkoutPriceBtn.textContent = `${price}.00`;
+                elements.checkoutSummaryPlan.textContent = `${plan} plan ($${price} / month, billed ${state.billing})`;
+                
+                const container = document.getElementById("paypal-button-container");
+                if (container) {
+                    container.innerHTML = `<div style="text-align: center; color: var(--muted); font-size: 13px; padding: 20px;">Loading PayPal...</div>`;
+                }
+                
                 elements.checkoutForm.classList.remove("hidden");
                 elements.checkoutSuccessState.classList.add("hidden");
                 openModal(elements.checkoutModal);
+                
+                try {
+                    const clientId = await getPayPalClientId();
+                    if (!clientId) {
+                        if (container) {
+                            container.innerHTML = `<div style="color: #ea5455; text-align: center; font-size: 13px; padding: 20px;">PayPal configuration missing on server.</div>`;
+                        }
+                        return;
+                    }
+                    
+                    await loadPayPalSDK(clientId);
+                    
+                    if (container) {
+                        container.innerHTML = "";
+                    }
+                    
+                    window.paypal.Buttons({
+                        createOrder: (data, actions) => {
+                            return actions.order.create({
+                                purchase_units: [{
+                                    amount: {
+                                        currency_code: "USD",
+                                        value: price
+                                    },
+                                    description: `${plan} Plan (${state.billing})`
+                                }]
+                            });
+                        },
+                        onApprove: async (data, actions) => {
+                            if (container) {
+                                container.innerHTML = `<div style="text-align: center; color: var(--ink); font-size: 13px; padding: 20px;">Processing payment...</div>`;
+                            }
+                            try {
+                                const details = await actions.order.capture();
+                                
+                                const response = await fetch("/api/upgrade", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        userId: state.userId,
+                                        plan: plan.toLowerCase(),
+                                        billing: state.billing,
+                                        paypalOrderId: data.orderID
+                                    })
+                                });
+                                
+                                const resData = await response.json();
+                                if (!response.ok || !resData.ok) {
+                                    throw new Error(resData.error || "Upgrade activation failed.");
+                                }
+                                
+                                state.plan = resData.user.plan;
+                                state.used = resData.user.messages_used;
+                                localStorage.setItem("wondrilla_plan", state.plan);
+                                updateUsage();
+                                updatePlanUI();
+                                
+                                elements.checkoutForm.classList.add("hidden");
+                                elements.successPlanName.textContent = plan;
+                                elements.checkoutSuccessState.classList.remove("hidden");
+                                showToast(`Wondrilla ${plan} plan activated successfully!`);
+                            } catch (err) {
+                                showToast(`Upgrade failed: ${err.message}`);
+                                button.click();
+                            }
+                        },
+                        onError: (err) => {
+                            console.error(err);
+                            showToast("PayPal checkout failed or was cancelled.");
+                            button.click();
+                        }
+                    }).render("#paypal-button-container");
+                    
+                } catch (err) {
+                    console.error("PayPal init error:", err);
+                    if (container) {
+                        container.innerHTML = `<div style="color: #ea5455; text-align: center; font-size: 13px; padding: 20px;">Failed to initialize PayPal.</div>`;
+                    }
+                }
             });
-        });
-
-        elements.checkoutForm.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            const submitBtn = document.getElementById("checkout-submit-btn");
-            const originalText = submitBtn.innerHTML;
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = "Activating plan...";
-
-            try {
-                const plan = elements.checkoutPlanName.textContent.toLowerCase();
-                const response = await fetch("/api/upgrade", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId: state.userId, plan })
-                });
-                const data = await response.json();
-                if (!response.ok || !data.ok) throw new Error(data.error || "Upgrade failed");
-
-                state.plan = data.user.plan;
-                state.used = data.user.messages_used;
-                localStorage.setItem("wondrilla_plan", state.plan);
-                updateUsage();
-                updatePlanUI();
-
-                elements.checkoutForm.classList.add("hidden");
-                elements.successPlanName.textContent = elements.checkoutPlanName.textContent;
-                elements.checkoutSuccessState.classList.remove("hidden");
-                showToast(`Wondrilla ${elements.checkoutPlanName.textContent} plan activated`);
-            } catch (error) {
-                showToast(`Upgrade failed: ${error.message}`);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            }
         });
 
         elements.checkoutSuccessCloseBtn.addEventListener("click", closeModals);
