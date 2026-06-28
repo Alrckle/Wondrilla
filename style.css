@@ -652,7 +652,7 @@ a:focus-visible {
 .prompt-grid {
     display: grid;
     gap: 10px;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     margin-top: 36px;
     text-align: left;
 }
@@ -801,7 +801,7 @@ a:focus-visible {
 .compare-grid {
     display: grid;
     gap: 10px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     margin: 8px 0 28px;
 }
 
@@ -1166,6 +1166,15 @@ a:focus-visible {
 .modal-header {
     align-items: flex-start;
     justify-content: space-between;
+    position: sticky;
+    top: -26px;
+    background: var(--paper);
+    z-index: 10;
+    padding-top: 26px;
+    padding-bottom: 12px;
+    margin-top: -26px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line-soft);
 }
 
 .modal-header h2 {
@@ -1431,6 +1440,7 @@ a:focus-visible {
         transform: translateX(-105%);
         transition: transform 220ms ease;
         width: 86vw;
+        z-index: 65; /* higher than .scrim (60) to prevent blocked clicks */
     }
 
     .sidebar.open {
@@ -1519,6 +1529,12 @@ a:focus-visible {
         border-radius: 18px 18px 0 0;
         max-height: 90vh;
         padding: 22px 18px;
+    }
+
+    .modal-header {
+        top: -22px;
+        padding-top: 22px;
+        margin-top: -22px;
     }
 }
 
