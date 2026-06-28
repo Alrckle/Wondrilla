@@ -740,6 +740,8 @@ a:focus-visible {
     font-size: 13px;
     line-height: 1.65;
     max-width: min(640px, 82%);
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .message.user .message-bubble {
@@ -818,6 +820,8 @@ a:focus-visible {
     font-size: 10px;
     line-height: 1.55;
     margin: 10px 0 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .compare-answer .message-meta {
