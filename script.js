@@ -172,6 +172,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function renderHistory() {
+        const historyBlock = document.querySelector(".history-block");
+        if (historyBlock) {
+            historyBlock.classList.toggle("hidden", state.history.length === 0);
+        }
         elements.historyList.innerHTML = state.history.map((item, index) => `
             <button class="history-item ${index === 0 ? "active" : ""}" type="button">${escapeHtml(item)}</button>
         `).join("");
