@@ -536,7 +536,7 @@ a:focus-visible {
 }
 
 .primary-btn:hover {
-    background: #e4ff75;
+    background: var(--acid-deep);
 }
 
 .primary-btn.compact {
@@ -1431,6 +1431,10 @@ a:focus-visible {
     background: var(--acid);
     border: 1px solid var(--acid-deep);
     color: #ffffff;
+}
+
+.plan-btn.primary:hover {
+    background: var(--acid-deep);
 }
 
 .plan-btn.dark {

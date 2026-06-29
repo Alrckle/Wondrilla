@@ -38,12 +38,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         attachedFile: null,
         gatewayOnline: false,
         providerStatus: new Map(),
-        history: [
-            "A launch plan for Wondrilla",
-            "Rewrite the homepage headline",
-            "Explain APIs simply",
-            "Compare AI business models"
-        ]
+        history: []
     };
 
     let supabaseClient = null;
