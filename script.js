@@ -1200,14 +1200,22 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 updatePlanUI();
             }
 
-            const messagesData = await fetchJson(`/api/messages?userId=${state.userId}`);
-            if (messagesData.ok && Array.isArray(messagesData.messages) && messagesData.messages.length > 0) {
-                elements.welcomeState.classList.add("hidden");
+            if (loggedInUser) {
+                const messagesData = await fetchJson(`/api/messages?userId=${state.userId}`);
+                if (messagesData.ok && Array.isArray(messagesData.messages) && messagesData.messages.length > 0) {
+                    elements.welcomeState.classList.add("hidden");
+                    elements.messages.innerHTML = "";
+                    messagesData.messages.forEach((msg) => {
+                        addChatBubble(msg.role, msg.content, msg.model_id);
+                    });
+                    scrollToBottom();
+                } else {
+                    elements.messages.innerHTML = "";
+                    elements.welcomeState.classList.remove("hidden");
+                }
+            } else {
                 elements.messages.innerHTML = "";
-                messagesData.messages.forEach((msg) => {
-                    addChatBubble(msg.role, msg.content, msg.model_id);
-                });
-                scrollToBottom();
+                elements.welcomeState.classList.remove("hidden");
             }
         } catch (error) {
             console.error("Failed to sync user and history with Supabase:", error);
