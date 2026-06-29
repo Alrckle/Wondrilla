@@ -1,20 +1,20 @@
 :root {
-    --ink: #1f211d;
-    --ink-soft: #5d625a;
-    --muted: #898d84;
-    --line: #deddd5;
-    --line-soft: #ebe9e2;
-    --paper: #f7f5ef;
-    --paper-deep: #efede6;
-    --white: #fffefa;
-    --sidebar: #f0eee7;
+    --ink: #f3f4f2;
+    --ink-soft: #9fa49b;
+    --muted: #6e726b;
+    --line: #242722;
+    --line-soft: #1c1e19;
+    --paper: #0e100d;
+    --paper-deep: #060706;
+    --white: #151814;
+    --sidebar: #090b08;
     --acid: #d9ff43;
-    --acid-deep: #b8df23;
+    --acid-deep: #c3e733;
     --coral: #f26b4a;
     --blue: #4878e8;
     --green: #4f8f75;
     --gold: #d49a2a;
-    --shadow: 0 24px 70px rgba(35, 37, 31, 0.13);
+    --shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
     --font-heading: "Manrope", sans-serif;
     --font-body: "DM Sans", sans-serif;
 }
@@ -33,6 +33,7 @@ body {
     background: var(--paper);
     color: var(--ink);
     font-family: var(--font-body);
+    font-size: 15px;
     overflow: hidden;
 }
 
@@ -215,17 +216,22 @@ a:focus-visible {
     color: var(--ink-soft);
     cursor: pointer;
     display: flex;
-    font-size: 13px;
-    gap: 10px;
-    padding: 9px 10px;
+    font-size: 14px;
+    gap: 12px;
+    padding: 10px 12px;
     text-align: left;
     width: 100%;
+    transition: background 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
 .nav-item:hover,
 .nav-item.active {
-    background: rgba(255, 255, 255, 0.62);
+    background: rgba(255, 255, 255, 0.08);
     color: var(--ink);
+}
+
+.nav-item:hover {
+    transform: translateX(2px);
 }
 
 .nav-item.active {
@@ -234,9 +240,9 @@ a:focus-visible {
 
 .nav-icon {
     font-family: var(--font-heading);
-    font-size: 17px;
+    font-size: 19px;
     text-align: center;
-    width: 18px;
+    width: 20px;
 }
 
 .nav-badge {
@@ -281,20 +287,21 @@ a:focus-visible {
     background: transparent;
     border: 0;
     border-radius: 8px;
-    color: #696d65;
+    color: var(--ink-soft);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     overflow: hidden;
     padding: 9px 10px;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+    transition: background 150ms ease, color 150ms ease;
 }
 
 .history-item:hover,
 .history-item.active {
-    background: rgba(255, 255, 255, 0.62);
+    background: rgba(255, 255, 255, 0.08);
     color: var(--ink);
 }
 
@@ -303,8 +310,8 @@ a:focus-visible {
 }
 
 .usage-card {
-    background: #e5e3db;
-    border: 1px solid #d7d5cc;
+    background: var(--line-soft);
+    border: 1px solid var(--line);
     border-radius: 12px;
     margin-bottom: 13px;
     padding: 12px;
@@ -317,7 +324,7 @@ a:focus-visible {
 .usage-card .eyebrow {
     color: var(--muted);
     display: block;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     margin-bottom: 3px;
@@ -326,16 +333,16 @@ a:focus-visible {
 
 .usage-card strong {
     display: block;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .usage-percent {
     color: var(--ink-soft);
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .progress-track {
-    background: #c9c8bf;
+    background: var(--line);
     border-radius: 99px;
     height: 4px;
     margin: 10px 0 8px;
@@ -413,6 +420,9 @@ a:focus-visible {
 }
 
 .topbar {
+    background: rgba(14, 16, 13, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--line-soft);
     flex: 0 0 68px;
     justify-content: space-between;
@@ -450,8 +460,8 @@ a:focus-visible {
 
 .model-avatar {
     align-items: center;
-    background: #e1dfd7;
-    border: 1px solid rgba(31, 33, 29, 0.1);
+    background: var(--line);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
     color: var(--ink);
     display: inline-flex;
@@ -550,7 +560,7 @@ a:focus-visible {
 
 .welcome-orbit {
     align-items: center;
-    border: 1px solid #d9d7cf;
+    border: 1px solid var(--line);
     border-radius: 50%;
     display: flex;
     height: 78px;
@@ -558,14 +568,24 @@ a:focus-visible {
     margin: 0 auto 24px;
     position: relative;
     width: 78px;
+    animation: orbit-float 4s ease-in-out infinite;
 }
 
 .welcome-orbit::before {
-    border: 1px dashed #d2d0c7;
+    border: 1px dashed var(--line);
     border-radius: 50%;
     content: "";
     inset: 7px;
     position: absolute;
+}
+
+@keyframes orbit-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
 }
 
 .welcome-mark {
@@ -637,16 +657,16 @@ a:focus-visible {
 }
 
 .welcome-state h1 em {
-    color: #7b7f76;
+    color: var(--ink-soft);
     font-family: Georgia, serif;
     font-weight: 400;
 }
 
 .welcome-copy {
     color: var(--ink-soft);
-    font-size: 13px;
+    font-size: 15px;
     margin: 0 auto;
-    max-width: 470px;
+    max-width: 520px;
 }
 
 .prompt-grid {
@@ -659,20 +679,20 @@ a:focus-visible {
 
 .prompt-card {
     align-items: center;
-    background: rgba(255, 254, 250, 0.75);
+    background: rgba(21, 24, 20, 0.55);
     border: 1px solid var(--line);
-    border-radius: 11px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
-    gap: 11px;
-    min-height: 66px;
-    padding: 10px 12px;
+    gap: 14px;
+    min-height: 76px;
+    padding: 12px 16px;
     transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
 .prompt-card:hover {
-    border-color: #babbb2;
-    box-shadow: 0 8px 24px rgba(40, 42, 36, 0.07);
+    border-color: var(--ink-soft);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     transform: translateY(-2px);
 }
 
@@ -682,27 +702,27 @@ a:focus-visible {
 }
 
 .prompt-card strong {
-    font-size: 11px;
+    font-size: 14px;
     margin-bottom: 3px;
 }
 
 .prompt-card small {
     color: var(--muted);
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.35;
 }
 
 .prompt-icon {
     align-items: center;
-    border-radius: 8px;
+    border-radius: 10px;
     color: var(--white);
     display: flex;
     flex: 0 0 auto;
     font-family: var(--font-heading);
-    font-size: 15px;
-    height: 32px;
+    font-size: 18px;
+    height: 42px;
     justify-content: center;
-    width: 32px;
+    width: 42px;
 }
 
 .prompt-icon.coral {
@@ -737,7 +757,7 @@ a:focus-visible {
 }
 
 .message-bubble {
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.65;
     max-width: min(640px, 82%);
     word-break: break-word;
@@ -745,14 +765,15 @@ a:focus-visible {
 }
 
 .message.user .message-bubble {
-    background: var(--ink);
+    background: var(--line);
+    border: 1px solid var(--line);
     border-radius: 15px 15px 3px 15px;
-    color: var(--white);
-    padding: 11px 15px;
+    color: var(--ink);
+    padding: 12px 18px;
 }
 
 .message.assistant .message-bubble {
-    color: #343832;
+    color: var(--ink);
     padding: 4px 0 0;
 }
 
@@ -844,8 +865,8 @@ a:focus-visible {
 }
 
 .composer:focus-within {
-    border-color: #afb1a7;
-    box-shadow: 0 14px 42px rgba(46, 48, 42, 0.11);
+    border-color: var(--ink-soft);
+    box-shadow: 0 14px 42px rgba(0, 0, 0, 0.35);
 }
 
 .composer textarea {
@@ -853,7 +874,7 @@ a:focus-visible {
     border: 0;
     color: var(--ink);
     display: block;
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.45;
     max-height: 140px;
     min-height: 25px;
@@ -993,13 +1014,13 @@ a:focus-visible {
 }
 
 .model-row:hover {
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .model-row.active {
     background: var(--white);
-    border-color: #d6d4cb;
-    box-shadow: 0 5px 16px rgba(44, 46, 40, 0.05);
+    border-color: var(--line);
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.25);
 }
 
 .model-copy {
@@ -1026,7 +1047,7 @@ a:focus-visible {
 
 .model-status {
     background: #6da970;
-    border: 2px solid #f5f3ed;
+    border: 2px solid var(--paper);
     border-radius: 50%;
     height: 8px;
     margin-left: auto;
@@ -1053,7 +1074,8 @@ a:focus-visible {
 
 .dock-insight {
     align-items: flex-start;
-    background: #e9e7df;
+    background: var(--line-soft);
+    border: 1px solid var(--line);
     border-radius: 11px;
     bottom: 17px;
     display: flex;
@@ -1113,7 +1135,7 @@ a:focus-visible {
 }
 
 .library-card {
-    background: rgba(255, 254, 250, 0.75);
+    background: rgba(21, 24, 20, 0.55);
     border: 1px solid var(--line);
     border-radius: 14px;
     display: flex;
@@ -1157,8 +1179,10 @@ a:focus-visible {
 }
 
 .modal {
-    background: var(--paper);
-    border: 1px solid #d8d6ce;
+    background: rgba(21, 24, 20, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
     border-radius: 18px;
     box-shadow: var(--shadow);
     max-height: calc(100vh - 48px);
@@ -1172,7 +1196,7 @@ a:focus-visible {
     justify-content: space-between;
     position: sticky;
     top: -26px;
-    background: var(--paper);
+    background: transparent;
     z-index: 10;
     padding-top: 26px;
     padding-bottom: 12px;
@@ -1220,11 +1244,12 @@ a:focus-visible {
 
 .modal-model-option:hover,
 .modal-model-option.active {
-    border-color: #aeb0a6;
+    border-color: var(--ink-soft);
 }
 
 .modal-model-option.active {
-    box-shadow: inset 0 0 0 1px #aeb0a6;
+    border-color: var(--acid);
+    box-shadow: inset 0 0 0 1px var(--acid);
 }
 
 .modal-model-option strong,
@@ -1233,13 +1258,13 @@ a:focus-visible {
 }
 
 .modal-model-option strong {
-    font-size: 11px;
+    font-size: 13px;
     margin-bottom: 3px;
 }
 
 .modal-model-option small {
     color: var(--muted);
-    font-size: 9px;
+    font-size: 11px;
 }
 
 .pricing-modal-card {
@@ -1247,7 +1272,8 @@ a:focus-visible {
 }
 
 .billing-toggle {
-    background: #e9e7df;
+    background: var(--line-soft);
+    border: 1px solid var(--line);
     border-radius: 9px;
     display: flex;
     margin: 24px auto;
@@ -1266,12 +1292,12 @@ a:focus-visible {
 
 .billing-toggle button.active {
     background: var(--white);
-    box-shadow: 0 2px 8px rgba(34, 36, 31, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     font-weight: 700;
 }
 
 .billing-toggle span {
-    color: #607d29;
+    color: var(--acid-deep);
     font-size: 8px;
     font-weight: 700;
 }
@@ -1875,12 +1901,12 @@ a:focus-visible {
 
 .citation-card:hover {
     background: var(--white);
-    border-color: #afb1a7;
+    border-color: var(--ink-soft);
 }
 
 .citation-number {
     align-items: center;
-    background: rgba(31, 33, 29, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     color: var(--ink-soft);
     display: inline-flex;
@@ -1935,11 +1961,11 @@ a:focus-visible {
 }
 
 .response-status.demo {
-    background: rgba(212, 154, 42, 0.14);
-    color: #8a641a;
+    background: rgba(212, 154, 42, 0.18);
+    color: var(--gold);
 }
 
 .response-status.live {
-    background: rgba(107, 163, 106, 0.14);
-    color: #4f7d52;
+    background: rgba(107, 163, 106, 0.18);
+    color: #6ba36a;
 }
