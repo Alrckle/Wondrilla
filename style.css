@@ -8,8 +8,8 @@
     --paper-deep: #060706;
     --white: #151814;
     --sidebar: #090b08;
-    --acid: #d9ff43;
-    --acid-deep: #c3e733;
+    --acid: #2563eb;
+    --acid-deep: #1d4ed8;
     --coral: #f26b4a;
     --blue: #4878e8;
     --green: #4f8f75;
@@ -216,7 +216,7 @@ a:focus-visible {
     color: var(--ink-soft);
     cursor: pointer;
     display: flex;
-    font-size: 14px;
+    font-size: 15px;
     gap: 12px;
     padding: 10px 12px;
     text-align: left;
@@ -247,6 +247,7 @@ a:focus-visible {
 
 .nav-badge {
     background: var(--acid);
+    color: #ffffff;
     border-radius: 99px;
     font-size: 9px;
     font-weight: 700;
@@ -289,7 +290,7 @@ a:focus-visible {
     border-radius: 8px;
     color: var(--ink-soft);
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     overflow: hidden;
     padding: 9px 10px;
     text-align: left;
@@ -369,11 +370,16 @@ a:focus-visible {
 .profile-row {
     background: transparent;
     border: 0;
+    border-radius: 8px;
     cursor: pointer;
     gap: 9px;
-    padding: 5px;
+    padding: 8px;
     text-align: left;
     width: 100%;
+}
+
+.profile-row:hover {
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .avatar {
@@ -410,7 +416,7 @@ a:focus-visible {
 
 .workspace {
     background:
-        radial-gradient(circle at 50% 32%, rgba(217, 255, 67, 0.04) 0, rgba(21, 24, 20, 0.3) 35%, transparent 60%),
+        radial-gradient(circle at 50% 32%, rgba(37, 99, 235, 0.05) 0, rgba(21, 24, 20, 0.3) 35%, transparent 60%),
         var(--paper);
     display: flex;
     flex-direction: column;
@@ -525,8 +531,8 @@ a:focus-visible {
 
 .primary-btn {
     background: var(--acid);
-    border: 1px solid #c3e733;
-    color: #10110e;
+    border: 1px solid var(--acid-deep);
+    color: #ffffff;
 }
 
 .primary-btn:hover {
@@ -758,7 +764,7 @@ a:focus-visible {
 }
 
 .message-bubble {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.65;
     max-width: min(640px, 82%);
     word-break: break-word;
@@ -938,12 +944,13 @@ a:focus-visible {
 
 .send-btn {
     background: var(--acid);
-    border: 1px solid #c8e83b;
+    border: none;
     border-radius: 9px;
+    color: #ffffff;
     cursor: pointer;
     font-size: 17px;
     height: 32px;
-    transition: transform 150ms ease;
+    transition: transform 150ms ease, background 150ms ease;
     width: 32px;
 }
 
@@ -1344,7 +1351,7 @@ a:focus-visible {
 .popular-tag {
     background: var(--acid);
     border-radius: 99px;
-    color: #10110e;
+    color: #ffffff;
     font-size: 9px;
     font-weight: 800;
     padding: 4px 10px;
@@ -1422,8 +1429,8 @@ a:focus-visible {
 
 .plan-btn.primary {
     background: var(--acid);
-    border: 1px solid #c4e735;
-    color: #10110e;
+    border: 1px solid var(--acid-deep);
+    color: #ffffff;
 }
 
 .plan-btn.dark {
