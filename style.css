@@ -1428,10 +1428,13 @@ a:focus-visible {
 @media (max-width: 760px) {
     body {
         overflow: hidden;
+        height: 100dvh;
     }
 
     .app-shell {
         display: block;
+        height: 100dvh;
+        overflow: hidden;
     }
 
     .sidebar {
@@ -1457,7 +1460,7 @@ a:focus-visible {
     }
 
     .workspace {
-        height: 100vh;
+        height: 100dvh;
     }
 
     .topbar {
@@ -1531,7 +1534,7 @@ a:focus-visible {
 
     .modal {
         border-radius: 18px 18px 0 0;
-        max-height: 90vh;
+        max-height: 90dvh;
         padding: 22px 18px;
     }
 
