@@ -496,9 +496,9 @@ a:focus-visible {
     border-radius: 99px;
     color: var(--ink-soft);
     display: inline-flex;
-    font-size: 9px;
+    font-size: 11px;
     gap: 6px;
-    padding: 5px 9px;
+    padding: 5px 10px;
 }
 
 .demo-pill span {
@@ -916,19 +916,19 @@ a:focus-visible {
 .mode-toggle {
     align-items: center;
     display: flex;
-    font-size: 9px;
+    font-size: 11px;
     gap: 4px;
-    padding: 6px 7px;
+    padding: 6px 8px;
 }
 
 .mode-toggle:hover,
 .mode-toggle.active {
-    background: #f0efe9;
+    background: rgba(255, 255, 255, 0.08);
     color: var(--ink);
 }
 
 .mode-toggle.active {
-    box-shadow: inset 0 0 0 1px #dddbd2;
+    box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .toggle-icon {
@@ -956,22 +956,25 @@ a:focus-visible {
 }
 
 .composer-note {
-    color: #9a9d95;
-    font-size: 8px;
+    color: var(--muted);
+    font-size: 11px;
     margin: 7px auto 0;
     max-width: 760px;
     text-align: center;
 }
 
 .model-dock {
-    background: #f5f3ed;
+    background: var(--sidebar);
     border-left: 1px solid var(--line);
     padding: 24px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 .dock-heading {
     color: var(--muted);
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 800;
     justify-content: space-between;
     letter-spacing: 0.12em;
@@ -1033,13 +1036,13 @@ a:focus-visible {
 }
 
 .model-copy strong {
-    font-size: 10px;
+    font-size: 13px;
     margin-bottom: 2px;
 }
 
 .model-copy small {
     color: var(--muted);
-    font-size: 8px;
+    font-size: 11px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1064,7 +1067,7 @@ a:focus-visible {
     border-top: 1px solid var(--line);
     cursor: pointer;
     display: flex;
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 700;
     justify-content: space-between;
     margin-top: 12px;
@@ -1103,7 +1106,7 @@ a:focus-visible {
 
 .dock-insight p {
     color: var(--ink-soft);
-    font-size: 8px;
+    font-size: 11px;
     line-height: 1.5;
     margin: 0;
 }
