@@ -410,7 +410,7 @@ a:focus-visible {
 
 .workspace {
     background:
-        radial-gradient(circle at 50% 32%, rgba(255, 255, 255, 0.96) 0, rgba(255, 255, 255, 0.45) 28%, transparent 58%),
+        radial-gradient(circle at 50% 32%, rgba(217, 255, 67, 0.04) 0, rgba(21, 24, 20, 0.3) 35%, transparent 60%),
         var(--paper);
     display: flex;
     flex-direction: column;
