@@ -271,13 +271,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.runtimePill) {
             elements.runtimePill.classList.toggle("live", liveReady);
             elements.runtimePill.classList.toggle("demo", !liveReady);
-            elements.runtimePill.innerHTML = `<span></span> ${liveReady ? `${configuredCount} API ready` : "Demo gateway"}`;
+            elements.runtimePill.innerHTML = `<span></span> ${liveReady ? "Live" : "Demo gateway"}`;
         }
 
         if (elements.liveIndicator) {
             elements.liveIndicator.classList.toggle("live", liveReady);
             elements.liveIndicator.classList.toggle("demo", !liveReady);
-            elements.liveIndicator.innerHTML = `<i></i> ${liveReady ? `${configuredCount} API ready` : "Demo ready"}`;
+            elements.liveIndicator.innerHTML = `<i></i> ${liveReady ? "Live" : "Demo ready"}`;
         }
     }
 

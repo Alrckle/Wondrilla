@@ -1,7 +1,7 @@
 :root {
     --ink: #f3f4f2;
-    --ink-soft: #9fa49b;
-    --muted: #6e726b;
+    --ink-soft: #b8bdb4;
+    --muted: #8c9187;
     --line: #242722;
     --line-soft: #1c1e19;
     --paper: #0e100d;
@@ -526,6 +526,7 @@ a:focus-visible {
 .primary-btn {
     background: var(--acid);
     border: 1px solid #c3e733;
+    color: #10110e;
 }
 
 .primary-btn:hover {
@@ -1404,6 +1405,7 @@ a:focus-visible {
 .plan-btn.primary {
     background: var(--acid);
     border: 1px solid #c4e735;
+    color: #10110e;
 }
 
 .plan-btn.dark {
