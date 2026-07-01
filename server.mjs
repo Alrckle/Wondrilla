@@ -949,8 +949,11 @@ async function verifyPayPalPayment(orderId, expectedAmount) {
         return true;
     }
     
+    const isSandbox = process.env.PAYPAL_ENVIRONMENT === "sandbox" || process.env.PAYPAL_ENVIRONMENT === "SANDBOX";
+    const baseUrl = isSandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
+    
     const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-    const tokenRes = await fetch("https://api-m.sandbox.paypal.com/v1/oauth2/token", {
+    const tokenRes = await fetch(`${baseUrl}/v1/oauth2/token`, {
         method: "POST",
         headers: {
             Authorization: `Basic ${auth}`,
@@ -966,7 +969,7 @@ async function verifyPayPalPayment(orderId, expectedAmount) {
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
     
-    const orderRes = await fetch(`https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderId}`, {
+    const orderRes = await fetch(`${baseUrl}/v2/checkout/orders/${orderId}`, {
         headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json"
