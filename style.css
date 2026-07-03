@@ -836,18 +836,18 @@ a:focus-visible {
 }
 
 .compare-answer {
-    background: rgba(255, 254, 250, 0.75);
+    background: var(--white);
     border: 1px solid var(--line);
     border-radius: 12px;
     min-width: 0;
-    padding: 12px;
+    padding: 16px;
 }
 
 .compare-answer p {
     color: var(--ink-soft);
-    font-size: 10px;
-    line-height: 1.55;
-    margin: 10px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 12px 0 0;
     word-break: break-word;
     overflow-wrap: break-word;
 }
