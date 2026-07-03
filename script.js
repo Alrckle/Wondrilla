@@ -4,15 +4,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     "use strict";
 
     const models = [
-        { id: "auto", name: "Wondrilla Auto", maker: "Smart routing", mark: "W", color: "#1f211d", text: "#d9ff43" },
-        { id: "chatgpt", name: "ChatGPT", maker: "OpenAI", mark: "O", color: "#dcebe3", text: "#275b45" },
-        { id: "claude", name: "Claude", maker: "Anthropic", mark: "A", color: "#eadfd2", text: "#8a5436" },
-        { id: "grok", name: "Grok", maker: "xAI", mark: "X", color: "#dedede", text: "#222222" },
-        { id: "meta", name: "Meta AI", maker: "Meta via OpenRouter", mark: "M", color: "#dfe7f8", text: "#315da8" },
-        { id: "kimi", name: "Kimi", maker: "Moonshot AI", mark: "K", color: "#e6e3f4", text: "#6553a0" },
-        { id: "zai", name: "Z.ai", maker: "Zhipu AI", mark: "Z", color: "#dce8ef", text: "#32647c" },
-        { id: "deepseek", name: "DeepSeek", maker: "DeepSeek", mark: "D", color: "#dce6f6", text: "#345b9d" },
-        { id: "ollama", name: "Ollama Local", maker: "Local Llama/DeepSeek", mark: "🦙", color: "#ececec", text: "#1f211d" }
+        { id: "auto", name: "Wondrilla Auto", maker: "Smart routing", mark: "W", color: "#1f211d", text: "#d9ff43", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="m12 3-1.912 5.886L4.2 9l5.886 1.912L12 16.8l1.912-5.886L19.8 9l-5.886-1.912z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></svg>` },
+        { id: "chatgpt", name: "ChatGPT", maker: "OpenAI", mark: "O", color: "#275b45", text: "#dcebe3", svg: `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;"><path d="M21.74 11.66c-.15-.65-.58-1.2-1.18-1.5a4.8 4.8 0 0 0 .17-1.89 4.86 4.86 0 0 0-3.32-3.83c-.6-.15-1.2-.1-1.74-.03a4.86 4.86 0 0 0-4.82 2.68c-.6-.25-1.2-.2-1.7-.17a4.86 4.86 0 0 0-4.48 3.5c-.25.6-.2 1.25-.17 1.8A4.86 4.86 0 0 0 .25 16.4a4.8 4.8 0 0 0 .4 1.76 4.86 4.86 0 0 0 3.32 3.83c.53.13 1.07.2(1.62).2a4.86 4.86 0 0 0 4.8-3.08c.6.25 1.2.2 1.7.17a4.86 4.86 0 0 0 4.48-3.5c.25-.6.2-1.25.17-1.8a4.86 4.86 0 0 0 4.25-4.25c.15-.6.1-1.2-.03-1.74zM12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/></svg>` },
+        { id: "claude", name: "Claude", maker: "Anthropic", mark: "A", color: "#8a5436", text: "#eadfd2", svg: `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15.5c0-.28.22-.5.5-.5h1c.28 0 .5.22.5.5v2c0 .28-.22.5-.5.5h-1a.5.5 0 0 1-.5-.5zm2.75-8.2c-.44 0-.8-.36-.8-.8s.36-.8.8-.8.8.36.8.8-.36.8-.8.8zM9.5 12h5v3h-5zm0-4.5h5v2.2h-5z"/></svg>` },
+        { id: "grok", name: "Grok", maker: "xAI", mark: "X", color: "#222222", text: "#dedede", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><line x1="4" y1="20" x2="20" y2="4"/><line x1="14" y1="20" x2="20" y2="14"/><line x1="4" y1="10" x2="10" y2="4"/></svg>` },
+        { id: "meta", name: "Meta AI", maker: "Meta via OpenRouter", mark: "M", color: "#315da8", text: "#dfe7f8", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M12 12c-2-2.67-4-4-6-4a4 4 0 1 0 0 8c2 0 4-1.33 6-4Zm0 0c2 2.67 4 4 6 4a4 4 0 1 0 0-8c-2 0-4 1.33-6 4Z"/></svg>` },
+        { id: "kimi", name: "Kimi", maker: "Moonshot AI", mark: "K", color: "#6553a0", text: "#e6e3f4", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>` },
+        { id: "zai", name: "Z.ai", maker: "Zhipu AI", mark: "Z", color: "#32647c", text: "#dce8ef", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>` },
+        { id: "deepseek", name: "DeepSeek", maker: "DeepSeek", mark: "D", color: "#345b9d", text: "#dce6f6", svg: `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5c0 .3-.2.5-.5.5h-1c-.3 0-.5-.2-.5-.5v-5c0-.3.2-.5.5-.5h1c.3 0 .5.2.5.5v5zm-1-7.2c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9z"/></svg>` },
+        { id: "ollama", name: "Ollama Local", maker: "Local Llama/DeepSeek", mark: "🦙", color: "#1f211d", text: "#ececec", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>` }
     ];
 
     const demoAnswers = {
@@ -154,7 +154,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             return `
                 <button class="model-row ${activeClass}" type="button" data-model="${model.id}" ${model.id === "auto" && state.compare ? "disabled" : ""}>
                     <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="position: relative; ${avatarStyle(model)}">
-                        ${model.mark}
+                        ${model.svg || model.mark}
                         ${badgeHtml}
                     </span>
                     <span class="model-copy">
@@ -190,7 +190,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             return `
                 <button class="modal-model-option ${activeClass}" type="button" data-model="${model.id}" ${model.id === "auto" && state.compare ? "disabled" : ""}>
                     <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="position: relative; ${avatarStyle(model)}">
-                        ${model.mark}
+                        ${model.svg || model.mark}
                         ${badgeHtml}
                     </span>
                     <span>
@@ -240,7 +240,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             state.selectedModel = id;
             const model = modelById(id);
             elements.selectedModelName.textContent = model.name;
-            elements.selectedModelAvatar.textContent = model.mark;
+            elements.selectedModelAvatar.innerHTML = model.svg || model.mark;
             elements.selectedModelAvatar.className = `model-avatar selected-model-avatar ${id === "auto" ? "auto" : ""}`;
             elements.selectedModelAvatar.style.cssText = avatarStyle(model);
             elements.promptInput.placeholder = `Message ${model.name}...`;
@@ -461,7 +461,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         wrapper.innerHTML = `
             <div class="message-bubble">
                 <div class="message-meta">
-                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.svg || model.mark}</span>
                     <strong>${model.name}</strong>
                     <span>${thinkingLabel}</span>
                 </div>
@@ -501,7 +501,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         typingNode.innerHTML = `
             <div class="message-bubble">
                 <div class="message-meta">
-                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.svg || model.mark}</span>
                     <strong>${model.name}</strong>
                     <span class="response-status ${statusClass}">${status}</span>
                 </div>
@@ -532,7 +532,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             return `
                 <article class="compare-answer">
                     <div class="message-meta">
-                        <span class="model-avatar" style="${avatarStyle(model)}">${model.mark}</span>
+                        <span class="model-avatar" style="${avatarStyle(model)}">${model.svg || model.mark}</span>
                         <strong>${model.name}</strong>
                         <span class="response-status ${statusClass}">${status}</span>
                     </div>
@@ -1234,7 +1234,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             wrapper.innerHTML = `
                 <div class="message-bubble">
                     <div class="message-meta">
-                        <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                        <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.svg || model.mark}</span>
                         <strong>${model.name}</strong>
                     </div>
                     <div>${formatText(content)}</div>
