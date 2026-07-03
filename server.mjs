@@ -558,7 +558,7 @@ async function callProvider(providerId, prompt) {
 async function callOpenRouterFallback(providerId, prompt) {
     const modelMap = {
         chatgpt: "openai/gpt-4o-mini",
-        claude: "anthropic/claude-3.5-haiku",
+        claude: "anthropic/claude-haiku-4.5",
         grok: "x-ai/grok-2-1212",
         kimi: "moonshotai/moonshot-v1-8k",
         zai: "zhipu/glm-4-9b-chat",
