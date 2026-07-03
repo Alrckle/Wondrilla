@@ -38,7 +38,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         attachedFile: null,
         gatewayOnline: false,
         providerStatus: new Map(),
-        history: []
+        history: [],
+        compareModels: ["claude", "chatgpt", "deepseek"]
     };
 
     let supabaseClient = null;
@@ -136,9 +137,26 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 ? (configured ? "Routes to configured APIs" : "Routes to demo answers")
                 : `${model.maker} - ${statusLabel}`;
 
+            let activeClass = "";
+            let badgeHtml = "";
+            if (state.compare) {
+                if (model.id === "auto") {
+                    activeClass = "disabled";
+                } else if (state.compareModels.includes(model.id)) {
+                    activeClass = "active comparing";
+                    const idx = state.compareModels.indexOf(model.id) + 1;
+                    badgeHtml = `<span class="compare-badge">${idx}</span>`;
+                }
+            } else {
+                activeClass = model.id === state.selectedModel ? "active" : "";
+            }
+
             return `
-                <button class="model-row ${model.id === state.selectedModel ? "active" : ""}" type="button" data-model="${model.id}">
-                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                <button class="model-row ${activeClass}" type="button" data-model="${model.id}" ${model.id === "auto" && state.compare ? "disabled" : ""}>
+                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="position: relative; ${avatarStyle(model)}">
+                        ${model.mark}
+                        ${badgeHtml}
+                    </span>
                     <span class="model-copy">
                         <strong>${model.name}</strong>
                         <small>${escapeHtml(detail)}</small>
@@ -155,9 +173,26 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 ? "Automatically route every prompt"
                 : `${model.maker} - ${configured ? provider?.model || "configured" : "add API key for live mode"}`;
 
+            let activeClass = "";
+            let badgeHtml = "";
+            if (state.compare) {
+                if (model.id === "auto") {
+                    activeClass = "disabled";
+                } else if (state.compareModels.includes(model.id)) {
+                    activeClass = "active comparing";
+                    const idx = state.compareModels.indexOf(model.id) + 1;
+                    badgeHtml = `<span class="compare-badge">${idx}</span>`;
+                }
+            } else {
+                activeClass = model.id === state.selectedModel ? "active" : "";
+            }
+
             return `
-                <button class="modal-model-option ${model.id === state.selectedModel ? "active" : ""}" type="button" data-model="${model.id}">
-                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.mark}</span>
+                <button class="modal-model-option ${activeClass}" type="button" data-model="${model.id}" ${model.id === "auto" && state.compare ? "disabled" : ""}>
+                    <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="position: relative; ${avatarStyle(model)}">
+                        ${model.mark}
+                        ${badgeHtml}
+                    </span>
                     <span>
                         <strong>${model.name}</strong>
                         <small>${escapeHtml(detail)}</small>
@@ -182,16 +217,37 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function selectModel(id) {
-        state.selectedModel = id;
-        const model = modelById(id);
-        elements.selectedModelName.textContent = model.name;
-        elements.selectedModelAvatar.textContent = model.mark;
-        elements.selectedModelAvatar.className = `model-avatar selected-model-avatar ${id === "auto" ? "auto" : ""}`;
-        elements.selectedModelAvatar.style.cssText = avatarStyle(model);
-        elements.promptInput.placeholder = `Message ${model.name}...`;
-        renderModels();
-        closeModals();
-        showToast(`${model.name} selected`);
+        if (state.compare) {
+            if (id === "auto") {
+                showToast("Wondrilla Auto cannot be used in Comparison mode");
+                return;
+            }
+            if (state.compareModels.includes(id)) {
+                if (state.compareModels.length <= 1) {
+                    showToast("Select at least one model to compare");
+                    return;
+                }
+                state.compareModels = state.compareModels.filter((m) => m !== id);
+            } else {
+                if (state.compareModels.length >= 3) {
+                    state.compareModels.shift();
+                }
+                state.compareModels.push(id);
+            }
+            renderModels();
+            showToast(`Comparing: ${state.compareModels.map((m) => modelById(m).name).join(", ")}`);
+        } else {
+            state.selectedModel = id;
+            const model = modelById(id);
+            elements.selectedModelName.textContent = model.name;
+            elements.selectedModelAvatar.textContent = model.mark;
+            elements.selectedModelAvatar.className = `model-avatar selected-model-avatar ${id === "auto" ? "auto" : ""}`;
+            elements.selectedModelAvatar.style.cssText = avatarStyle(model);
+            elements.promptInput.placeholder = `Message ${model.name}...`;
+            renderModels();
+            closeModals();
+            showToast(`${model.name} selected`);
+        }
     }
 
     function updateUsage() {
@@ -326,8 +382,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             elements.chatView.classList.remove("hidden");
             state.compare = view === "compare";
             updateModeButton(elements.compareToggle, state.compare);
+            renderModels();
             if (state.compare) {
-                showToast("Compare mode: three models will answer side by side");
+                showToast("Compare mode: select up to 3 models in the dock to compare");
             }
         }
         toggleSidebar(false);
@@ -525,6 +582,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     modelId: state.selectedModel,
                     prompt: cleanText,
                     compare: true,
+                    compareModels: state.compareModels,
                     web: state.web,
                     file: publicFilePayload(attachedFile)
                 });
@@ -696,6 +754,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             }
             state.compare = !state.compare;
             updateModeButton(elements.compareToggle, state.compare);
+            renderModels();
             showToast(state.compare ? "Compare mode enabled" : "Compare mode disabled");
         });
 
