@@ -1161,9 +1161,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
     }
 
+    function getUserName(user) {
+        if (!user) return "Guest";
+        return user.user_metadata?.display_name || 
+               user.user_metadata?.full_name || 
+               user.user_metadata?.name || 
+               user.user_metadata?.user_name || 
+               user.email.split("@")[0];
+    }
+
     function openProfileModal() {
         if (!loggedInUser) return;
-        const displayName = loggedInUser.user_metadata?.display_name || loggedInUser.email;
+        const displayName = getUserName(loggedInUser);
         elements.profileEmail.textContent = loggedInUser.email;
         elements.profileName.textContent = displayName;
         elements.profilePlan.textContent = state.plan.charAt(0).toUpperCase() + state.plan.slice(1) + " Plan";
@@ -1176,7 +1185,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         loggedInUser = user;
         state.userId = user.id;
         
-        const displayName = user.user_metadata?.display_name || user.email;
+        const displayName = getUserName(user);
         const initials = displayName.slice(0, 2).toUpperCase();
         
         const avatarEl = elements.profileRow.querySelector(".avatar");

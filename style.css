@@ -33,7 +33,7 @@ body {
     background: var(--paper);
     color: var(--ink);
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: 16px;
     overflow: hidden;
 }
 
@@ -216,7 +216,7 @@ a:focus-visible {
     color: var(--ink-soft);
     cursor: pointer;
     display: flex;
-    font-size: 15px;
+    font-size: 16px;
     gap: 12px;
     padding: 10px 12px;
     text-align: left;
@@ -926,7 +926,7 @@ a:focus-visible {
     border: 0;
     color: var(--ink);
     display: block;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.45;
     max-height: 140px;
     min-height: 25px;
@@ -1706,25 +1706,33 @@ a:focus-visible {
 
 .form-group label {
     color: var(--ink-soft);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+    margin-bottom: 2px;
 }
 
 .form-group input {
-    background: var(--white);
-    border: 1px solid #d5d3ca;
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--line);
+    border-radius: 10px;
     color: var(--ink);
-    font-size: 12px;
-    padding: 10px 12px;
+    font-size: 14px;
+    padding: 12px 14px;
     width: 100%;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .form-group input:focus {
-    border-color: #afb1a7;
+    border-color: var(--acid);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     outline: none;
+}
+
+.form-group input::placeholder {
+    color: var(--muted);
+    opacity: 0.6;
 }
 
 .form-row {
@@ -1756,12 +1764,12 @@ a:focus-visible {
 }
 
 .checkout-submit-btn {
-    background: var(--ink);
+    background: var(--acid);
     border: 0;
     border-radius: 10px;
-    color: var(--white);
+    color: #ffffff;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     margin-top: 10px;
     padding: 12px;
@@ -1770,7 +1778,7 @@ a:focus-visible {
 }
 
 .checkout-submit-btn:hover {
-    background: #30332d;
+    background: var(--acid-deep);
     transform: translateY(-1px);
 }
 
