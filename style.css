@@ -1141,13 +1141,11 @@ a:focus-visible {
     background: var(--line-soft);
     border: 1px solid var(--line);
     border-radius: 11px;
-    bottom: 17px;
     display: flex;
     gap: 9px;
     padding: 11px;
-    position: absolute;
-    right: 16px;
-    width: 214px;
+    margin-top: auto;
+    width: 100%;
 }
 
 .insight-mark {
@@ -2313,4 +2311,131 @@ a:focus-visible {
     padding: 12px;
     white-space: pre-wrap;
     word-break: break-all;
+}
+
+/* Premium User Profile styles */
+.profile-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.profile-avatar-large {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--acid), var(--blue));
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-meta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profile-meta-name {
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.profile-meta-email {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.profile-badge {
+    align-self: flex-start;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.profile-badge.pro {
+    background: rgba(37, 99, 235, 0.15);
+    color: #5b8dfa;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.profile-badge.free {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+}
+
+.profile-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #65a36a;
+    box-shadow: 0 0 8px #65a36a;
+}
+
+.profile-detail-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.profile-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.profile-detail-label {
+    color: var(--ink-soft);
+    font-weight: 500;
+}
+
+.profile-detail-value {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.profile-progress-container {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-progress-bar {
+    height: 6px;
+    background: var(--line-soft);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-progress-fill {
+    height: 100%;
+    background: var(--acid);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    width: 0%;
 }

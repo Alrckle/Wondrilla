@@ -1104,10 +1104,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     }
                 });
                 if (error) throw error;
-                showToast("Account created! Check your email for verification link.");
                 if (data?.session) {
+                    showToast("Account created successfully!");
                     closeModals();
                 } else {
+                    showToast("Account created! Check your email for verification link.");
                     toggleAuthMode();
                 }
             } else {
@@ -1175,9 +1176,37 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const displayName = getUserName(loggedInUser);
         elements.profileEmail.textContent = loggedInUser.email;
         elements.profileName.textContent = displayName;
-        elements.profilePlan.textContent = state.plan.charAt(0).toUpperCase() + state.plan.slice(1) + " Plan";
+        
+        // Large Avatar Initials
+        const initials = displayName.slice(0, 2).toUpperCase();
+        const avatarLarge = document.getElementById("profile-avatar-large");
+        if (avatarLarge) avatarLarge.textContent = initials;
+        
+        // Plan & Badge
+        const planName = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
+        elements.profilePlan.textContent = planName + " Plan";
+        
+        const badgePro = document.getElementById("profile-badge-pro");
+        if (badgePro) {
+            if (state.plan === "pro") {
+                badgePro.className = "profile-badge pro";
+                badgePro.innerHTML = '<i class="dot"></i>Pro Member';
+            } else {
+                badgePro.className = "profile-badge free";
+                badgePro.innerHTML = "Free Plan";
+            }
+        }
+        
+        // Usage progress bar
         const limit = planLimit();
         elements.profileUsed.textContent = `${state.used} / ${limit.toLocaleString()} messages`;
+        
+        const progressFill = document.getElementById("profile-progress-fill");
+        if (progressFill) {
+            const percentage = Math.min(100, Math.max(0, (state.used / limit) * 100));
+            progressFill.style.width = `${percentage}%`;
+        }
+        
         openModal(elements.profileModal);
     }
 
