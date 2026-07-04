@@ -239,10 +239,17 @@ a:focus-visible {
 }
 
 .nav-icon {
-    font-family: var(--font-heading);
-    font-size: 19px;
-    text-align: center;
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
     width: 20px;
+    height: 20px;
+}
+
+.nav-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+    display: block;
 }
 
 .nav-badge {
@@ -971,7 +978,15 @@ a:focus-visible {
 }
 
 .toggle-icon {
-    font-size: 13px;
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.toggle-icon svg {
+    width: 14px !important;
+    height: 14px !important;
+    display: block;
 }
 
 .send-btn {
@@ -1142,6 +1157,12 @@ a:focus-visible {
     height: 25px;
     justify-content: center;
     width: 25px;
+}
+
+.insight-mark svg {
+    width: 14px !important;
+    height: 14px !important;
+    display: block;
 }
 
 .dock-insight p {
