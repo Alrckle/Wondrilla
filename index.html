@@ -198,6 +198,7 @@
             </div>
             <div class="model-list" id="model-list"></div>
             <button class="manage-models" id="manage-models" type="button">Manage models <span>-&gt;</span></button>
+            <button class="manage-mcp" id="manage-mcp" type="button">MCP Connections <span>-&gt;</span></button>
 
             <div class="dock-insight">
                 <span class="insight-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.886L4.2 9l5.886 1.912L12 16.8l1.912-5.886L19.8 9l-5.886-1.912z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></svg></span>
@@ -396,6 +397,98 @@
                 <button class="checkout-submit-btn" id="logout-btn" type="button" style="background: #ea5455; border-color: #d04848; color: #ffffff; margin-top: 10px;">
                     <span class="btn-text">Sign Out</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-shell hidden" id="mcp-modal" role="dialog" aria-modal="true" aria-labelledby="mcp-title">
+        <div class="modal mcp-modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="overline">INTEGRATIONS</span>
+                    <h2 id="mcp-title">Model Context Protocol</h2>
+                </div>
+                <button class="icon-btn modal-close" id="mcp-modal-close" type="button" aria-label="Close MCP manager">&times;</button>
+            </div>
+            <p class="modal-lead">Connect local tools and databases to your AI workflow using Claude and ChatGPT-inspired MCP servers.</p>
+            
+            <div class="mcp-tabs">
+                <button class="mcp-tab-btn active" id="tab-servers-btn" type="button">Active Servers</button>
+                <button class="mcp-tab-btn" id="tab-add-btn" type="button">Add Server</button>
+                <button class="mcp-tab-btn" id="tab-tester-btn" type="button">Tool Tester</button>
+            </div>
+
+            <div class="mcp-tab-content" id="mcp-tab-servers">
+                <div class="mcp-servers-list" id="mcp-servers-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <div class="mcp-tab-content hidden" id="mcp-tab-add">
+                <form class="mcp-form" id="mcp-add-form">
+                    <div class="form-row">
+                        <label for="mcp-name">Server Name</label>
+                        <input type="text" id="mcp-name" placeholder="e.g. github-server" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="mcp-type">Connection Type</label>
+                        <select id="mcp-type">
+                            <option value="command">Stdio Command (Local Process)</option>
+                            <option value="sse">SSE (HTTP/Server-Sent Events)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="mcp-command-fields">
+                        <div class="form-row">
+                            <label for="mcp-command">Command</label>
+                            <input type="text" id="mcp-command" placeholder="e.g. npx or node">
+                        </div>
+                        <div class="form-row">
+                            <label for="mcp-args">Arguments (comma-separated)</label>
+                            <input type="text" id="mcp-args" placeholder='e.g. -y, @modelcontextprotocol/server-github'>
+                        </div>
+                        <div class="form-row">
+                            <label for="mcp-env">Environment Variables (JSON object)</label>
+                            <textarea id="mcp-env" placeholder='e.g. {"GITHUB_PERSONAL_ACCESS_TOKEN": "..."}' rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="mcp-sse-fields" class="hidden">
+                        <div class="form-row">
+                            <label for="mcp-url">SSE Server URL</label>
+                            <input type="url" id="mcp-url" placeholder="e.g. http://localhost:3000/sse">
+                        </div>
+                    </div>
+
+                    <button class="primary-btn" type="submit" style="width: 100%; margin-top: 15px;">Save & Connect Server</button>
+                </form>
+            </div>
+
+            <div class="mcp-tab-content hidden" id="mcp-tab-tester">
+                <div class="mcp-tester">
+                    <div class="form-row">
+                        <label for="tester-server">Select Server</label>
+                        <select id="tester-server">
+                            <option value="">-- Choose Server --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="tester-tool">Select Tool</label>
+                        <select id="tester-tool" disabled>
+                            <option value="">-- Choose Tool --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="tester-args">Arguments (JSON format)</label>
+                        <textarea id="tester-args" placeholder='e.g. { "path": "index.html" }' rows="4"></textarea>
+                    </div>
+                    <button class="primary-btn" id="run-tool-btn" type="button" style="width: 100%; margin-top: 10px;" disabled>Run Tool</button>
+                    
+                    <div class="tester-output-container hidden" id="tester-output-container">
+                        <label>Output Response</label>
+                        <pre class="tester-output" id="tester-output"></pre>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,8 +1,10 @@
 import http from "node:http";
-import { existsSync, readFileSync } from "node:fs";
+import https from "node:https";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawn } from "node:child_process";
 import { createClient } from "@supabase/supabase-js";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
@@ -110,6 +112,9 @@ const server = http.createServer(async (request, response) => {
 
 server.listen(port, () => {
     console.log(`Wondrilla running at http://localhost:${port}`);
+    initMcpServers().catch(err => {
+        console.error("Failed to initialize MCP servers:", err);
+    });
 });
 
 function getPlanLimit(plan) {
@@ -287,6 +292,103 @@ async function handleApi(request, response, requestUrl) {
 
             if (error) throw error;
             sendJson(response, 200, { ok: true, messages });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (requestUrl.pathname === "/api/mcp") {
+        if (request.method === "GET") {
+            const list = [];
+            for (const [name, srv] of activeMcpServers.entries()) {
+                list.push({
+                    name,
+                    status: srv.status,
+                    error: srv.error,
+                    tools: srv.tools,
+                    config: srv.config
+                });
+            }
+            sendJson(response, 200, { ok: true, servers: list });
+            return;
+        }
+
+        if (request.method === "POST") {
+            const body = await readJsonBody(request);
+            const name = String(body.name || "").trim();
+            const config = body.config;
+            if (!name || !config) {
+                sendJson(response, 400, { ok: false, error: "Server name and config are required." });
+                return;
+            }
+            if (activeMcpServers.has(name)) {
+                activeMcpServers.get(name).stop();
+            }
+            const srv = new McpServerInstance(name, config);
+            activeMcpServers.set(name, srv);
+            await srv.start();
+
+            // Save locally
+            const localPath = path.join(process.cwd(), "mcp_config.json");
+            let localConfig = { mcpServers: {} };
+            if (existsSync(localPath)) {
+                try {
+                    localConfig = JSON.parse(readFileSync(localPath, "utf8"));
+                } catch (e) {
+                    console.error("Error reading local mcp_config.json:", e);
+                }
+            }
+            localConfig.mcpServers = localConfig.mcpServers || {};
+            localConfig.mcpServers[name] = config;
+            writeFileSync(localPath, JSON.stringify(localConfig, null, 2), "utf8");
+
+            sendJson(response, 200, { ok: true, status: srv.status, error: srv.error, tools: srv.tools });
+            return;
+        }
+
+        if (request.method === "DELETE") {
+            const name = requestUrl.searchParams.get("name");
+            if (!name) {
+                sendJson(response, 400, { ok: false, error: "Server name is required." });
+                return;
+            }
+            if (activeMcpServers.has(name)) {
+                activeMcpServers.get(name).stop();
+                activeMcpServers.delete(name);
+            }
+
+            const localPath = path.join(process.cwd(), "mcp_config.json");
+            if (existsSync(localPath)) {
+                try {
+                    const localConfig = JSON.parse(readFileSync(localPath, "utf8"));
+                    if (localConfig.mcpServers && localConfig.mcpServers[name]) {
+                        delete localConfig.mcpServers[name];
+                        writeFileSync(localPath, JSON.stringify(localConfig, null, 2), "utf8");
+                    }
+                } catch (e) {
+                    console.error("Failed to delete local MCP server config:", e);
+                }
+            }
+            sendJson(response, 200, { ok: true });
+            return;
+        }
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/mcp/run") {
+        const body = await readJsonBody(request);
+        const serverName = String(body.serverName || "").trim();
+        const toolName = String(body.toolName || "").trim();
+        const args = body.arguments || {};
+
+        const srv = activeMcpServers.get(serverName);
+        if (!srv) {
+            sendJson(response, 404, { ok: false, error: `MCP Server '${serverName}' not found.` });
+            return;
+        }
+        try {
+            const result = await srv.callTool(toolName, args);
+            sendJson(response, 200, { ok: true, result });
         } catch (err) {
             sendJson(response, 500, { ok: false, error: err.message });
         }
@@ -603,49 +705,130 @@ async function callOpenAiResponses(prompt) {
 }
 
 async function callAnthropic(prompt) {
-    const data = await postJson("https://api.anthropic.com/v1/messages", {
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-    }, {
-        model: getProviderModel("claude"),
-        max_tokens: 900,
-        messages: [{ role: "user", content: prompt }]
-    });
+    const messages = [{ role: "user", content: prompt }];
+    const llmTools = getMcpToolsForLlm();
+    const anthropicTools = llmTools.map((t) => ({
+        name: t.function.name,
+        description: t.function.description,
+        input_schema: t.function.parameters
+    }));
 
-    const text = (Array.isArray(data.content) ? data.content : [])
-        .map((part) => part.text || "")
-        .filter(Boolean)
-        .join("\n")
-        .trim();
+    for (let turn = 0; turn < 5; turn++) {
+        const payload = {
+            model: getProviderModel("claude"),
+            max_tokens: 900,
+            messages
+        };
 
-    if (!text) {
-        throw new Error("Anthropic response did not include text.");
+        if (anthropicTools.length > 0) {
+            payload.tools = anthropicTools;
+        }
+
+        const data = await postJson("https://api.anthropic.com/v1/messages", {
+            "x-api-key": process.env.ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01"
+        }, payload);
+
+        const content = data.content || [];
+        messages.push({ role: "assistant", content });
+
+        const toolUses = content.filter((part) => part.type === "tool_use");
+        if (toolUses.length > 0) {
+            const toolResults = [];
+            for (const toolUse of toolUses) {
+                try {
+                    const resultText = await executeMcpToolCall(toolUse.name, toolUse.input);
+                    toolResults.push({
+                        type: "tool_result",
+                        tool_use_id: toolUse.id,
+                        content: resultText
+                    });
+                } catch (err) {
+                    toolResults.push({
+                        type: "tool_result",
+                        tool_use_id: toolUse.id,
+                        content: JSON.stringify({ error: err.message }),
+                        is_error: true
+                    });
+                }
+            }
+            messages.push({ role: "user", content: toolResults });
+            continue;
+        }
+
+        const text = content.map((part) => part.text || "").filter(Boolean).join("\n").trim();
+        if (!text) {
+            throw new Error("Anthropic response did not include text.");
+        }
+        return text;
     }
 
-    return text;
+    throw new Error("Max tool call turns reached.");
 }
 
 async function callOpenAiCompatible({ url, key, model, prompt, headers = {} }) {
-    const data = await postJson(url, {
-        Authorization: `Bearer ${key}`,
-        ...headers
-    }, {
-        model,
-        messages: [
-            { role: "system", content: "You are Wondrilla, a concise and useful AI assistant." },
-            { role: "user", content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 900
-    });
+    const messages = [
+        { role: "system", content: "You are Wondrilla, a concise and useful AI assistant." },
+        { role: "user", content: prompt }
+    ];
 
-    const text = data.choices?.[0]?.message?.content?.trim();
+    const llmTools = getMcpToolsForLlm();
 
-    if (!text) {
-        throw new Error("Provider response did not include text.");
+    for (let turn = 0; turn < 5; turn++) {
+        const payload = {
+            model,
+            messages,
+            temperature: 0.7,
+            max_tokens: 900
+        };
+
+        if (llmTools.length > 0) {
+            payload.tools = llmTools;
+        }
+
+        const data = await postJson(url, {
+            Authorization: `Bearer ${key}`,
+            ...headers
+        }, payload);
+
+        const choice = data.choices?.[0];
+        if (!choice) {
+            throw new Error("Provider response did not include choices.");
+        }
+
+        const message = choice.message;
+        messages.push(message);
+
+        if (message.tool_calls && message.tool_calls.length > 0) {
+            for (const toolCall of message.tool_calls) {
+                try {
+                    const resultText = await executeMcpToolCall(toolCall.function.name, toolCall.function.arguments);
+                    messages.push({
+                        role: "tool",
+                        tool_call_id: toolCall.id,
+                        name: toolCall.function.name,
+                        content: resultText
+                    });
+                } catch (err) {
+                    messages.push({
+                        role: "tool",
+                        tool_call_id: toolCall.id,
+                        name: toolCall.function.name,
+                        content: JSON.stringify({ error: err.message })
+                    });
+                }
+            }
+            continue;
+        }
+
+        const text = message.content?.trim();
+        if (!text) {
+            throw new Error("Provider response did not include text content.");
+        }
+        return text;
     }
 
-    return text;
+    throw new Error("Max tool call turns reached.");
 }
 
 async function postJson(url, headers, body) {
@@ -1000,4 +1183,316 @@ function sanitizeError(error) {
     return String(error?.message || error || "Unknown error")
         .replace(/[A-Za-z0-9_-]{24,}/g, "[redacted]")
         .slice(0, 260);
+}
+
+// ============================================================================
+// MODEL CONTEXT PROTOCOL (MCP) INTEGRATION
+// ============================================================================
+
+const activeMcpServers = new Map();
+
+class McpServerInstance {
+    constructor(name, config) {
+        this.name = name;
+        this.config = config;
+        this.status = "Disconnected";
+        this.process = null;
+        this.tools = [];
+        this.error = null;
+        this.responseHandlers = new Map();
+        this.requestId = 1;
+        this.lineBuffer = "";
+        this.postUrl = null;
+    }
+
+    async start() {
+        if (this.config.serverUrl) {
+            this.status = "Connecting";
+            try {
+                const urlObj = new URL(this.config.serverUrl);
+                const clientLib = urlObj.protocol === "https:" ? https : http;
+                
+                const req = clientLib.get(this.config.serverUrl, {
+                    headers: {
+                        "Accept": "text/event-stream",
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive"
+                    }
+                }, (res) => {
+                    this.status = "Connected";
+                    let buffer = "";
+                    res.on("data", (chunk) => {
+                        buffer += chunk.toString();
+                        let lines = buffer.split("\n");
+                        buffer = lines.pop();
+                        
+                        for (let line of lines) {
+                            line = line.trim();
+                            if (!line) continue;
+                            if (line.startsWith("event: message")) {
+                                // Handled in data:
+                            } else if (line.startsWith("data: ")) {
+                                try {
+                                    const data = JSON.parse(line.substring(6).trim());
+                                    this.handleJsonRpc(data);
+                                } catch (e) {}
+                            } else if (line.startsWith("event: endpoint")) {
+                                // Look ahead for the data
+                                const idx = lines.indexOf(line);
+                                const nextLine = lines[idx + 1] || "";
+                                if (nextLine.startsWith("data: ")) {
+                                    this.postUrl = new URL(nextLine.substring(6).trim(), this.config.serverUrl).toString();
+                                }
+                            }
+                        }
+                    });
+                    
+                    res.on("close", () => {
+                        this.status = "Disconnected";
+                    });
+
+                    // List tools once connected
+                    this.refreshTools().catch(() => {});
+                });
+                
+                req.on("error", (err) => {
+                    this.status = "Error";
+                    this.error = err.message;
+                });
+            } catch (e) {
+                this.status = "Error";
+                this.error = e.message;
+            }
+            return;
+        }
+
+        if (!this.config.command) {
+            this.status = "Error";
+            this.error = "No command specified";
+            return;
+        }
+
+        try {
+            this.status = "Connecting";
+            
+            const command = this.config.command;
+            const args = this.config.args || [];
+            const env = { ...process.env, ...(this.config.env || {}) };
+
+            this.process = spawn(command, args, {
+                env,
+                shell: true
+            });
+
+            this.process.stdout.on("data", (data) => {
+                this.lineBuffer += data.toString();
+                let lines = this.lineBuffer.split("\n");
+                this.lineBuffer = lines.pop();
+
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line) continue;
+                    try {
+                        const message = JSON.parse(line);
+                        this.handleJsonRpc(message);
+                    } catch (e) {
+                        console.error(`[MCP ${this.name}] Failed to parse stdout:`, line, e);
+                    }
+                }
+            });
+
+            this.process.stderr.on("data", (data) => {
+                console.error(`[MCP ${this.name} stderr]`, data.toString());
+            });
+
+            this.process.on("close", (code) => {
+                this.status = "Disconnected";
+                this.process = null;
+            });
+
+            this.process.on("error", (err) => {
+                this.status = "Error";
+                this.error = err.message;
+            });
+
+            await this.refreshTools();
+            this.status = "Connected";
+        } catch (err) {
+            this.status = "Error";
+            this.error = err.message;
+        }
+    }
+
+    stop() {
+        if (this.process) {
+            this.process.kill();
+            this.process = null;
+        }
+        this.status = "Disconnected";
+        this.tools = [];
+    }
+
+    sendJsonRpc(method, params = {}) {
+        return new Promise((resolve, reject) => {
+            const id = this.requestId++;
+            const payload = {
+                jsonrpc: "2.0",
+                method,
+                params,
+                id
+            };
+
+            if (this.config.serverUrl) {
+                this.responseHandlers.set(id, { resolve, reject });
+                const postUrl = this.postUrl || this.config.serverUrl;
+                const urlObj = new URL(postUrl);
+                const clientLib = urlObj.protocol === "https:" ? https : http;
+                
+                const postData = JSON.stringify(payload);
+                const req = clientLib.request(postUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Content-Length": Buffer.byteLength(postData)
+                    }
+                }, (res) => {
+                    if (res.statusCode >= 400) {
+                        this.responseHandlers.delete(id);
+                        reject(new Error(`HTTP POST error: ${res.statusCode}`));
+                    }
+                });
+
+                req.on("error", (e) => {
+                    this.responseHandlers.delete(id);
+                    reject(e);
+                });
+
+                req.write(postData);
+                req.end();
+            } else {
+                if (!this.process) {
+                    return reject(new Error("Server process is not running"));
+                }
+                this.responseHandlers.set(id, { resolve, reject });
+                this.process.stdin.write(JSON.stringify(payload) + "\n");
+            }
+        });
+    }
+
+    handleJsonRpc(message) {
+        if (message.id !== undefined && this.responseHandlers.has(message.id)) {
+            const { resolve, reject } = this.responseHandlers.get(message.id);
+            this.responseHandlers.delete(message.id);
+            if (message.error) {
+                reject(new Error(message.error.message || "Unknown JSON-RPC error"));
+            } else {
+                resolve(message.result);
+            }
+        }
+    }
+
+    async refreshTools() {
+        try {
+            const result = await this.sendJsonRpc("tools/list");
+            this.tools = result?.tools || [];
+            this.error = null;
+        } catch (err) {
+            this.tools = [];
+            this.error = `Failed to list tools: ${err.message}`;
+            this.status = "Error";
+            throw err;
+        }
+    }
+
+    async callTool(toolName, args = {}) {
+        const result = await this.sendJsonRpc("tools/call", {
+            name: toolName,
+            arguments: args
+        });
+        return result;
+    }
+}
+
+function getMcpToolsForLlm() {
+    const llmTools = [];
+    for (const [serverName, srv] of activeMcpServers.entries()) {
+        if (srv.status !== "Connected") continue;
+        for (const tool of srv.tools) {
+            const name = `${serverName}__${tool.name}`;
+            llmTools.push({
+                type: "function",
+                function: {
+                    name,
+                    description: `[MCP: ${serverName}] ${tool.description || ""}`,
+                    parameters: tool.inputSchema || { type: "object", properties: {} }
+                }
+            });
+        }
+    }
+    return llmTools;
+}
+
+async function executeMcpToolCall(fullName, argsString) {
+    let args = {};
+    try {
+        args = typeof argsString === "string" ? JSON.parse(argsString) : argsString;
+    } catch (e) {
+        console.error("Failed to parse tool call arguments:", argsString, e);
+    }
+
+    const separatorIndex = fullName.indexOf("__");
+    if (separatorIndex === -1) {
+        throw new Error(`Invalid tool name format: ${fullName}`);
+    }
+    const serverName = fullName.substring(0, separatorIndex);
+    const toolName = fullName.substring(separatorIndex + 2);
+
+    const srv = activeMcpServers.get(serverName);
+    if (!srv) {
+        throw new Error(`MCP Server '${serverName}' is not running`);
+    }
+
+    const result = await srv.callTool(toolName, args);
+    return JSON.stringify(result);
+}
+
+async function initMcpServers() {
+    const localPath = path.join(process.cwd(), "mcp_config.json");
+    let configData = null;
+
+    if (existsSync(localPath)) {
+        try {
+            configData = JSON.parse(readFileSync(localPath, "utf8"));
+        } catch (e) {
+            console.error("Failed to parse local mcp_config.json:", e);
+        }
+    } else {
+        const globalPath = "c:\\Users\\savio\\.gemini\\antigravity-ide\\mcp_config.json";
+        if (existsSync(globalPath)) {
+            try {
+                const content = readFileSync(globalPath, "utf8");
+                writeFileSync(localPath, content, "utf8");
+                configData = JSON.parse(content);
+                console.log("Successfully imported MCP configuration from global IDE config.");
+            } catch (e) {
+                console.error("Failed to import global mcp_config.json:", e);
+            }
+        }
+    }
+
+    if (!configData) {
+        configData = { mcpServers: {} };
+        writeFileSync(localPath, JSON.stringify(configData, null, 2), "utf8");
+    }
+
+    const servers = configData.mcpServers || {};
+    for (const [name, srvConfig] of Object.entries(servers)) {
+        if (srvConfig.command || srvConfig.serverUrl) {
+            const instance = new McpServerInstance(name, srvConfig);
+            activeMcpServers.set(name, instance);
+            instance.start().catch(err => {
+                console.error(`Failed to start MCP server ${name}:`, err);
+            });
+        }
+    }
 }

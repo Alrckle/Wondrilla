@@ -107,7 +107,32 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         logoutBtn: document.getElementById("logout-btn"),
         oauthGoogleBtn: document.getElementById("oauth-google-btn"),
         oauthGithubBtn: document.getElementById("oauth-github-btn"),
-        authPasswordToggle: document.getElementById("auth-password-toggle")
+        authPasswordToggle: document.getElementById("auth-password-toggle"),
+        manageMcp: document.getElementById("manage-mcp"),
+        mcpModal: document.getElementById("mcp-modal"),
+        mcpModalClose: document.getElementById("mcp-modal-close"),
+        tabServersBtn: document.getElementById("tab-servers-btn"),
+        tabAddBtn: document.getElementById("tab-add-btn"),
+        tabTesterBtn: document.getElementById("tab-tester-btn"),
+        mcpTabServers: document.getElementById("mcp-tab-servers"),
+        mcpTabAdd: document.getElementById("mcp-tab-add"),
+        mcpTabTester: document.getElementById("mcp-tab-tester"),
+        mcpServersList: document.getElementById("mcp-servers-list"),
+        mcpAddForm: document.getElementById("mcp-add-form"),
+        mcpName: document.getElementById("mcp-name"),
+        mcpType: document.getElementById("mcp-type"),
+        mcpCommandFields: document.getElementById("mcp-command-fields"),
+        mcpSseFields: document.getElementById("mcp-sse-fields"),
+        mcpCommand: document.getElementById("mcp-command"),
+        mcpArgs: document.getElementById("mcp-args"),
+        mcpEnv: document.getElementById("mcp-env"),
+        mcpUrl: document.getElementById("mcp-url"),
+        testerServer: document.getElementById("tester-server"),
+        testerTool: document.getElementById("tester-tool"),
+        testerArgs: document.getElementById("tester-args"),
+        runToolBtn: document.getElementById("run-tool-btn"),
+        testerOutputContainer: document.getElementById("tester-output-container"),
+        testerOutput: document.getElementById("tester-output")
     };
     function modelById(id) {
         return models.find((model) => model.id === id) || models[0];
@@ -355,6 +380,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.checkoutModal.classList.add("hidden");
         if (elements.authModal) elements.authModal.classList.add("hidden");
         if (elements.profileModal) elements.profileModal.classList.add("hidden");
+        if (elements.mcpModal) elements.mcpModal.classList.add("hidden");
         document.body.style.overflow = "";
     }
 
@@ -1280,6 +1306,248 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
     }
 
+    let mcpServers = [];
+
+    async function initMcpUi() {
+        if (!elements.manageMcp) return;
+
+        elements.mcpType.addEventListener("change", (e) => {
+            const isCommand = e.target.value === "command";
+            elements.mcpCommandFields.classList.toggle("hidden", !isCommand);
+            elements.mcpSseFields.classList.toggle("hidden", isCommand);
+        });
+
+        const tabs = [
+            { btn: elements.tabServersBtn, tab: elements.mcpTabServers },
+            { btn: elements.tabAddBtn, tab: elements.mcpTabAdd },
+            { btn: elements.tabTesterBtn, tab: elements.mcpTabTester }
+        ];
+
+        tabs.forEach(({ btn, tab }) => {
+            btn.addEventListener("click", () => {
+                tabs.forEach(t => {
+                    t.btn.classList.remove("active");
+                    t.tab.classList.add("hidden");
+                });
+                btn.classList.add("active");
+                tab.classList.remove("hidden");
+                
+                if (tab === elements.mcpTabServers) {
+                    refreshMcpServersList();
+                } else if (tab === elements.mcpTabTester) {
+                    populateTesterDropdowns();
+                }
+            });
+        });
+
+        elements.manageMcp.addEventListener("click", () => {
+            openModal(elements.mcpModal);
+            refreshMcpServersList();
+        });
+
+        elements.mcpModalClose.addEventListener("click", closeModals);
+
+        elements.mcpAddForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = elements.mcpName.value.trim();
+            const type = elements.mcpType.value;
+            
+            let config = {};
+            if (type === "command") {
+                const command = elements.mcpCommand.value.trim();
+                const argsStr = elements.mcpArgs.value.trim();
+                const envStr = elements.mcpEnv.value.trim();
+                
+                let args = [];
+                if (argsStr) {
+                    args = argsStr.split(",").map(a => a.trim()).filter(Boolean);
+                }
+                
+                let env = {};
+                if (envStr) {
+                    try {
+                        env = JSON.parse(envStr);
+                    } catch (err) {
+                        showToast("Invalid JSON in Environment Variables.");
+                        return;
+                    }
+                }
+                
+                config = { command, args, env };
+            } else {
+                const serverUrl = elements.mcpUrl.value.trim();
+                config = { serverUrl };
+            }
+
+            try {
+                showToast("Connecting to MCP server...");
+                const res = await postJson("/api/mcp", { name, config });
+                if (res.ok) {
+                    showToast(`MCP Server '${name}' connected successfully!`);
+                    elements.mcpAddForm.reset();
+                    elements.tabServersBtn.click();
+                } else {
+                    showToast(`Connection failed: ${res.error}`);
+                }
+            } catch (err) {
+                showToast(`Error adding server: ${err.message}`);
+            }
+        });
+
+        elements.testerServer.addEventListener("change", (e) => {
+            const serverName = e.target.value;
+            const srv = mcpServers.find(s => s.name === serverName);
+            
+            elements.testerTool.innerHTML = '<option value="">-- Choose Tool --</option>';
+            if (srv && srv.status === "Connected" && srv.tools.length > 0) {
+                elements.testerTool.disabled = false;
+                srv.tools.forEach(tool => {
+                    const opt = document.createElement("option");
+                    opt.value = tool.name;
+                    opt.textContent = `${tool.name} (${tool.description || 'No description'})`;
+                    elements.testerTool.appendChild(opt);
+                });
+            } else {
+                elements.testerTool.disabled = true;
+                elements.runToolBtn.disabled = true;
+            }
+        });
+
+        elements.testerTool.addEventListener("change", (e) => {
+            const toolName = e.target.value;
+            elements.runToolBtn.disabled = !toolName;
+            
+            const serverName = elements.testerServer.value;
+            const srv = mcpServers.find(s => s.name === serverName);
+            if (srv) {
+                const tool = srv.tools.find(t => t.name === toolName);
+                if (tool && tool.inputSchema) {
+                    const template = {};
+                    if (tool.inputSchema.properties) {
+                        for (const [propName, prop] of Object.entries(tool.inputSchema.properties)) {
+                            template[propName] = prop.type === "string" ? "" : prop.type === "number" ? 0 : prop.type === "boolean" ? false : null;
+                        }
+                    }
+                    elements.testerArgs.value = JSON.stringify(template, null, 2);
+                } else {
+                    elements.testerArgs.value = "{}";
+                }
+            }
+        });
+
+        elements.runToolBtn.addEventListener("click", async () => {
+            const serverName = elements.testerServer.value;
+            const toolName = elements.testerTool.value;
+            const argsStr = elements.testerArgs.value.trim();
+            
+            let args = {};
+            if (argsStr) {
+                try {
+                    args = JSON.parse(argsStr);
+                } catch (err) {
+                    showToast("Invalid JSON arguments.");
+                    return;
+                }
+            }
+
+            elements.testerOutputContainer.classList.remove("hidden");
+            elements.testerOutput.textContent = "Executing tool...";
+
+            try {
+                const res = await postJson("/api/mcp/run", { serverName, toolName, arguments: args });
+                if (res.ok) {
+                    elements.testerOutput.textContent = JSON.stringify(res.result, null, 2);
+                } else {
+                    elements.testerOutput.textContent = `Error: ${res.error}`;
+                }
+            } catch (err) {
+                elements.testerOutput.textContent = `Error: ${err.message}`;
+            }
+        });
+    }
+
+    async function refreshMcpServersList() {
+        if (!elements.mcpServersList) return;
+        elements.mcpServersList.innerHTML = "<div style='color:var(--ink-soft); font-size:13px;'>Loading servers status...</div>";
+
+        try {
+            const res = await fetchJson("/api/mcp");
+            if (res.ok && Array.isArray(res.servers)) {
+                mcpServers = res.servers;
+                elements.mcpServersList.innerHTML = "";
+                
+                if (mcpServers.length === 0) {
+                    elements.mcpServersList.innerHTML = "<div style='color:var(--muted); font-size:13px; text-align:center; padding: 20px;'>No MCP servers configured yet.</div>";
+                    return;
+                }
+
+                mcpServers.forEach(srv => {
+                    const card = document.createElement("div");
+                    card.className = "mcp-server-card";
+                    
+                    const statusClass = srv.status.toLowerCase();
+                    const srvInfo = srv.config.serverUrl ? srv.config.serverUrl : `${srv.config.command} ${srv.config.args ? srv.config.args.join(' ') : ''}`;
+                    const toolsHtml = srv.status === "Connected" && srv.tools.length > 0
+                        ? srv.tools.map(t => `<span class="mcp-tool-pill" title="${t.description || ''}">${t.name}</span>`).join('')
+                        : "<span style='color:var(--muted); font-size:11px;'>No active tools</span>";
+
+                    card.innerHTML = `
+                        <div class="mcp-server-header">
+                            <span class="mcp-server-name">
+                                <span class="mcp-status-dot ${statusClass}"></span>
+                                ${srv.name}
+                            </span>
+                            <div class="mcp-server-actions">
+                                <span class="mcp-server-type">${srv.config.serverUrl ? 'sse' : 'stdio'}</span>
+                                <button class="mcp-delete-btn" data-name="${srv.name}">Delete</button>
+                            </div>
+                        </div>
+                        <div class="mcp-server-info">${srvInfo}</div>
+                        ${srv.error ? `<div style="color:#d04848; font-size:11px; margin-bottom:8px;">Error: ${srv.error}</div>` : ''}
+                        <div class="mcp-server-tools">
+                            <div class="mcp-server-tools-title">Exposed Tools (${srv.tools.length})</div>
+                            <div style="margin-top: 4px;">${toolsHtml}</div>
+                        </div>
+                    `;
+
+                    card.querySelector(".mcp-delete-btn").addEventListener("click", async () => {
+                        if (confirm(`Are you sure you want to delete and disconnect server '${srv.name}'?`)) {
+                            try {
+                                showToast(`Disconnecting '${srv.name}'...`);
+                                const delRes = await fetchJson(`/api/mcp?name=${encodeURIComponent(srv.name)}`, { method: "DELETE" });
+                                if (delRes.ok) {
+                                    showToast(`Server '${srv.name}' deleted.`);
+                                    refreshMcpServersList();
+                                }
+                            } catch (err) {
+                                showToast(`Failed to delete: ${err.message}`);
+                            }
+                        }
+                    });
+
+                    elements.mcpServersList.appendChild(card);
+                });
+            }
+        } catch (err) {
+            elements.mcpServersList.innerHTML = `<div style='color:#d04848; font-size:13px;'>Failed to load servers: ${err.message}</div>`;
+        }
+    }
+
+    function populateTesterDropdowns() {
+        elements.testerServer.innerHTML = '<option value="">-- Choose Server --</option>';
+        elements.testerTool.innerHTML = '<option value="">-- Choose Tool --</option>';
+        elements.testerTool.disabled = true;
+        elements.runToolBtn.disabled = true;
+        elements.testerOutputContainer.classList.add("hidden");
+
+        mcpServers.forEach(srv => {
+            const opt = document.createElement("option");
+            opt.value = srv.name;
+            opt.textContent = `${srv.name} (${srv.status})`;
+            elements.testerServer.appendChild(opt);
+        });
+    }
+
     renderModels();
     renderHistory();
     updateUsage();
@@ -1288,4 +1556,5 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     autoResize();
     loadRuntimeStatus();
     initSupabaseAuth();
+    initMcpUi();
 })();
