@@ -480,10 +480,17 @@ a:focus-visible {
     width: 30px;
 }
 
+.model-avatar svg {
+    width: 18px !important;
+    height: 18px !important;
+    display: block;
+}
+
 .model-avatar.auto {
     background: var(--ink);
     color: var(--acid);
 }
+
 
 .chevron {
     color: var(--muted);
@@ -798,6 +805,12 @@ a:focus-visible {
     height: 23px;
     width: 23px;
 }
+
+.message-meta .model-avatar svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
 
 .typing-dots {
     display: inline-flex;
