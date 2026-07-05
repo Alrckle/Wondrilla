@@ -2088,15 +2088,121 @@ a:focus-visible {
     transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 
-.manage-mcp:hover {
+.settings-modal-card {
+    width: min(840px, 100%);
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 25px;
+    margin-top: 15px;
+    min-height: 420px;
+}
+
+.settings-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-right: 1px solid var(--line-soft);
+    padding-right: 18px;
+}
+
+.settings-tab-btn {
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 14px;
+    text-align: left;
+    transition: background 150ms ease, color 150ms ease;
+    width: 100%;
+}
+
+.settings-tab-btn:hover {
     background: rgba(255, 255, 255, 0.04);
-    border-color: var(--ink-soft);
     color: var(--ink);
 }
 
-.mcp-modal-card {
-    max-width: 580px;
-    width: 100%;
+.settings-tab-btn.active {
+    background: rgba(37, 99, 235, 0.15);
+    color: var(--acid);
+    font-weight: 700;
+}
+
+.settings-tab-btn .tab-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2px;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.settings-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.panel-subtitle {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.panel-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--ink);
+}
+
+.panel-lead {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+    .settings-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        min-height: auto;
+    }
+    
+    .settings-tabs {
+        flex-direction: row;
+        border-right: 0;
+        border-bottom: 1px solid var(--line-soft);
+        padding-right: 0;
+        padding-bottom: 12px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .settings-tab-btn {
+        width: auto;
+        padding: 8px 12px;
+    }
+    
+    .settings-content {
+        min-height: auto;
+    }
 }
 
 .mcp-tabs {

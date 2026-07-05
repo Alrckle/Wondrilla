@@ -268,6 +268,41 @@ async function handleApi(request, response, requestUrl) {
         } catch (err) {
             sendJson(response, 500, { ok: false, error: err.message });
         }
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/user/personalization") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const about = String(body.about || "");
+        const responseVal = String(body.response || "");
+
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true });
+            return;
+        }
+
+        try {
+            const { data: user, error } = await supabase
+                .from("wondrilla_users")
+                .update({
+                    custom_instructions_about: about,
+                    custom_instructions_response: responseVal,
+                    updated_at: new Date().toISOString()
+                })
+                .eq("user_id", userId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            sendJson(response, 200, { ok: true, user });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
         return;
     }
 
@@ -566,6 +601,21 @@ function buildProviderPrompt(prompt, body) {
         "You are Wondrilla, a helpful multi-model AI workspace.",
         "Give a clear, useful answer. Be concise unless the user asks for detail."
     ];
+
+    if (body.customInstructions) {
+        const about = String(body.customInstructions.about || "").trim();
+        const response = String(body.customInstructions.response || "").trim();
+        if (about) {
+            lines.push("");
+            lines.push("--- USER CONTEXT (About the User) ---");
+            lines.push(about);
+        }
+        if (response) {
+            lines.push("");
+            lines.push("--- RESPONSE GUIDELINES (How to Respond) ---");
+            lines.push(response);
+        }
+    }
 
     if (body.web) {
         lines.push("The user enabled web research. If live search context is not provided, say that a search connector is needed before making current claims.");

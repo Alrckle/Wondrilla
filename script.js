@@ -39,7 +39,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         gatewayOnline: false,
         providerStatus: new Map(),
         history: [],
-        compareModels: ["claude", "chatgpt", "deepseek"]
+        compareModels: ["claude", "chatgpt", "deepseek"],
+        customInstructions: {
+            about: "",
+            response: ""
+        }
     };
 
     let supabaseClient = null;
@@ -108,9 +112,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         oauthGoogleBtn: document.getElementById("oauth-google-btn"),
         oauthGithubBtn: document.getElementById("oauth-github-btn"),
         authPasswordToggle: document.getElementById("auth-password-toggle"),
-        manageMcp: document.getElementById("manage-mcp"),
-        mcpModal: document.getElementById("mcp-modal"),
-        mcpModalClose: document.getElementById("mcp-modal-close"),
+        settingsProfileBtn: document.getElementById("settings-profile-btn"),
+        settingsPersonalizationBtn: document.getElementById("settings-personalization-btn"),
+        settingsMcpBtn: document.getElementById("settings-mcp-btn"),
+        tabProfile: document.getElementById("tab-profile"),
+        tabPersonalization: document.getElementById("tab-personalization"),
+        tabMcp: document.getElementById("tab-mcp"),
+        personalizationForm: document.getElementById("personalization-form"),
+        personalizationAbout: document.getElementById("personalization-about"),
+        personalizationResponse: document.getElementById("personalization-response"),
         tabServersBtn: document.getElementById("tab-servers-btn"),
         tabAddBtn: document.getElementById("tab-add-btn"),
         tabTesterBtn: document.getElementById("tab-tester-btn"),
@@ -380,7 +390,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.checkoutModal.classList.add("hidden");
         if (elements.authModal) elements.authModal.classList.add("hidden");
         if (elements.profileModal) elements.profileModal.classList.add("hidden");
-        if (elements.mcpModal) elements.mcpModal.classList.add("hidden");
         document.body.style.overflow = "";
     }
 
@@ -610,7 +619,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     compare: true,
                     compareModels: state.compareModels,
                     web: state.web,
-                    file: publicFilePayload(attachedFile)
+                    file: publicFilePayload(attachedFile),
+                    customInstructions: state.customInstructions
                 });
                 typing.remove();
                 addCompareAnswers(response.answers, attachedFile);
@@ -639,7 +649,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 prompt: cleanText,
                 compare: false,
                 web: state.web,
-                file: publicFilePayload(attachedFile)
+                file: publicFilePayload(attachedFile),
+                customInstructions: state.customInstructions
             });
             const responseModel = modelById(response.modelId || state.selectedModel);
             addAssistantMessage(responseModel, response.text, typing, response);
@@ -1036,6 +1047,54 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.oauthGithubBtn) elements.oauthGithubBtn.addEventListener("click", () => handleOAuth("github"));
         if (elements.logoutBtn) elements.logoutBtn.addEventListener("click", handleLogout);
 
+        // Settings Tabs switching
+        const settingsTabs = [
+            { btn: elements.settingsProfileBtn, panel: elements.tabProfile },
+            { btn: elements.settingsPersonalizationBtn, panel: elements.tabPersonalization },
+            { btn: elements.settingsMcpBtn, panel: elements.tabMcp }
+        ];
+        settingsTabs.forEach(({ btn, panel }) => {
+            if (btn && panel) {
+                btn.addEventListener("click", () => {
+                    settingsTabs.forEach(t => {
+                        if (t.btn) t.btn.classList.remove("active");
+                        if (t.panel) t.panel.classList.add("hidden");
+                    });
+                    btn.classList.add("active");
+                    panel.classList.remove("hidden");
+                });
+            }
+        });
+
+        // Personalization Custom Instructions Form Submit
+        if (elements.personalizationForm) {
+            elements.personalizationForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const aboutVal = elements.personalizationAbout.value.trim();
+                const responseVal = elements.personalizationResponse.value.trim();
+                
+                showToast("Saving custom instructions...");
+                try {
+                    const res = await postJson("/api/user/personalization", {
+                        userId: state.userId,
+                        about: aboutVal,
+                        response: responseVal
+                    });
+                    if (res.ok) {
+                        state.customInstructions = {
+                            about: aboutVal,
+                            response: responseVal
+                        };
+                        showToast("Custom instructions saved successfully!");
+                    } else {
+                        showToast(`Save failed: ${res.error}`);
+                    }
+                } catch (err) {
+                    showToast(`Error saving: ${err.message}`);
+                }
+            });
+        }
+
         if (elements.authPasswordToggle) {
             elements.authPasswordToggle.addEventListener("click", () => {
                 const isPassword = elements.authPassword.getAttribute("type") === "password";
@@ -1206,6 +1265,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const percentage = Math.min(100, Math.max(0, (state.used / limit) * 100));
             progressFill.style.width = `${percentage}%`;
         }
+
+        // Custom Instructions
+        if (elements.personalizationAbout) elements.personalizationAbout.value = state.customInstructions.about || "";
+        if (elements.personalizationResponse) elements.personalizationResponse.value = state.customInstructions.response || "";
+
+        // Reset Settings tab to Profile
+        if (elements.settingsProfileBtn) elements.settingsProfileBtn.click();
         
         openModal(elements.profileModal);
     }
@@ -1317,6 +1383,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             if (userData.ok && userData.user) {
                 state.plan = userData.user.plan || "free";
                 state.used = userData.user.messages_used || 0;
+                state.customInstructions = {
+                    about: userData.user.custom_instructions_about || "",
+                    response: userData.user.custom_instructions_response || ""
+                };
                 localStorage.setItem("wondrilla_plan", state.plan);
                 updateUsage();
                 updatePlanUI();
@@ -1347,7 +1417,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     let mcpServers = [];
 
     async function initMcpUi() {
-        if (!elements.manageMcp) return;
+        if (!elements.settingsMcpBtn) return;
 
         elements.mcpType.addEventListener("change", (e) => {
             const isCommand = e.target.value === "command";
@@ -1377,13 +1447,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 }
             });
         });
-
-        elements.manageMcp.addEventListener("click", () => {
-            openModal(elements.mcpModal);
-            refreshMcpServersList();
-        });
-
-        elements.mcpModalClose.addEventListener("click", closeModals);
 
         elements.mcpAddForm.addEventListener("submit", async (e) => {
             e.preventDefault();
