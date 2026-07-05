@@ -231,7 +231,12 @@ async function handleApi(request, response, requestUrl) {
             return;
         }
 
-        if (paypalOrderId) {
+        if (plan !== "free") {
+            if (!paypalOrderId) {
+                sendJson(response, 400, { ok: false, error: "paypalOrderId is required for paid plans." });
+                return;
+            }
+
             let expectedPrice = "0.00";
             if (plan === "pro") {
                 expectedPrice = billing === "yearly" ? "19.00" : "24.00";
