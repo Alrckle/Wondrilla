@@ -433,13 +433,23 @@
                         <p class="panel-lead">Provide context that the AI will automatically append to every prompt query.</p>
                         
                         <form id="personalization-form" class="checkout-form" style="gap: 15px; margin-top: 15px;">
+                            <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin-bottom: 5px;">
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <label for="personalization-enabled" style="font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: normal; margin: 0;">Enable Custom Instructions</label>
+                                    <span style="color: var(--muted); font-size: 12px;">Toggle on to automatically apply these guidelines to all new prompt requests.</span>
+                                </div>
+                                <label class="switch-toggle" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                                    <input type="checkbox" id="personalization-enabled" style="opacity: 0; width: 0; height: 0;">
+                                    <span class="slider-toggle" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--line); transition: .3s; border-radius: 24px; border: 1px solid var(--line-soft);"></span>
+                                </label>
+                            </div>
                             <div class="form-group">
                                 <label for="personalization-about" style="font-size: 11px; text-transform: none; letter-spacing: normal;">What would you like the AI to know about you to provide better responses?</label>
-                                <textarea id="personalization-about" placeholder="e.g. I am a software developer working on Node.js apps. Speak in a helpful but direct tone." rows="4" style="background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 14px; padding: 12px; resize: vertical; width: 100%; font-family: inherit;"></textarea>
+                                <textarea id="personalization-about" placeholder="e.g. I am a software developer working on Node.js apps. Speak in a helpful but direct tone." rows="4"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="personalization-response" style="font-size: 11px; text-transform: none; letter-spacing: normal;">How would you like the AI to respond?</label>
-                                <textarea id="personalization-response" placeholder="e.g. Provide code snippets in ES Modules. Keep explanations short and clean." rows="4" style="background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 14px; padding: 12px; resize: vertical; width: 100%; font-family: inherit;"></textarea>
+                                <textarea id="personalization-response" placeholder="e.g. Provide code snippets in ES Modules. Keep explanations short and clean." rows="4"></textarea>
                             </div>
                             <button class="checkout-submit-btn" type="submit" style="margin-top: 10px;">Save Instructions</button>
                         </form>

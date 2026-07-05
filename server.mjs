@@ -275,6 +275,7 @@ async function handleApi(request, response, requestUrl) {
         const userId = String(body.userId || "").trim();
         const about = String(body.about || "");
         const responseVal = String(body.response || "");
+        const enabledVal = body.enabled !== false;
 
         if (!userId) {
             sendJson(response, 400, { ok: false, error: "userId is required." });
@@ -292,6 +293,7 @@ async function handleApi(request, response, requestUrl) {
                 .update({
                     custom_instructions_about: about,
                     custom_instructions_response: responseVal,
+                    custom_instructions_enabled: enabledVal,
                     updated_at: new Date().toISOString()
                 })
                 .eq("user_id", userId)
@@ -602,7 +604,7 @@ function buildProviderPrompt(prompt, body) {
         "Give a clear, useful answer. Be concise unless the user asks for detail."
     ];
 
-    if (body.customInstructions) {
+    if (body.customInstructions && body.customInstructions.enabled !== false) {
         const about = String(body.customInstructions.about || "").trim();
         const response = String(body.customInstructions.response || "").trim();
         if (about) {

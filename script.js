@@ -42,7 +42,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         compareModels: ["claude", "chatgpt", "deepseek"],
         customInstructions: {
             about: "",
-            response: ""
+            response: "",
+            enabled: true
         }
     };
 
@@ -100,6 +101,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         authSubmitText: document.getElementById("auth-submit-text"),
         authToggleBtn: document.getElementById("auth-toggle-btn"),
         authToggleText: document.getElementById("auth-toggle-text"),
+        authTitle: document.getElementById("auth-title"),
         authClose: document.getElementById("auth-modal-close"),
         profileRow: document.querySelector(".profile-row"),
         profileModal: document.getElementById("profile-modal"),
@@ -121,6 +123,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         personalizationForm: document.getElementById("personalization-form"),
         personalizationAbout: document.getElementById("personalization-about"),
         personalizationResponse: document.getElementById("personalization-response"),
+        personalizationEnabled: document.getElementById("personalization-enabled"),
         tabServersBtn: document.getElementById("tab-servers-btn"),
         tabAddBtn: document.getElementById("tab-add-btn"),
         tabTesterBtn: document.getElementById("tab-tester-btn"),
@@ -1072,18 +1075,21 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 e.preventDefault();
                 const aboutVal = elements.personalizationAbout.value.trim();
                 const responseVal = elements.personalizationResponse.value.trim();
+                const enabledVal = elements.personalizationEnabled ? elements.personalizationEnabled.checked : true;
                 
                 showToast("Saving custom instructions...");
                 try {
                     const res = await postJson("/api/user/personalization", {
                         userId: state.userId,
                         about: aboutVal,
-                        response: responseVal
+                        response: responseVal,
+                        enabled: enabledVal
                     });
                     if (res.ok) {
                         state.customInstructions = {
                             about: aboutVal,
-                            response: responseVal
+                            response: responseVal,
+                            enabled: enabledVal
                         };
                         showToast("Custom instructions saved successfully!");
                     } else {
@@ -1269,6 +1275,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         // Custom Instructions
         if (elements.personalizationAbout) elements.personalizationAbout.value = state.customInstructions.about || "";
         if (elements.personalizationResponse) elements.personalizationResponse.value = state.customInstructions.response || "";
+        if (elements.personalizationEnabled) elements.personalizationEnabled.checked = state.customInstructions.enabled !== false;
 
         // Reset Settings tab to Profile
         if (elements.settingsProfileBtn) elements.settingsProfileBtn.click();
@@ -1385,7 +1392,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 state.used = userData.user.messages_used || 0;
                 state.customInstructions = {
                     about: userData.user.custom_instructions_about || "",
-                    response: userData.user.custom_instructions_response || ""
+                    response: userData.user.custom_instructions_response || "",
+                    enabled: userData.user.custom_instructions_enabled !== false
                 };
                 localStorage.setItem("wondrilla_plan", state.plan);
                 updateUsage();
