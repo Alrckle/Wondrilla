@@ -313,6 +313,68 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "POST" && requestUrl.pathname === "/api/messages/clear") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true });
+            return;
+        }
+
+        try {
+            const { error } = await supabase
+                .from("wondrilla_messages")
+                .delete()
+                .eq("user_id", userId);
+
+            if (error) throw error;
+            sendJson(response, 200, { ok: true });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/user/delete") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true });
+            return;
+        }
+
+        try {
+            // Delete messages first
+            const { error: msgError } = await supabase
+                .from("wondrilla_messages")
+                .delete()
+                .eq("user_id", userId);
+            if (msgError) throw msgError;
+
+            // Delete user profile
+            const { error: userError } = await supabase
+                .from("wondrilla_users")
+                .delete()
+                .eq("user_id", userId);
+            if (userError) throw userError;
+
+            sendJson(response, 200, { ok: true });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
     if (request.method === "GET" && requestUrl.pathname === "/api/messages") {
         const userId = requestUrl.searchParams.get("userId");
         if (!userId) {

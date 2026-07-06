@@ -115,11 +115,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         oauthGithubBtn: document.getElementById("oauth-github-btn"),
         authPasswordToggle: document.getElementById("auth-password-toggle"),
         settingsProfileBtn: document.getElementById("settings-profile-btn"),
+        settingsGeneralBtn: document.getElementById("settings-general-btn"),
         settingsPersonalizationBtn: document.getElementById("settings-personalization-btn"),
         settingsMcpBtn: document.getElementById("settings-mcp-btn"),
         tabProfile: document.getElementById("tab-profile"),
+        tabGeneral: document.getElementById("tab-general"),
         tabPersonalization: document.getElementById("tab-personalization"),
         tabMcp: document.getElementById("tab-mcp"),
+        themeDarkBtn: document.getElementById("theme-dark-btn"),
+        themeLightBtn: document.getElementById("theme-light-btn"),
+        themeSystemBtn: document.getElementById("theme-system-btn"),
+        clearChatsBtn: document.getElementById("clear-chats-btn"),
+        deleteAccountBtn: document.getElementById("delete-account-btn"),
         personalizationForm: document.getElementById("personalization-form"),
         personalizationAbout: document.getElementById("personalization-about"),
         personalizationResponse: document.getElementById("personalization-response"),
@@ -1053,6 +1060,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         // Settings Tabs switching
         const settingsTabs = [
             { btn: elements.settingsProfileBtn, panel: elements.tabProfile },
+            { btn: elements.settingsGeneralBtn, panel: elements.tabGeneral },
             { btn: elements.settingsPersonalizationBtn, panel: elements.tabPersonalization },
             { btn: elements.settingsMcpBtn, panel: elements.tabMcp }
         ];
@@ -1106,6 +1114,66 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 const isPassword = elements.authPassword.getAttribute("type") === "password";
                 elements.authPassword.setAttribute("type", isPassword ? "text" : "password");
                 elements.authPasswordToggle.textContent = isPassword ? "Hide" : "Show";
+            });
+        }
+
+        // Theme selection event listeners
+        if (elements.themeDarkBtn) elements.themeDarkBtn.addEventListener("click", () => applyTheme("dark"));
+        if (elements.themeLightBtn) elements.themeLightBtn.addEventListener("click", () => applyTheme("light"));
+        if (elements.themeSystemBtn) elements.themeSystemBtn.addEventListener("click", () => applyTheme("system"));
+
+        // Accent color selection event listeners
+        const accentPicker = document.querySelector(".accent-picker");
+        if (accentPicker) {
+            accentPicker.addEventListener("click", (e) => {
+                const btn = e.target.closest(".accent-btn");
+                if (btn) {
+                    const color = btn.getAttribute("data-color");
+                    applyAccent(color);
+                }
+            });
+        }
+
+        // Clear Chats event listener
+        if (elements.clearChatsBtn) {
+            elements.clearChatsBtn.addEventListener("click", async () => {
+                if (confirm("Are you sure you want to permanently clear all your chat history? This action cannot be undone.")) {
+                    showToast("Clearing chat history...");
+                    try {
+                        const res = await postJson("/api/messages/clear", { userId: state.userId });
+                        if (res.ok) {
+                            elements.messages.innerHTML = "";
+                            elements.welcomeState.classList.remove("hidden");
+                            showToast("All conversations cleared successfully!");
+                            closeModals();
+                        } else {
+                            showToast(`Failed to clear chats: ${res.error}`);
+                        }
+                    } catch (err) {
+                        showToast(`Error: ${err.message}`);
+                    }
+                }
+            });
+        }
+
+        // Delete Account event listener
+        if (elements.deleteAccountBtn) {
+            elements.deleteAccountBtn.addEventListener("click", async () => {
+                if (confirm("WARNING: Are you sure you want to delete your Wondrilla account? All profile details, settings, and chat history will be permanently deleted. This action cannot be undone.")) {
+                    showToast("Deleting account...");
+                    try {
+                        const res = await postJson("/api/user/delete", { userId: state.userId });
+                        if (res.ok) {
+                            showToast("Account deleted successfully.");
+                            handleLogout();
+                            closeModals();
+                        } else {
+                            showToast(`Failed to delete account: ${res.error}`);
+                        }
+                    } catch (err) {
+                        showToast(`Error: ${err.message}`);
+                    }
+                }
             });
         }
     }
@@ -1282,6 +1350,73 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         
         openModal(elements.profileModal);
     }
+
+    function applyTheme(theme) {
+        localStorage.setItem("wondrilla_theme", theme);
+        
+        // Remove active class from all theme buttons
+        [elements.themeDarkBtn, elements.themeLightBtn, elements.themeSystemBtn].forEach(btn => {
+            if (btn) btn.classList.remove("active");
+        });
+
+        // Set active button
+        if (theme === "dark" && elements.themeDarkBtn) elements.themeDarkBtn.classList.add("active");
+        if (theme === "light" && elements.themeLightBtn) elements.themeLightBtn.classList.add("active");
+        if (theme === "system" && elements.themeSystemBtn) elements.themeSystemBtn.classList.add("active");
+
+        const useLight = theme === "light" || (theme === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (useLight) {
+            document.body.classList.add("light-theme");
+        } else {
+            document.body.classList.remove("light-theme");
+        }
+    }
+
+    // Set up auto listener for system theme changes
+    window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
+        const storedTheme = localStorage.getItem("wondrilla_theme") || "dark";
+        if (storedTheme === "system") {
+            applyTheme("system");
+        }
+    });
+
+    const accentColors = {
+        blue: { acid: "#2563eb", acidDeep: "#1d4ed8" },
+        coral: { acid: "#f26b4a", acidDeep: "#dd5a3b" },
+        green: { acid: "#4f8f75", acidDeep: "#3f7861" },
+        gold: { acid: "#d49a2a", acidDeep: "#b28020" }
+    };
+
+    function applyAccent(color) {
+        if (!accentColors[color]) color = "blue";
+        localStorage.setItem("wondrilla_accent", color);
+
+        // Update active class on accent color buttons
+        const accentPicker = document.querySelector(".accent-picker");
+        if (accentPicker) {
+            const btns = accentPicker.querySelectorAll(".accent-btn");
+            btns.forEach(btn => {
+                if (btn.getAttribute("data-color") === color) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+        }
+
+        // Apply css variable overrides on document root
+        const root = document.documentElement;
+        root.style.setProperty("--acid", accentColors[color].acid);
+        root.style.setProperty("--acid-deep", accentColors[color].acidDeep);
+    }
+
+    // Initialize Theme & Accent color on startup
+    setTimeout(() => {
+        const initialTheme = localStorage.getItem("wondrilla_theme") || "dark";
+        const initialAccent = localStorage.getItem("wondrilla_accent") || "blue";
+        applyTheme(initialTheme);
+        applyAccent(initialAccent);
+    }, 50);
 
     function handleUserLogin(user) {
         loggedInUser = user;
