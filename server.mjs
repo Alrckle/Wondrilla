@@ -179,6 +179,7 @@ async function handleApi(request, response, requestUrl) {
 
     if (request.method === "GET" && requestUrl.pathname === "/api/user") {
         const userId = requestUrl.searchParams.get("userId");
+        const emailVal = requestUrl.searchParams.get("email") ? decodeURIComponent(requestUrl.searchParams.get("email")).trim() : null;
         if (!userId) {
             sendJson(response, 400, { ok: false, error: "userId is required." });
             return;
@@ -202,14 +203,30 @@ async function handleApi(request, response, requestUrl) {
             if (error && error.code === "PGRST116") {
                 const { data: newUser, error: insertError } = await supabase
                     .from("wondrilla_users")
-                    .insert([{ user_id: userId, plan: "free", messages_used: 0 }])
+                    .insert([{ user_id: userId, email: emailVal, plan: "free", messages_used: 0 }])
                     .select()
                     .single();
 
                 if (insertError) throw insertError;
                 user = newUser;
+
+                if (emailVal) {
+                    sendWelcomeEmail(emailVal).catch(console.error);
+                }
             } else if (error) {
                 throw error;
+            } else {
+                if (emailVal && !user.email) {
+                    const { data: updatedUser, error: updateError } = await supabase
+                        .from("wondrilla_users")
+                        .update({ email: emailVal })
+                        .eq("user_id", userId)
+                        .select()
+                        .single();
+                    if (!updateError && updatedUser) {
+                        user = updatedUser;
+                    }
+                }
             }
 
             sendJson(response, 200, { ok: true, user });
@@ -269,6 +286,11 @@ async function handleApi(request, response, requestUrl) {
                 .single();
 
             if (error) throw error;
+
+            if (user && user.email && plan !== "free") {
+                sendUpgradeEmail(user.email, plan, billing).catch(console.error);
+            }
+
             sendJson(response, 200, { ok: true, user });
         } catch (err) {
             sendJson(response, 500, { ok: false, error: err.message });
@@ -1119,6 +1141,114 @@ function isProviderConfigured(providerId) {
 function getProviderModel(providerId) {
     const config = providerConfig[providerId];
     return config ? process.env[config.modelEnv] || config.defaultModel : "demo";
+}
+
+async function sendEmail({ to, subject, html }) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+        console.warn("RESEND_API_KEY is not defined. Skipping email sending.");
+        return;
+    }
+
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "Wondrilla <onboarding@resend.dev>";
+    try {
+        const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                from: fromEmail,
+                to: Array.isArray(to) ? to : [to],
+                subject: subject,
+                html: html
+            })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+            console.error("Resend API error:", data);
+        } else {
+            console.log("Email sent successfully via Resend:", data.id);
+        }
+    } catch (err) {
+        console.error("Failed to send email via Resend:", err);
+    }
+}
+
+async function sendWelcomeEmail(toEmail) {
+    const subject = "Welcome to Wondrilla AI! 🚀";
+    const html = `
+        <div style="font-family: 'DM Sans', sans-serif; background: #0e100d; color: #f3f4f2; padding: 40px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #242722;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #2563eb; font-size: 28px; margin: 0; font-family: 'Manrope', sans-serif;">Wondrilla AI</h1>
+                <p style="color: #8c9187; font-size: 14px; margin-top: 5px;">Every mind, one workspace</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">Hi there,</p>
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">Welcome to Wondrilla! We're excited to help you streamline your workflow with our advanced multi-model AI workspace.</p>
+            
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #242722; padding: 20px; border-radius: 10px; margin: 35px 0;">
+                <h3 style="margin-top: 0; color: #f3f4f2; font-size: 16px;">Here's what you can do with your Free Plan:</h3>
+                <ul style="padding-left: 20px; color: #b8bdb4; font-size: 14px; line-height: 1.8;">
+                    <li>Access Wondrilla Auto, Claude, ChatGPT, Grok, and more models</li>
+                    <li>Utilize Model Context Protocol (MCP) integrations</li>
+                    <li>Configure Custom Instructions for personalization</li>
+                    <li>Run side-by-side model comparisons</li>
+                </ul>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">If you have any questions or need help, just reply to this email.</p>
+            
+            <div style="margin-top: 40px; border-top: 1px solid #242722; padding-top: 20px; text-align: center; color: #8c9187; font-size: 12px;">
+                <p>&copy; ${new Date().getFullYear()} Wondrilla AI. All rights reserved.</p>
+                <p style="margin-top: 5px;">wondrilla.com</p>
+            </div>
+        </div>
+    `;
+    await sendEmail({ to: toEmail, subject, html });
+}
+
+async function sendUpgradeEmail(toEmail, plan, billing) {
+    const subject = `Your Wondrilla ${plan.toUpperCase()} Plan is Active! 🎉`;
+    const html = `
+        <div style="font-family: 'DM Sans', sans-serif; background: #0e100d; color: #f3f4f2; padding: 40px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #242722;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #2563eb; font-size: 28px; margin: 0; font-family: 'Manrope', sans-serif;">Wondrilla AI</h1>
+                <p style="color: #8c9187; font-size: 14px; margin-top: 5px;">Thank you for your purchase!</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">Hi there,</p>
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">We are pleased to confirm that your account has been successfully upgraded to the <strong>${plan.toUpperCase()} Plan</strong> (${billing}).</p>
+            
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #242722; padding: 20px; border-radius: 10px; margin: 35px 0;">
+                <h3 style="margin-top: 0; color: #f3f4f2; font-size: 16px;">Plan Details:</h3>
+                <table style="width: 100%; color: #b8bdb4; font-size: 14px; line-height: 1.8;">
+                    <tr>
+                        <td style="padding: 5px 0; font-weight: bold;">Selected Tier:</td>
+                        <td style="padding: 5px 0; text-align: right; color: #f3f4f2;">${plan.toUpperCase()}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px 0; font-weight: bold;">Billing Cycle:</td>
+                        <td style="padding: 5px 0; text-align: right; color: #f3f4f2;">${billing}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px 0; font-weight: bold;">Message Limit:</td>
+                        <td style="padding: 5px 0; text-align: right; color: #f3f4f2;">${plan === "pro" ? "2,000" : "10,000"} / month</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">All features are now unlocked in your workspace. Start exploring advanced capabilities right away!</p>
+            
+            <div style="margin-top: 40px; border-top: 1px solid #242722; padding-top: 20px; text-align: center; color: #8c9187; font-size: 12px;">
+                <p>&copy; ${new Date().getFullYear()} Wondrilla AI. All rights reserved.</p>
+                <p style="margin-top: 5px;">wondrilla.com</p>
+            </div>
+        </div>
+    `;
+    await sendEmail({ to: toEmail, subject, html });
 }
 
 function sendJson(response, statusCode, payload) {

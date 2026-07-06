@@ -1521,7 +1521,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             initUserId();
         }
         try {
-            const userData = await fetchJson(`/api/user?userId=${state.userId}`);
+            const emailParam = loggedInUser && loggedInUser.email ? `&email=${encodeURIComponent(loggedInUser.email)}` : "";
+            const userData = await fetchJson(`/api/user?userId=${state.userId}${emailParam}`);
             if (userData.ok && userData.user) {
                 state.plan = userData.user.plan || "free";
                 state.used = userData.user.messages_used || 0;
