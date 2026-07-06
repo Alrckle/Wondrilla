@@ -376,6 +376,13 @@ async function handleApi(request, response, requestUrl) {
         }
 
         try {
+            // Fetch user to get email first
+            const { data: userRow } = await supabase
+                .from("wondrilla_users")
+                .select("email")
+                .eq("user_id", userId)
+                .single();
+
             // Delete messages first
             const { error: msgError } = await supabase
                 .from("wondrilla_messages")
@@ -389,6 +396,11 @@ async function handleApi(request, response, requestUrl) {
                 .delete()
                 .eq("user_id", userId);
             if (userError) throw userError;
+
+            // Trigger goodbye email if they had an email address
+            if (userRow && userRow.email) {
+                sendGoodbyeEmail(userRow.email).catch(console.error);
+            }
 
             sendJson(response, 200, { ok: true });
         } catch (err) {
@@ -1143,14 +1155,14 @@ function getProviderModel(providerId) {
     return config ? process.env[config.modelEnv] || config.defaultModel : "demo";
 }
 
-async function sendEmail({ to, subject, html }) {
+async function sendEmail({ to, from, subject, html }) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
         console.warn("RESEND_API_KEY is not defined. Skipping email sending.");
         return;
     }
 
-    const fromEmail = process.env.RESEND_FROM_EMAIL || "Wondrilla <onboarding@resend.dev>";
+    const fromEmail = from || process.env.RESEND_FROM_EMAIL || "Wondrilla <onboarding@resend.dev>";
     try {
         const res = await fetch("https://api.resend.com/emails", {
             method: "POST",
@@ -1207,7 +1219,12 @@ async function sendWelcomeEmail(toEmail) {
             </div>
         </div>
     `;
-    await sendEmail({ to: toEmail, subject, html });
+    await sendEmail({
+        to: toEmail,
+        from: "Wondrilla Onboarding <hello@wondrilla.com>",
+        subject,
+        html
+    });
 }
 
 async function sendUpgradeEmail(toEmail, plan, billing) {
@@ -1248,7 +1265,40 @@ async function sendUpgradeEmail(toEmail, plan, billing) {
             </div>
         </div>
     `;
-    await sendEmail({ to: toEmail, subject, html });
+    await sendEmail({
+        to: toEmail,
+        from: "Wondrilla Billing <billing@wondrilla.com>",
+        subject,
+        html
+    });
+}
+
+async function sendGoodbyeEmail(toEmail) {
+    const subject = "Wondrilla Account Deletion Confirmed 🔒";
+    const html = `
+        <div style="font-family: 'DM Sans', sans-serif; background: #0e100d; color: #f3f4f2; padding: 40px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #242722;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #ea5455; font-size: 28px; margin: 0; font-family: 'Manrope', sans-serif;">Wondrilla AI</h1>
+                <p style="color: #8c9187; font-size: 14px; margin-top: 5px;">Account Deleted</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">Hi there,</p>
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">This email confirms that your Wondrilla account and all associated workspace data (including chat history and profile logs) have been permanently deleted from our database as requested.</p>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">We are sorry to see you go! If you ever decide to return, our doors are always open.</p>
+            
+            <div style="margin-top: 40px; border-top: 1px solid #242722; padding-top: 20px; text-align: center; color: #8c9187; font-size: 12px;">
+                <p>&copy; ${new Date().getFullYear()} Wondrilla AI. All rights reserved.</p>
+                <p style="margin-top: 5px;">wondrilla.com</p>
+            </div>
+        </div>
+    `;
+    await sendEmail({
+        to: toEmail,
+        from: "Wondrilla Security <security@wondrilla.com>",
+        subject,
+        html
+    });
 }
 
 function sendJson(response, statusCode, payload) {
