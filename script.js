@@ -793,6 +793,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
         document.getElementById("new-chat-btn").addEventListener("click", resetConversation);
 
+        const brandLogo = document.querySelector(".brand");
+        if (brandLogo) {
+            brandLogo.addEventListener("click", (e) => {
+                e.preventDefault();
+                resetConversation();
+            });
+        }
+
         elements.compareToggle.addEventListener("click", () => {
             if (state.plan === "free") {
                 showToast("Comparison mode requires a Pro or Studio subscription");
@@ -1451,6 +1459,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         syncUserAndHistory();
     }
 
+    function hideAppLoadingScreen() {
+        const loader = document.getElementById("app-loading-screen");
+        if (loader && !loader.classList.contains("fade-out")) {
+            loader.classList.add("fade-out");
+            setTimeout(() => {
+                loader.remove();
+            }, 400);
+        }
+    }
+
     async function initSupabaseAuth() {
         try {
             const config = await fetchJson("/api/supabase/config");
@@ -1555,6 +1573,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             }
         } catch (error) {
             console.error("Failed to sync user and history with Supabase:", error);
+        } finally {
+            hideAppLoadingScreen();
         }
     }
 

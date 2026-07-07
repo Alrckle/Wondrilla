@@ -2781,3 +2781,75 @@ body.light-theme .profile-detail-card {
     background: rgba(234, 84, 85, 0.1);
     border-color: #ea5455;
 }
+
+/* App Loading Screen */
+.app-loading-screen {
+    align-items: center;
+    background: #121311;
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    left: 0;
+    position: fixed;
+    top: 0;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    width: 100vw;
+    z-index: 9999;
+}
+
+.app-loading-screen.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    justify-content: center;
+}
+
+.loading-mark {
+    align-items: center;
+    background: #1f211d;
+    border-radius: 50%;
+    display: flex;
+    gap: 4px;
+    height: 64px;
+    justify-content: center;
+    transform: rotate(-10deg);
+    width: 64px;
+    animation: loading-pulse 2s infinite ease-in-out;
+}
+
+.loading-mark span {
+    background: #d9ff43;
+    border-radius: 10px;
+    display: block;
+    transform: rotate(12deg);
+    width: 8px;
+}
+
+.loading-mark span:nth-child(1) {
+    height: 20px;
+}
+
+.loading-mark span:nth-child(2) {
+    height: 36px;
+}
+
+.loading-mark span:nth-child(3) {
+    height: 26px;
+}
+
+@keyframes loading-pulse {
+    0%, 100% {
+        transform: rotate(-10deg) scale(0.95);
+        opacity: 0.8;
+    }
+    50% {
+        transform: rotate(-10deg) scale(1.05);
+        opacity: 1;
+    }
+}
