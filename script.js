@@ -400,6 +400,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.scrim.classList.remove("hidden");
         modal.classList.remove("hidden");
         document.body.style.overflow = "hidden";
+        if (modal === elements.authModal) {
+            setAuthMode("signin");
+        }
     }
 
     function closeModals() {
