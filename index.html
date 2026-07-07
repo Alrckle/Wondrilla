@@ -336,8 +336,11 @@
                     <input type="email" id="auth-email" required placeholder="you@example.com">
                 </div>
                 
-                <div class="form-group">
-                    <label for="auth-password">Password</label>
+                <div class="form-group" id="auth-password-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label for="auth-password" style="margin-bottom: 0;">Password</label>
+                        <button type="button" id="auth-forgot-btn" style="background: none; border: none; color: var(--muted); font-size: 11px; text-decoration: underline; cursor: pointer; padding: 0;">Forgot password?</button>
+                    </div>
                     <div class="password-input-wrap" style="position: relative; display: flex; align-items: center;">
                         <input type="password" id="auth-password" required placeholder="••••••••" minlength="6" style="padding-right: 50px;">
                         <button type="button" id="auth-password-toggle" style="position: absolute; right: 12px; background: none; border: none; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; padding: 0;">Show</button>
@@ -609,6 +612,33 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-shell hidden" id="reset-modal" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+        <div class="modal checkout-modal-card">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <span class="overline">SECURITY</span>
+                    <h2 id="reset-modal-title">Reset Your Password</h2>
+                </div>
+                <button class="icon-btn modal-close" id="reset-modal-close" type="button" aria-label="Close password reset">&times;</button>
+            </div>
+            <p class="modal-lead">Enter a new secure password for your Wondrilla account.</p>
+            
+            <form class="checkout-form" id="reset-form" style="margin-top: 10px;">
+                <div class="form-group">
+                    <label for="reset-password">New Password</label>
+                    <div class="password-input-wrap" style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="reset-password" required placeholder="••••••••" minlength="6" style="padding-right: 50px;">
+                        <button type="button" id="reset-password-toggle" style="position: absolute; right: 12px; background: none; border: none; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; padding: 0;">Show</button>
+                    </div>
+                </div>
+                
+                <button class="checkout-submit-btn" id="reset-submit-btn" type="submit" style="margin-top: 10px;">
+                    <span class="btn-text" id="reset-submit-text">Update Password</span>
+                </button>
+            </form>
         </div>
     </div>
 

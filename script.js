@@ -94,6 +94,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         authModal: document.getElementById("auth-modal"),
         authForm: document.getElementById("auth-form"),
         authNameGroup: document.getElementById("auth-name-group"),
+        authPasswordGroup: document.getElementById("auth-password-group"),
         authName: document.getElementById("auth-name"),
         authEmail: document.getElementById("auth-email"),
         authPassword: document.getElementById("auth-password"),
@@ -103,6 +104,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         authToggleText: document.getElementById("auth-toggle-text"),
         authTitle: document.getElementById("auth-title"),
         authClose: document.getElementById("auth-modal-close"),
+        authForgotBtn: document.getElementById("auth-forgot-btn"),
+        resetModal: document.getElementById("reset-modal"),
+        resetForm: document.getElementById("reset-form"),
+        resetPassword: document.getElementById("reset-password"),
+        resetPasswordToggle: document.getElementById("reset-password-toggle"),
+        resetSubmitBtn: document.getElementById("reset-submit-btn"),
+        resetSubmitText: document.getElementById("reset-submit-text"),
+        resetClose: document.getElementById("reset-modal-close"),
         profileRow: document.querySelector(".profile-row"),
         profileModal: document.getElementById("profile-modal"),
         profileEmail: document.getElementById("profile-email"),
@@ -400,6 +409,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.checkoutModal.classList.add("hidden");
         if (elements.authModal) elements.authModal.classList.add("hidden");
         if (elements.profileModal) elements.profileModal.classList.add("hidden");
+        if (elements.resetModal) elements.resetModal.classList.add("hidden");
         document.body.style.overflow = "";
     }
 
@@ -1057,9 +1067,20 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
         if (elements.authClose) elements.authClose.addEventListener("click", closeModals);
         if (elements.profileClose) elements.profileClose.addEventListener("click", closeModals);
+        if (elements.resetClose) elements.resetClose.addEventListener("click", closeModals);
 
         if (elements.authToggleBtn) elements.authToggleBtn.addEventListener("click", toggleAuthMode);
+        if (elements.authForgotBtn) elements.authForgotBtn.addEventListener("click", () => setAuthMode("forgot"));
         if (elements.authForm) elements.authForm.addEventListener("submit", handleAuthSubmit);
+        if (elements.resetForm) elements.resetForm.addEventListener("submit", handleResetSubmit);
+
+        if (elements.resetPasswordToggle) {
+            elements.resetPasswordToggle.addEventListener("click", () => {
+                const isPassword = elements.resetPassword.getAttribute("type") === "password";
+                elements.resetPassword.setAttribute("type", isPassword ? "text" : "password");
+                elements.resetPasswordToggle.textContent = isPassword ? "Hide" : "Show";
+            });
+        }
 
         if (elements.oauthGoogleBtn) elements.oauthGoogleBtn.addEventListener("click", () => handleOAuth("google"));
         if (elements.oauthGithubBtn) elements.oauthGithubBtn.addEventListener("click", () => handleOAuth("github"));
@@ -1186,34 +1207,65 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
     }
 
-    function toggleAuthMode() {
+    function setAuthMode(mode) {
+        authMode = mode;
         if (elements.authPassword) {
             elements.authPassword.setAttribute("type", "password");
+            elements.authPassword.value = "";
         }
         if (elements.authPasswordToggle) {
             elements.authPasswordToggle.textContent = "Show";
         }
+        if (elements.authEmail) {
+            elements.authEmail.value = "";
+        }
+        if (elements.authName) {
+            elements.authName.value = "";
+        }
 
-        if (authMode === "signin") {
-            authMode = "signup";
-            const overline = document.getElementById("auth-overline");
-            if (overline) overline.textContent = "CREATE ACCOUNT";
-            elements.authTitle.textContent = "Create Wondrilla Account";
-            elements.authSubmitText.textContent = "Create Account";
-            elements.authToggleText.textContent = "Already have an account?";
-            elements.authToggleBtn.textContent = "Sign In";
-            elements.authNameGroup.classList.remove("hidden");
-            elements.authName.required = true;
-        } else {
-            authMode = "signin";
-            const overline = document.getElementById("auth-overline");
+        const overline = document.getElementById("auth-overline");
+
+        if (mode === "signin") {
             if (overline) overline.textContent = "ACCOUNT ACCESS";
             elements.authTitle.textContent = "Sign In to Wondrilla";
             elements.authSubmitText.textContent = "Sign In";
             elements.authToggleText.textContent = "Don't have an account?";
             elements.authToggleBtn.textContent = "Create Account";
+            
             elements.authNameGroup.classList.add("hidden");
             elements.authName.required = false;
+            elements.authPasswordGroup.classList.remove("hidden");
+            elements.authPassword.required = true;
+        } else if (mode === "signup") {
+            if (overline) overline.textContent = "CREATE ACCOUNT";
+            elements.authTitle.textContent = "Create Wondrilla Account";
+            elements.authSubmitText.textContent = "Create Account";
+            elements.authToggleText.textContent = "Already have an account?";
+            elements.authToggleBtn.textContent = "Sign In";
+            
+            elements.authNameGroup.classList.remove("hidden");
+            elements.authName.required = true;
+            elements.authPasswordGroup.classList.remove("hidden");
+            elements.authPassword.required = true;
+        } else if (mode === "forgot") {
+            if (overline) overline.textContent = "PASSWORD RECOVERY";
+            elements.authTitle.textContent = "Recover Password";
+            elements.authSubmitText.textContent = "Send Reset Link";
+            elements.authToggleText.textContent = "Remembered your password?";
+            elements.authToggleBtn.textContent = "Sign In";
+            
+            elements.authNameGroup.classList.add("hidden");
+            elements.authName.required = false;
+            elements.authPasswordGroup.classList.add("hidden");
+            elements.authPassword.required = false;
+        }
+    }
+
+    function toggleAuthMode() {
+        if (authMode === "signin" || authMode === "forgot") {
+            setAuthMode("signup");
+        } else {
+            setAuthMode("signin");
         }
     }
 
@@ -1231,7 +1283,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const submitBtn = elements.authSubmitBtn;
         const originalText = elements.authSubmitText.textContent;
         submitBtn.disabled = true;
-        elements.authSubmitText.textContent = authMode === "signin" ? "Signing In..." : "Creating Account...";
+
+        if (authMode === "signin") {
+            elements.authSubmitText.textContent = "Signing In...";
+        } else if (authMode === "signup") {
+            elements.authSubmitText.textContent = "Creating Account...";
+        } else if (authMode === "forgot") {
+            elements.authSubmitText.textContent = "Sending Link...";
+        }
 
         try {
             if (authMode === "signup") {
@@ -1250,15 +1309,23 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     closeModals();
                 } else {
                     showToast("Account created! Check your email for verification link.");
-                    toggleAuthMode();
+                    setAuthMode("signin");
                 }
-            } else {
+            } else if (authMode === "signin") {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email,
                     password
                 });
                 if (error) throw error;
                 showToast("Signed in successfully!");
+                closeModals();
+            } else if (authMode === "forgot") {
+                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin
+                });
+                if (error) throw error;
+                showToast("Password reset link sent to your email!");
+                setAuthMode("signin");
                 closeModals();
             }
         } catch (error) {
@@ -1267,6 +1334,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         } finally {
             submitBtn.disabled = false;
             elements.authSubmitText.textContent = originalText;
+        }
+    }
+
+    async function handleResetSubmit(event) {
+        event.preventDefault();
+        if (!supabaseClient) {
+            showToast("Supabase client not initialized.");
+            return;
+        }
+        const newPassword = elements.resetPassword.value;
+        const submitBtn = elements.resetSubmitBtn;
+        const submitText = elements.resetSubmitText;
+
+        submitBtn.disabled = true;
+        submitText.textContent = "Updating...";
+
+        try {
+            const { error } = await supabaseClient.auth.updateUser({
+                password: newPassword
+            });
+            if (error) throw error;
+            showToast("Password updated successfully!");
+            closeModals();
+        } catch (error) {
+            console.error("Failed to update password:", error);
+            showToast(`Error: ${error.message}`);
+        } finally {
+            submitBtn.disabled = false;
+            submitText.textContent = "Update Password";
         }
     }
 
@@ -1484,7 +1580,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 }
                 
                 supabaseClient.auth.onAuthStateChange((event, session) => {
-                    if (session && session.user) {
+                    if (event === "PASSWORD_RECOVERY") {
+                        console.log("PASSWORD_RECOVERY event received");
+                        openModal(elements.resetModal);
+                    } else if (session && session.user) {
                         handleUserLogin(session.user);
                     } else {
                         handleUserLogoutState();
