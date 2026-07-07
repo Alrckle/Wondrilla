@@ -409,6 +409,42 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "POST" && requestUrl.pathname === "/api/auth/reset-password") {
+        const body = await readJsonBody(request);
+        const email = String(body.email || "").trim();
+        if (!email) {
+            sendJson(response, 400, { ok: false, error: "email is required." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true });
+            return;
+        }
+
+        try {
+            // Generate recovery link using Supabase Admin API
+            const { data, error } = await supabase.auth.admin.generateLinkForLinkType({
+                type: 'recovery',
+                email: email,
+                options: {
+                    redirectTo: `${request.headers.referer || request.headers.origin || "https://wondrilla.com"}`
+                }
+            });
+            if (error) throw error;
+
+            const resetLink = data.properties.action_link;
+            
+            // Send recovery email via Resend from security@wondrilla.com
+            await sendPasswordResetEmail(email, resetLink);
+
+            sendJson(response, 200, { ok: true });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
     if (request.method === "GET" && requestUrl.pathname === "/api/messages") {
         const userId = requestUrl.searchParams.get("userId");
         if (!userId) {
@@ -1211,7 +1247,7 @@ async function sendWelcomeEmail(toEmail) {
                 </ul>
             </div>
             
-            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">If you have any questions or need help, just reply to this email.</p>
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">If you have any questions or need help, just reply to this email or reach out to us at <a href="mailto:support@wondrilla.com" style="color: #2563eb; text-decoration: none;">support@wondrilla.com</a>.</p>
             
             <div style="margin-top: 40px; border-top: 1px solid #242722; padding-top: 20px; text-align: center; color: #8c9187; font-size: 12px;">
                 <p>&copy; ${new Date().getFullYear()} Wondrilla AI. All rights reserved.</p>
@@ -1222,6 +1258,38 @@ async function sendWelcomeEmail(toEmail) {
     await sendEmail({
         to: toEmail,
         from: "Wondrilla Onboarding <hello@wondrilla.com>",
+        subject,
+        html
+    });
+}
+
+async function sendPasswordResetEmail(toEmail, resetLink) {
+    const subject = "Reset Your Wondrilla Password 🔑";
+    const html = `
+        <div style="font-family: 'DM Sans', sans-serif; background: #0e100d; color: #f3f4f2; padding: 40px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #242722;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #2563eb; font-size: 28px; margin: 0; font-family: 'Manrope', sans-serif;">Wondrilla AI</h1>
+                <p style="color: #8c9187; font-size: 14px; margin-top: 5px;">Password Recovery</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">Hi there,</p>
+            <p style="font-size: 16px; line-height: 1.6; color: #b8bdb4;">We received a request to reset your Wondrilla account password. Click the button below to set a new password:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="${resetLink}" style="background: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #8c9187;">If you did not request this, you can safely ignore this email. This link will expire in 24 hours.</p>
+            
+            <div style="margin-top: 40px; border-top: 1px solid #242722; padding-top: 20px; text-align: center; color: #8c9187; font-size: 12px;">
+                <p>&copy; ${new Date().getFullYear()} Wondrilla AI. All rights reserved.</p>
+                <p style="margin-top: 5px;">wondrilla.com</p>
+            </div>
+        </div>
+    `;
+    await sendEmail({
+        to: toEmail,
+        from: "Wondrilla Security <security@wondrilla.com>",
         subject,
         html
     });

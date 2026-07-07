@@ -1323,10 +1323,17 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 showToast("Signed in successfully!");
                 closeModals();
             } else if (authMode === "forgot") {
-                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin
+                const res = await fetch("/api/auth/reset-password", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email })
                 });
-                if (error) throw error;
+                const data = await res.json();
+                if (!res.ok || !data.ok) {
+                    throw new Error(data.error || "Failed to send reset email");
+                }
                 showToast("Password reset link sent to your email!");
                 setAuthMode("signin");
                 closeModals();
