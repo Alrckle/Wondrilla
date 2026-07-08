@@ -2094,7 +2094,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             } else {
                 updateFeaturedConnectors([]);
             }
-            }
         } catch (err) {
             elements.mcpServersList.innerHTML = `<div style='color:#d04848; font-size:13px;'>Failed to load servers: ${err.message}</div>`;
         }
