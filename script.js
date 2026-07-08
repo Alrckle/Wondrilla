@@ -468,6 +468,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
     function formatText(value) {
         let text = escapeHtml(value);
+        
+        // Match Markdown images first: ![alt](url)
+        text = text.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--line-soft); display: block;">');
+        
+        // Match Markdown links: [text](url)
+        text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: var(--acid); text-decoration: underline;">$1</a>');
+        
         text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
         text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
         return text.replace(/\n/g, "<br>");
