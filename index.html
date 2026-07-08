@@ -530,6 +530,72 @@
                         <span class="panel-subtitle">Integrations</span>
                         <h3 class="panel-title">Model Context Protocol</h3>
                         <p class="panel-lead">Connect local tools and databases using Claude and ChatGPT-inspired MCP servers.</p>
+
+                        <!-- Featured App Store Connectors -->
+                        <div class="featured-connectors-section" style="margin-top: 25px; border-bottom: 1px solid var(--line); padding-bottom: 25px; margin-bottom: 20px;">
+                            <h4 style="margin: 0 0 15px; font-size: 16px; color: var(--ink); font-family: 'Manrope', sans-serif; letter-spacing: -0.01em;">Featured Connectors</h4>
+                            <div class="connectors-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">
+                                <!-- Connector Card: GitHub -->
+                                <div class="connector-card" data-app="github" style="background: rgba(255,255,255,0.01); border: 1px solid var(--line); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                            <div style="width: 32px; height: 32px; background: #24292e; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">Git</div>
+                                            <div>
+                                                <h5 style="margin: 0; font-size: 13px; color: var(--ink); font-weight: 600;">GitHub</h5>
+                                                <span style="font-size: 10px; color: var(--muted);">Repo search & files</span>
+                                            </div>
+                                        </div>
+                                        <p style="font-size: 11px; color: var(--muted); margin: 0 0 15px; line-height: 1.4;">Search repositories, read files, and manage commits directly from chat.</p>
+                                    </div>
+                                    <button class="connector-btn checkout-submit-btn" data-app="github" type="button" style="font-size: 11px; padding: 8px 12px; border-radius: 8px; width: 100%; border: 1px solid var(--line); background: transparent;">Connect</button>
+                                </div>
+                                
+                                <!-- Connector Card: Supabase -->
+                                <div class="connector-card" data-app="supabase" style="background: rgba(255,255,255,0.01); border: 1px solid var(--line); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                            <div style="width: 32px; height: 32px; background: #3ecf8e; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;">S</div>
+                                            <div>
+                                                <h5 style="margin: 0; font-size: 13px; color: var(--ink); font-weight: 600;">Supabase</h5>
+                                                <span style="font-size: 10px; color: var(--muted);">Database queries & logs</span>
+                                            </div>
+                                        </div>
+                                        <p style="font-size: 11px; color: var(--muted); margin: 0 0 15px; line-height: 1.4;">Connect to your database, fetch logs, read tables, and apply migrations.</p>
+                                    </div>
+                                    <button class="connector-btn checkout-submit-btn" data-app="supabase" type="button" style="font-size: 11px; padding: 8px 12px; border-radius: 8px; width: 100%; border: 1px solid var(--line); background: transparent;">Connect</button>
+                                </div>
+
+                                <!-- Connector Card: AI Image Generator -->
+                                <div class="connector-card" data-app="image" style="background: rgba(255,255,255,0.01); border: 1px solid var(--line); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                            <div style="width: 32px; height: 32px; background: #9b51e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;">AI</div>
+                                            <div>
+                                                <h5 style="margin: 0; font-size: 13px; color: var(--ink); font-weight: 600;">Image AI</h5>
+                                                <span style="font-size: 10px; color: var(--muted);">Pollinations generator</span>
+                                            </div>
+                                        </div>
+                                        <p style="font-size: 11px; color: var(--muted); margin: 0 0 15px; line-height: 1.4;">Generate AI images on-the-fly directly inside your chat threads.</p>
+                                    </div>
+                                    <button class="connector-btn checkout-submit-btn" data-app="image" type="button" style="font-size: 11px; padding: 8px 12px; border-radius: 8px; width: 100%; border: 1px solid var(--line); background: transparent;">Connect</button>
+                                </div>
+
+                                <!-- Connector Card: PayPal -->
+                                <div class="connector-card" data-app="paypal" style="background: rgba(255,255,255,0.01); border: 1px solid var(--line); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;">
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                            <div style="width: 32px; height: 32px; background: #0079c1; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 15px;">P</div>
+                                            <div>
+                                                <h5 style="margin: 0; font-size: 13px; color: var(--ink); font-weight: 600;">PayPal</h5>
+                                                <span style="font-size: 10px; color: var(--muted);">Payment management</span>
+                                            </div>
+                                        </div>
+                                        <p style="font-size: 11px; color: var(--muted); margin: 0 0 15px; line-height: 1.4;">Verify plans, check configurations, and manage payments securely.</p>
+                                    </div>
+                                    <button class="connector-btn checkout-submit-btn" data-app="paypal" type="button" style="font-size: 11px; padding: 8px 12px; border-radius: 8px; width: 100%; border: 1px solid var(--line); background: transparent;">Connect</button>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="mcp-tabs" style="margin-top: 15px;">
                             <button class="mcp-tab-btn active" id="tab-servers-btn" type="button">Active Servers</button>
@@ -637,6 +703,29 @@
                 
                 <button class="checkout-submit-btn" id="reset-submit-btn" type="submit" style="margin-top: 10px;">
                     <span class="btn-text" id="reset-submit-text">Update Password</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-shell hidden" id="mcp-connect-modal" role="dialog" aria-modal="true" aria-labelledby="mcp-connect-title">
+        <div class="modal checkout-modal-card" style="max-width: 450px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <span class="overline">INTEGRATIONS</span>
+                    <h2 id="mcp-connect-title">Connect App</h2>
+                </div>
+                <button class="icon-btn modal-close" id="mcp-connect-close" type="button" aria-label="Close integration modal">&times;</button>
+            </div>
+            <p class="modal-lead" id="mcp-connect-lead">Enter credentials to connect this application.</p>
+            
+            <form class="checkout-form" id="mcp-connect-form" style="margin-top: 10px;">
+                <div id="mcp-connect-fields" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Fields injected dynamically -->
+                </div>
+                
+                <button class="checkout-submit-btn" id="mcp-connect-submit-btn" type="submit" style="margin-top: 15px;">
+                    <span class="btn-text">Connect Integration</span>
                 </button>
             </form>
         </div>

@@ -161,7 +161,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         testerArgs: document.getElementById("tester-args"),
         runToolBtn: document.getElementById("run-tool-btn"),
         testerOutputContainer: document.getElementById("tester-output-container"),
-        testerOutput: document.getElementById("tester-output")
+        testerOutput: document.getElementById("tester-output"),
+        mcpConnectModal: document.getElementById("mcp-connect-modal"),
+        mcpConnectForm: document.getElementById("mcp-connect-form"),
+        mcpConnectClose: document.getElementById("mcp-connect-close"),
+        mcpConnectFields: document.getElementById("mcp-connect-fields"),
+        mcpConnectTitle: document.getElementById("mcp-connect-title"),
+        mcpConnectLead: document.getElementById("mcp-connect-lead"),
+        mcpConnectSubmitBtn: document.getElementById("mcp-connect-submit-btn")
     };
     function modelById(id) {
         return models.find((model) => model.id === id) || models[0];
@@ -413,6 +420,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.authModal) elements.authModal.classList.add("hidden");
         if (elements.profileModal) elements.profileModal.classList.add("hidden");
         if (elements.resetModal) elements.resetModal.classList.add("hidden");
+        if (elements.mcpConnectModal) elements.mcpConnectModal.classList.add("hidden");
         document.body.style.overflow = "";
     }
 
@@ -1728,6 +1736,138 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             });
         });
 
+        let activeApp = null;
+        
+        // Handle click on Featured App Connectors
+        document.querySelectorAll(".connector-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const app = btn.getAttribute("data-app");
+                
+                // If already connected, do nothing or show toast
+                const isConnected = btn.textContent.includes("Connected");
+                if (isConnected) {
+                    showToast("This integration is already connected!");
+                    return;
+                }
+                
+                activeApp = app;
+                
+                // Handle 1-click install for Image Generator!
+                if (app === "image") {
+                    showToast("Connecting Wondrilla Image AI...");
+                    try {
+                        const res = await postJson("/api/mcp", {
+                            name: "wondrilla-image-generator",
+                            config: {
+                                command: "node",
+                                args: ["d:/Wondrilla/mcp-image-server.js"]
+                            }
+                        });
+                        if (res.ok) {
+                            showToast("Image AI successfully connected!");
+                            refreshMcpServersList();
+                        } else {
+                            showToast(`Connection failed: ${res.error || 'Unknown error'}`);
+                        }
+                    } catch (e) {
+                        showToast(`Connection error: ${e.message}`);
+                    }
+                    return;
+                }
+                
+                // Otherwise show popup/modal for credential input
+                let fieldsHtml = "";
+                let title = "";
+                let lead = "";
+                
+                if (app === "github") {
+                    title = "Connect GitHub";
+                    lead = "Generate a Personal Access Token on GitHub with 'repo' scope to enable search and commit management.";
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label for="mcp-connect-github-pat">Personal Access Token</label>
+                            <input type="password" id="mcp-connect-github-pat" placeholder="github_pat_..." required style="width: 100%;">
+                        </div>
+                    `;
+                } else if (app === "supabase") {
+                    title = "Connect Supabase";
+                    lead = "Provide your Supabase URL or project reference to query database and retrieve logs.";
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label for="mcp-connect-supabase-url">Project Reference or URL</label>
+                            <input type="text" id="mcp-connect-supabase-url" placeholder="e.g. axiedgydeegbtoeprubt or https://mcp.supabase.com/mcp?project_ref=..." required style="width: 100%;">
+                        </div>
+                    `;
+                } else if (app === "paypal") {
+                    title = "Connect PayPal";
+                    lead = "Enter your PayPal Sandbox/Production Rest API Access Token to query plan details.";
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label for="mcp-connect-paypal-token">PayPal Access Token</label>
+                            <input type="password" id="mcp-connect-paypal-token" placeholder="A21AAPAD..." required style="width: 100%;">
+                        </div>
+                    `;
+                }
+                
+                elements.mcpConnectTitle.textContent = title;
+                elements.mcpConnectLead.textContent = lead;
+                elements.mcpConnectFields.innerHTML = fieldsHtml;
+                openModal(elements.mcpConnectModal);
+            });
+        });
+        
+        // Handle connect modal form submit
+        elements.mcpConnectForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!activeApp) return;
+            
+            let name = "";
+            let config = {};
+            
+            try {
+                if (activeApp === "github") {
+                    name = "github-mcp-server";
+                    const token = document.getElementById("mcp-connect-github-pat").value.trim();
+                    config = {
+                        command: "npx",
+                        args: ["-y", "@modelcontextprotocol/server-github"],
+                        env: { GITHUB_PERSONAL_ACCESS_TOKEN: token }
+                    };
+                } else if (activeApp === "supabase") {
+                    name = "supabase";
+                    let urlVal = document.getElementById("mcp-connect-supabase-url").value.trim();
+                    if (!urlVal.startsWith("http")) {
+                        urlVal = `https://mcp.supabase.com/mcp?project_ref=${urlVal}`;
+                    }
+                    config = { serverUrl: urlVal };
+                } else if (activeApp === "paypal") {
+                    name = "paypal-mcp-server";
+                    const token = document.getElementById("mcp-connect-paypal-token").value.trim();
+                    config = {
+                        command: "node",
+                        args: ["d:/Wondrilla/run-paypal-mcp.js"],
+                        env: {
+                            PAYPAL_ACCESS_TOKEN: token,
+                            PAYPAL_ENVIRONMENT: "PRODUCTION"
+                        }
+                    };
+                }
+                
+                showToast(`Connecting '${name}'...`);
+                const res = await postJson("/api/mcp", { name, config });
+                
+                if (res.ok) {
+                    showToast(`Successfully connected to ${activeApp}!`);
+                    closeModals();
+                    refreshMcpServersList();
+                } else {
+                    showToast(`Connection failed: ${res.error || 'Unknown error'}`);
+                }
+            } catch (err) {
+                showToast(`Error: ${err.message}`);
+            }
+        });
+
         elements.mcpAddForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const name = elements.mcpName.value.trim();
@@ -1847,6 +1987,39 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         });
     }
 
+    function updateFeaturedConnectors(servers) {
+        const buttons = document.querySelectorAll(".connector-btn");
+        buttons.forEach(btn => {
+            const app = btn.getAttribute("data-app");
+            let isConnected = false;
+            
+            if (app === "github") {
+                isConnected = servers.some(s => s.name === "github-mcp-server");
+            } else if (app === "supabase") {
+                isConnected = servers.some(s => s.name === "supabase");
+            } else if (app === "image") {
+                isConnected = servers.some(s => s.name === "wondrilla-image-generator");
+            } else if (app === "paypal") {
+                isConnected = servers.some(s => s.name === "paypal-mcp-server" || s.name === "paypal" || s.name === "PayPal");
+            }
+            
+            const card = btn.closest(".connector-card");
+            if (isConnected) {
+                btn.textContent = "✓ Connected";
+                btn.style.background = "rgba(46, 125, 50, 0.15)";
+                btn.style.color = "#4caf50";
+                btn.style.borderColor = "#2e7d32";
+                if (card) card.style.borderColor = "#2e7d32";
+            } else {
+                btn.textContent = "Connect";
+                btn.style.background = "transparent";
+                btn.style.color = "var(--ink)";
+                btn.style.borderColor = "var(--line)";
+                if (card) card.style.borderColor = "var(--line)";
+            }
+        });
+    }
+
     async function refreshMcpServersList() {
         if (!elements.mcpServersList) return;
         elements.mcpServersList.innerHTML = "<div style='color:var(--ink-soft); font-size:13px;'>Loading servers status...</div>";
@@ -1856,6 +2029,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             if (res.ok && Array.isArray(res.servers)) {
                 mcpServers = res.servers;
                 elements.mcpServersList.innerHTML = "";
+                updateFeaturedConnectors(mcpServers);
                 
                 if (mcpServers.length === 0) {
                     elements.mcpServersList.innerHTML = "<div style='color:var(--muted); font-size:13px; text-align:center; padding: 20px;'>No MCP servers configured yet.</div>";
@@ -1908,6 +2082,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
                     elements.mcpServersList.appendChild(card);
                 });
+            } else {
+                updateFeaturedConnectors([]);
+            }
             }
         } catch (err) {
             elements.mcpServersList.innerHTML = `<div style='color:#d04848; font-size:13px;'>Failed to load servers: ${err.message}</div>`;
