@@ -1751,6 +1751,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 }
                 
                 activeApp = app;
+
+                const templates = ["canva", "airtable", "figma", "spotify", "calendar", "slack"];
+                if (templates.includes(app)) {
+                    const formattedName = app.charAt(0).toUpperCase() + app.slice(1);
+                    showToast(`${formattedName} connector integration is coming soon in Wondrilla Plus! ✨`);
+                    return;
+                }
                 
                 // Handle 1-click install for Image Generator!
                 if (app === "image") {
