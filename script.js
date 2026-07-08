@@ -1752,9 +1752,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 
                 activeApp = app;
 
-                const templates = ["canva", "airtable", "figma", "spotify", "calendar", "slack"];
+                const templates = ["canva", "airtable", "figma", "spotify", "calendar", "slack", "discord", "googledrive", "notion", "stripe"];
                 if (templates.includes(app)) {
-                    const formattedName = app.charAt(0).toUpperCase() + app.slice(1);
+                    // Custom formatting for display names
+                    let formattedName = app.charAt(0).toUpperCase() + app.slice(1);
+                    if (app === "googledrive") formattedName = "Google Drive";
                     showToast(`${formattedName} connector integration is coming soon in Wondrilla Plus! ✨`);
                     return;
                 }
