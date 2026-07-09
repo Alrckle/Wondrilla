@@ -74,6 +74,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         sendBtn: document.getElementById("send-btn"),
         chatView: document.getElementById("chat-view"),
         libraryView: document.getElementById("library-view"),
+        marketingView: document.getElementById("marketing-view"),
         usageProgress: document.getElementById("usage-progress"),
         usedMessages: document.getElementById("used-messages"),
         usagePercent: document.getElementById("usage-percent"),
@@ -437,14 +438,20 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
 
         document.querySelectorAll(".nav-item").forEach((item) => {
-            item.classList.toggle("active", item.dataset.view === view || (view === "chat" && item.dataset.view === "chat"));
+            item.classList.toggle("active", item.dataset.view === view);
         });
 
         if (view === "library") {
             elements.chatView.classList.add("hidden");
             elements.libraryView.classList.remove("hidden");
+            if (elements.marketingView) elements.marketingView.classList.add("hidden");
+        } else if (view === "marketing") {
+            elements.chatView.classList.add("hidden");
+            elements.libraryView.classList.add("hidden");
+            if (elements.marketingView) elements.marketingView.classList.remove("hidden");
         } else {
             elements.libraryView.classList.add("hidden");
+            if (elements.marketingView) elements.marketingView.classList.add("hidden");
             elements.chatView.classList.remove("hidden");
             state.compare = view === "compare";
             updateModeButton(elements.compareToggle, state.compare);
@@ -2131,6 +2138,223 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         });
     }
 
+    function initMarketingHub() {
+        const topicInput = document.getElementById("marketing-topic-input");
+        const generateBtn = document.getElementById("generate-campaign-btn");
+        const resultsDiv = document.getElementById("campaign-results");
+        
+        const twitterContent = document.getElementById("mkt-twitter-content");
+        const igCaption = document.getElementById("mkt-ig-caption");
+        const igImage = document.getElementById("mkt-ig-image");
+        const igLoader = document.getElementById("mkt-ig-loader");
+        const facebookContent = document.getElementById("mkt-facebook-content");
+        const youtubeContent = document.getElementById("mkt-youtube-content");
+        
+        const copyTwitterBtn = document.getElementById("copy-twitter-btn");
+        const copyIgBtn = document.getElementById("copy-ig-btn");
+        const copyFacebookBtn = document.getElementById("copy-facebook-btn");
+        const copyYoutubeBtn = document.getElementById("copy-youtube-btn");
+        
+        const regenerateImgBtn = document.getElementById("regenerate-ig-img-btn");
+        const webhookUrlInput = document.getElementById("mkt-webhook-url");
+        const publishBtn = document.getElementById("mkt-publish-btn");
+
+        let currentCampaign = null;
+
+        if (webhookUrlInput) {
+            webhookUrlInput.value = localStorage.getItem("wondrilla_marketing_webhook") || "";
+            webhookUrlInput.addEventListener("input", () => {
+                localStorage.setItem("wondrilla_marketing_webhook", webhookUrlInput.value.trim());
+            });
+        }
+
+        if (copyTwitterBtn) {
+            copyTwitterBtn.addEventListener("click", () => {
+                if (twitterContent) {
+                    navigator.clipboard.writeText(twitterContent.innerText);
+                    showToast("Copied X Post!");
+                }
+            });
+        }
+        if (copyIgBtn) {
+            copyIgBtn.addEventListener("click", () => {
+                if (igCaption) {
+                    navigator.clipboard.writeText(igCaption.innerText);
+                    showToast("Copied Instagram Caption!");
+                }
+            });
+        }
+        if (copyFacebookBtn) {
+            copyFacebookBtn.addEventListener("click", () => {
+                if (facebookContent) {
+                    navigator.clipboard.writeText(facebookContent.innerText);
+                    showToast("Copied Facebook Post!");
+                }
+            });
+        }
+        if (copyYoutubeBtn) {
+            copyYoutubeBtn.addEventListener("click", () => {
+                if (youtubeContent) {
+                    navigator.clipboard.writeText(youtubeContent.innerText);
+                    showToast("Copied YouTube Script!");
+                }
+            });
+        }
+
+        async function triggerImageGeneration(promptText) {
+            if (!igImage || !igLoader) return;
+            igImage.style.opacity = "0";
+            igLoader.classList.remove("hidden");
+            
+            const seed = Math.floor(Math.random() * 1000000);
+            const fullUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=512&height=512&nologo=true&private=true&seed=${seed}`;
+            
+            const img = new Image();
+            img.onload = () => {
+                igImage.src = fullUrl;
+                igImage.style.opacity = "1";
+                igLoader.classList.add("hidden");
+            };
+            img.onerror = () => {
+                igLoader.classList.add("hidden");
+                showToast("Failed to generate campaign image");
+            };
+            img.src = fullUrl;
+        }
+
+        if (regenerateImgBtn) {
+            regenerateImgBtn.addEventListener("click", () => {
+                if (!currentCampaign || !currentCampaign.instagram_image_prompt) {
+                    showToast("Please generate a campaign first.");
+                    return;
+                }
+                const newPrompt = prompt("Modify image generation prompt if desired:", currentCampaign.instagram_image_prompt);
+                if (newPrompt !== null && newPrompt.trim() !== "") {
+                    currentCampaign.instagram_image_prompt = newPrompt;
+                    triggerImageGeneration(newPrompt);
+                }
+            });
+        }
+
+        if (generateBtn) {
+            generateBtn.addEventListener("click", async () => {
+                const topic = topicInput.value.trim();
+                if (!topic) {
+                    showToast("Please enter what you are promoting.");
+                    return;
+                }
+
+                generateBtn.disabled = true;
+                generateBtn.textContent = "Generating package...";
+                showToast("AI is writing your marketing posts...");
+
+                const promptText = `You are a professional social media marketing manager.
+Generate a marketing package for a new campaign about this topic: "${topic}".
+Generate for these platforms:
+1. X/Twitter (Max 280 chars, highly engaging, hashtags).
+2. Instagram (An emoji-rich caption with call to action, and a short 10-word description of the image concept we should generate).
+3. Facebook (A longer, professional, and detailed post outlining the benefits).
+4. YouTube (A script for a 30-second Short, including visual cues and voiceover lines).
+
+Return your response in a clean, structured JSON format with EXACTLY these keys:
+{
+  "twitter": "...",
+  "instagram_caption": "...",
+  "instagram_image_prompt": "A prompt describing a beautiful, modern, minimalist 3D render, dark background, vibrant neon accents representing the topic, for Pollinations image generation",
+  "facebook": "...",
+  "youtube_script": "..."
+}
+Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
+
+                try {
+                    const response = await gatewayChat({
+                        userId: state.userId,
+                        modelId: state.selectedModel,
+                        prompt: promptText,
+                        compare: false,
+                        web: false,
+                        customInstructions: ""
+                    });
+
+                    let text = response.text || "";
+                    // Clean up markdown wrapper blocks
+                    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+                    
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        data = {
+                            twitter: text.match(/twitter\x22?\s*:\s*\x22([\s\S]*?)\x22\s*,?\s*\x22?instagram/i)?.[1] || text,
+                            instagram_caption: text.match(/instagram_caption\x22?\s*:\s*\x22([\s\S]*?)\x22\s*,?/i)?.[1] || "Checkout Wondrilla!",
+                            instagram_image_prompt: text.match(/instagram_image_prompt\x22?\s*:\s*\x22([\s\S]*?)\x22\s*,?/i)?.[1] || topic,
+                            facebook: text.match(/facebook\x22?\s*:\s*\x22([\s\S]*?)\x22\s*,?/i)?.[1] || text,
+                            youtube_script: text.match(/youtube_script\x22?\s*:\s*\x22([\s\S]*?)\x22\s*/i)?.[1] || text
+                        };
+                    }
+
+                    currentCampaign = data;
+
+                    if (twitterContent) twitterContent.textContent = data.twitter;
+                    if (igCaption) igCaption.textContent = data.instagram_caption;
+                    if (facebookContent) facebookContent.textContent = data.facebook;
+                    if (youtubeContent) youtubeContent.textContent = data.youtube_script;
+
+                    if (resultsDiv) resultsDiv.classList.remove("hidden");
+                    showToast("Marketing campaign generated!");
+
+                    triggerImageGeneration(data.instagram_image_prompt);
+
+                } catch (error) {
+                    showToast("Generation failed: " + error.message);
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = "Generate Marketing Campaign";
+                }
+            });
+        }
+
+        if (publishBtn) {
+            publishBtn.addEventListener("click", async () => {
+                const webhookUrl = webhookUrlInput.value.trim();
+                if (!webhookUrl) {
+                    showToast("Please enter a webhook URL first.");
+                    return;
+                }
+                if (!currentCampaign) {
+                    showToast("Please generate a campaign first.");
+                    return;
+                }
+
+                publishBtn.disabled = true;
+                publishBtn.textContent = "Publishing...";
+
+                try {
+                    const payload = {
+                        app: "Wondrilla",
+                        campaign: currentCampaign,
+                        imageUrl: igImage ? igImage.src : "",
+                        timestamp: new Date().toISOString()
+                    };
+
+                    await fetch(webhookUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                        mode: "no-cors"
+                    });
+
+                    showToast("Campaign published to webhook successfully!");
+                } catch (error) {
+                    showToast("Publishing failed: " + error.message);
+                } finally {
+                    publishBtn.disabled = false;
+                    publishBtn.textContent = "Publish to Channels";
+                }
+            });
+        }
+    }
+
     renderModels();
     renderHistory();
     updateUsage();
@@ -2140,4 +2364,5 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     loadRuntimeStatus();
     initSupabaseAuth();
     initMcpUi();
+    initMarketingHub();
 })();
