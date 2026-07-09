@@ -1736,6 +1736,23 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             });
         });
 
+        // Handle Category Pills Filtering
+        document.querySelectorAll(".category-pill").forEach(pill => {
+            pill.addEventListener("click", () => {
+                document.querySelectorAll(".category-pill").forEach(p => p.classList.remove("active"));
+                pill.classList.add("active");
+
+                const cat = pill.getAttribute("data-category");
+                document.querySelectorAll(".connector-card").forEach(card => {
+                    if (cat === "all" || card.getAttribute("data-category") === cat) {
+                        card.classList.remove("hidden");
+                    } else {
+                        card.classList.add("hidden");
+                    }
+                });
+            });
+        });
+
         let activeApp = null;
         
         // Handle click on Featured App Connectors
