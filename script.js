@@ -193,10 +193,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     function renderModels() {
         elements.modelList.innerHTML = models.map((model) => {
             const configured = isModelLive(model.id);
-            const statusLabel = configured ? "Live API ready" : "Demo fallback";
+            const statusLabel = configured ? "Live" : "Demo";
             const detail = model.id === "auto"
                 ? (configured ? "Routes to configured APIs" : "Routes to demo answers")
-                : `${model.maker} - ${statusLabel}`;
+                : `${model.maker} • ${statusLabel}`;
 
             let activeClass = "";
             let badgeHtml = "";
@@ -232,7 +232,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const provider = modelStatus(model.id);
             const detail = model.id === "auto"
                 ? "Automatically route every prompt"
-                : `${model.maker} - ${configured ? provider?.model || "configured" : "add API key for live mode"}`;
+                : `${model.maker} • ${configured ? provider?.model || "configured" : "add API key for live mode"}`;
 
             let activeClass = "";
             let badgeHtml = "";
@@ -387,13 +387,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.runtimePill) {
             elements.runtimePill.classList.toggle("live", liveReady);
             elements.runtimePill.classList.toggle("demo", !liveReady);
-            elements.runtimePill.innerHTML = `<span></span> ${liveReady ? "Live" : "Demo gateway"}`;
+            elements.runtimePill.innerHTML = `<span></span> ${liveReady ? "Live" : "Demo"}`;
         }
 
         if (elements.liveIndicator) {
             elements.liveIndicator.classList.toggle("live", liveReady);
             elements.liveIndicator.classList.toggle("demo", !liveReady);
-            elements.liveIndicator.innerHTML = `<i></i> ${liveReady ? "Live" : "Demo ready"}`;
+            elements.liveIndicator.innerHTML = `<i></i> ${liveReady ? "Live" : "Demo"}`;
         }
     }
 
@@ -555,7 +555,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function addAssistantMessage(model, text, typingNode, result) {
-        const status = result?.mode === "live" ? "Live API" : (result?.provider ? "Demo gateway" : "Local demo");
+        const status = result?.mode === "live" ? "Live" : "Demo";
         const statusClass = result?.mode === "live" ? "live" : "demo";
         let webCitationsHtml = "";
 
@@ -599,7 +599,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         grid.innerHTML = selected.map((answer) => {
             const model = modelById(answer.modelId);
             const statusClass = answer.mode === "live" ? "live" : "demo";
-            const status = answer.mode === "live" ? "Live API" : "Demo gateway";
+            const status = answer.mode === "live" ? "Live" : "Demo";
             const filePrefix = file ? `Reviewed file metadata: ${file.name}.\n\n` : "";
 
             return `
