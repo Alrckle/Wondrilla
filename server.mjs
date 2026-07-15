@@ -1632,7 +1632,17 @@ class McpServerInstance {
             this.status = "Connecting";
             
             const command = this.config.command;
-            const args = this.config.args || [];
+            const rawArgs = this.config.args || [];
+            const args = rawArgs.map(arg => {
+                if (typeof arg === "string") {
+                    const normalized = arg.replace(/\\/g, "/");
+                    if (normalized.toLowerCase().startsWith("d:/wondrilla/")) {
+                        const relative = normalized.substring("d:/wondrilla/".length);
+                        return path.join(process.cwd(), relative);
+                    }
+                }
+                return arg;
+            });
             const env = { ...process.env, ...(this.config.env || {}) };
 
             this.process = spawn(command, args, {
