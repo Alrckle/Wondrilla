@@ -734,6 +734,24 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         return response.json();
     }
 
+    async function postJson(url, payload) {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        }
+
+        return data;
+    }
+
     function localSingleAnswer(modelId, file, error) {
         const model = modelById(modelId);
         const fileText = file
