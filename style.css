@@ -2481,6 +2481,12 @@ a:focus-visible {
     border: 1px solid rgba(37, 99, 235, 0.3);
 }
 
+.profile-badge.studio {
+    background: rgba(125, 42, 231, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(125, 42, 231, 0.3);
+}
+
 .profile-badge.free {
     background: rgba(255, 255, 255, 0.05);
     color: var(--ink-soft);

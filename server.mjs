@@ -468,12 +468,17 @@ async function handleApi(request, response, requestUrl) {
         if (request.method === "GET") {
             const list = [];
             for (const [name, srv] of activeMcpServers.entries()) {
+                const clientConfig = srv.config ? {
+                    command: srv.config.command,
+                    args: srv.config.args,
+                    serverUrl: srv.config.serverUrl
+                } : {};
                 list.push({
                     name,
                     status: srv.status,
                     error: srv.error,
                     tools: srv.tools,
-                    config: srv.config
+                    config: clientConfig
                 });
             }
             sendJson(response, 200, { ok: true, servers: list });

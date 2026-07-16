@@ -1473,7 +1473,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         
         const badgePro = document.getElementById("profile-badge-pro");
         if (badgePro) {
-            if (state.plan === "pro") {
+            if (state.plan === "studio") {
+                badgePro.className = "profile-badge studio";
+                badgePro.innerHTML = '<i class="dot" style="background:#c084fc; box-shadow: 0 0 8px #c084fc;"></i>Studio Member';
+            } else if (state.plan === "pro") {
                 badgePro.className = "profile-badge pro";
                 badgePro.innerHTML = '<i class="dot"></i>Pro Member';
             } else {
