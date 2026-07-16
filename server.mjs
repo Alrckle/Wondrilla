@@ -27,7 +27,8 @@ const modelCatalog = [
     { id: "meta", name: "Meta AI", maker: "Meta via OpenRouter" },
     { id: "kimi", name: "Kimi", maker: "Moonshot AI" },
     { id: "zai", name: "Z.ai", maker: "Zhipu AI" },
-    { id: "deepseek", name: "DeepSeek", maker: "DeepSeek" }
+    { id: "deepseek", name: "DeepSeek", maker: "DeepSeek" },
+    { id: "gemini", name: "Gemini", maker: "Google" }
 ];
 
 const providerConfig = {
@@ -65,6 +66,11 @@ const providerConfig = {
         keyEnv: "DEEPSEEK_API_KEY",
         modelEnv: "DEEPSEEK_MODEL",
         defaultModel: "deepseek-v4-flash"
+    },
+    gemini: {
+        keyEnv: "GEMINI_API_KEY",
+        modelEnv: "GEMINI_MODEL",
+        defaultModel: "gemini-2.5-flash"
     }
 };
 
@@ -76,7 +82,8 @@ const demoAnswers = {
     meta: "We can approach this collaboratively by mapping the people involved, the experience you want them to have, and the content or tools needed at each moment. That creates a clear path from idea to useful product.",
     kimi: "I would begin with a broad context scan, then synthesize the strongest patterns into a concise framework. From there, we can expand any point with deeper research, examples, and a step-by-step execution plan.",
     zai: "The task can be decomposed into objective, constraints, resources, and validation. A strong solution optimizes across objective, constraints, resources, and validation rather than maximizing only speed or quality in isolation.",
-    deepseek: "A technically sound approach is to define interfaces before implementation, isolate the highest-risk assumption, and test that assumption first. This reduces rework and gives the rest of the build a stable foundation."
+    deepseek: "A technically sound approach is to define interfaces before implementation, isolate the highest-risk assumption, and test that assumption first. This reduces rework and gives the rest of the build a stable foundation.",
+    gemini: "Focus on synthesis: collect all inputs, outline the connections and patterns between them, and frame a solution that builds on those shared strengths. I can guide you through analyzing these relationships step-by-step."
 };
 
 const server = http.createServer(async (request, response) => {
@@ -830,6 +837,15 @@ async function callProvider(providerId, prompt) {
         });
     }
 
+    if (providerId === "gemini") {
+        return callOpenAiCompatible({
+            url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+            key: process.env.GEMINI_API_KEY,
+            model: getProviderModel("gemini"),
+            prompt
+        });
+    }
+
     if (providerId === "ollama") {
         const baseUrl = process.env.OLLAMA_API_BASE || "http://localhost:11434";
         return callOpenAiCompatible({
@@ -850,7 +866,8 @@ async function callOpenRouterFallback(providerId, prompt) {
         grok: "x-ai/grok-2-1212",
         kimi: "moonshotai/moonshot-v1-8k",
         zai: "zhipu/glm-4-9b-chat",
-        deepseek: "deepseek/deepseek-chat"
+        deepseek: "deepseek/deepseek-chat",
+        gemini: "google/gemini-2.5-flash"
     };
 
     const openRouterModel = modelMap[providerId] || "meta-llama/llama-3.2-3b-instruct:free";
@@ -1065,15 +1082,15 @@ function chooseProvider(requestedModel, prompt, webEnabled) {
     }
 
     if (/\b(code|bug|debug|api|function|sql|math|logic|algorithm)\b/.test(lower)) {
-        return prefer(["deepseek", "zai", "chatgpt"]);
+        return prefer(["deepseek", "gemini", "zai", "chatgpt"]);
     }
 
     if (/\b(write|rewrite|story|brand|copy|tone|email|script)\b/.test(lower)) {
-        return prefer(["claude", "chatgpt", "kimi"]);
+        return prefer(["claude", "gemini", "chatgpt", "kimi"]);
     }
 
     if (/[\u3400-\u9fff]/.test(prompt) || /\b(long context|research|summarize|document)\b/.test(lower)) {
-        return prefer(["kimi", "zai", "claude"]);
+        return prefer(["kimi", "gemini", "zai", "claude"]);
     }
 
     return configuredProviderIds()[0] || "zai";
