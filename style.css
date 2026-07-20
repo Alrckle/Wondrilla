@@ -902,26 +902,29 @@ a:focus-visible {
 }
 
 .composer-wrap {
-    background: linear-gradient(to top, var(--paper) 70%, rgba(247, 245, 239, 0));
-    padding: 12px clamp(24px, 6vw, 88px) 14px;
+    background: linear-gradient(to top, var(--paper) 80%, rgba(14, 16, 13, 0));
+    padding: 12px clamp(24px, 6vw, 88px) 16px;
 }
 
 .composer {
-    background: var(--white);
-    border: 1px solid #d5d3ca;
-    border-radius: 14px;
-    box-shadow: 0 12px 40px rgba(46, 48, 42, 0.08);
+    background: rgba(21, 24, 20, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
     margin: 0 auto;
     max-width: 760px;
-    padding: 9px 10px 8px 13px;
+    padding: 10px 12px 10px 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .composer:focus-within {
-    border-color: var(--ink-soft);
-    box-shadow: 0 14px 42px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-.composer textarea {
+.composer textarea,
+textarea {
     background: transparent;
     border: 0;
     color: var(--ink);
@@ -934,6 +937,21 @@ a:focus-visible {
     padding: 3px 0 7px;
     resize: none;
     width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.composer textarea::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.composer textarea::-webkit-inner-spin-button,
+.composer textarea::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .composer textarea::placeholder {

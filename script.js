@@ -803,8 +803,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function autoResize() {
+        if (!elements.promptInput) return;
         elements.promptInput.style.height = "auto";
-        elements.promptInput.style.height = `${Math.min(elements.promptInput.scrollHeight, 140)}px`;
+        const newHeight = Math.min(elements.promptInput.scrollHeight, 180);
+        elements.promptInput.style.height = `${newHeight}px`;
+        elements.promptInput.style.overflowY = elements.promptInput.scrollHeight > 180 ? "auto" : "hidden";
     }
 
     let toastTimer;
