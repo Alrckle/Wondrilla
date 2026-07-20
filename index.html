@@ -416,10 +416,22 @@
                     <span class="summary-value" id="checkout-summary-plan">Pro plan ($24 / month)</span>
                 </div>
                 
-                <div id="paypal-button-container" style="margin-top: 24px; min-height: 150px;"></div>
+                <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 14px;">
+                    <button class="razorpay-checkout-btn" id="razorpay-checkout-btn" type="button">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22.436 0l-11.91 24h-4.854l6.732-13.56-4.526-10.44h14.558zm-16.148 0l-6.288 12.658h4.854l3.754-7.558-2.32-5.1h-0.000z"/></svg>
+                        <span>Pay with UPI / Cards / NetBanking (₹ INR)</span>
+                    </button>
+
+                    <div style="display: flex; align-items: center; justify-content: center; margin: 4px 0; color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; position: relative;">
+                        <span style="background: var(--paper, #1a1e17); padding: 0 10px; position: relative; z-index: 2;">OR PAY VIA PAYPAL ($ USD)</span>
+                        <div style="position: absolute; left: 0; right: 0; border-bottom: 1px solid var(--line); z-index: 1;"></div>
+                    </div>
+
+                    <div id="paypal-button-container" style="min-height: 120px;"></div>
+                </div>
 
                 <div class="checkout-security-note" style="margin-top: 16px;">
-                    <span>Secure Payments via PayPal.</span>
+                    <span>🔒 100% Encrypted & Secure Payments via Razorpay & PayPal</span>
                 </div>
             </form>
             
@@ -1036,6 +1048,7 @@
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script type="module" src="script.js?v=3.5"></script>
 </body>
 </html>

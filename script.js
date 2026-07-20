@@ -815,6 +815,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 2400);
     }
 
+    function requireAuth(message = "Please sign in or create an account to proceed") {
+        if (!loggedInUser) {
+            showToast(message);
+            openModal(elements.authModal);
+            return false;
+        }
+        return true;
+    }
+
     function formatSize(bytes) {
         if (bytes === 0) return "0 Bytes";
         const k = 1024;
@@ -838,7 +847,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         });
 
         ["upgrade-sidebar", "upgrade-top"].forEach((id) => {
-            document.getElementById(id).addEventListener("click", () => openModal(elements.pricingModal));
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.addEventListener("click", () => {
+                    if (!requireAuth("Please sign in or create an account to upgrade")) return;
+                    openModal(elements.pricingModal);
+                });
+            }
         });
 
         document.querySelectorAll(".nav-item").forEach((item) => {
@@ -986,9 +1001,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             });
         }
 
+        let activeSelectedPlan = "Pro";
+
         document.querySelectorAll(".choose-plan").forEach((button) => {
             button.addEventListener("click", async () => {
-                const plan = button.dataset.plan;
+                if (!requireAuth("Please sign in or create an account to upgrade")) return;
+
+                const plan = button.dataset.plan || "Pro";
+                activeSelectedPlan = plan;
+
                 const price = state.billing === "monthly"
                     ? (plan === "Pro" ? "24.00" : "79.00")
                     : (plan === "Pro" ? "19.00" : "63.00");
@@ -1085,6 +1106,105 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 }
             });
         });
+
+        const razorpayBtn = document.getElementById("razorpay-checkout-btn");
+        if (razorpayBtn) {
+            razorpayBtn.addEventListener("click", async () => {
+                if (!requireAuth("Please sign in or create an account to upgrade")) return;
+
+                const plan = activeSelectedPlan || "Pro";
+                try {
+                    razorpayBtn.disabled = true;
+                    razorpayBtn.style.opacity = "0.7";
+
+                    const response = await fetch("/api/razorpay/create-order", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            userId: state.userId,
+                            plan: plan.toLowerCase(),
+                            billing: state.billing
+                        })
+                    });
+
+                    const data = await response.json();
+                    razorpayBtn.disabled = false;
+                    razorpayBtn.style.opacity = "1";
+
+                    if (!response.ok || !data.ok) {
+                        showToast(`Razorpay error: ${data.error || "Order creation failed"}`);
+                        return;
+                    }
+
+                    if (!window.Razorpay) {
+                        showToast("Razorpay Checkout SDK is still loading. Please try again.");
+                        return;
+                    }
+
+                    const options = {
+                        key: data.keyId,
+                        amount: data.amount,
+                        currency: data.currency || "INR",
+                        name: "Wondrilla AI",
+                        description: `${plan} Plan (${state.billing})`,
+                        order_id: data.orderId,
+                        prefill: {
+                            email: loggedInUser?.email || ""
+                        },
+                        theme: {
+                            color: "#072654"
+                        },
+                        handler: async function (paymentRes) {
+                            showToast("Verifying Razorpay payment...");
+                            try {
+                                const verifyRes = await fetch("/api/razorpay/verify-payment", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        userId: state.userId,
+                                        plan: plan.toLowerCase(),
+                                        billing: state.billing,
+                                        razorpay_order_id: paymentRes.razorpay_order_id,
+                                        razorpay_payment_id: paymentRes.razorpay_payment_id,
+                                        razorpay_signature: paymentRes.razorpay_signature
+                                    })
+                                });
+
+                                const verifyData = await verifyRes.json();
+                                if (!verifyRes.ok || !verifyData.ok) {
+                                    throw new Error(verifyData.error || "Verification failed");
+                                }
+
+                                state.plan = verifyData.user.plan;
+                                state.used = verifyData.user.messages_used || 0;
+                                localStorage.setItem("wondrilla_plan", state.plan);
+                                updateUsage();
+                                updatePlanUI();
+
+                                elements.checkoutForm.classList.add("hidden");
+                                elements.successPlanName.textContent = plan;
+                                elements.checkoutSuccessState.classList.remove("hidden");
+                                showToast(`Wondrilla ${plan} plan activated successfully!`);
+                            } catch (vErr) {
+                                showToast(`Payment activation error: ${vErr.message}`);
+                            }
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                showToast("Razorpay checkout cancelled.");
+                            }
+                        }
+                    };
+
+                    const rzp = new window.Razorpay(options);
+                    rzp.open();
+                } catch (err) {
+                    razorpayBtn.disabled = false;
+                    razorpayBtn.style.opacity = "1";
+                    showToast(`Razorpay checkout error: ${err.message}`);
+                }
+            });
+        }
 
         elements.checkoutSuccessCloseBtn.addEventListener("click", closeModals);
 

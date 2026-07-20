@@ -1,5 +1,6 @@
 import http from "node:http";
 import https from "node:https";
+import crypto from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -173,6 +174,105 @@ async function handleApi(request, response, requestUrl) {
             ok: true,
             clientId: process.env.PAYPAL_CLIENT_ID || ""
         });
+        return;
+    }
+
+    if (request.method === "GET" && requestUrl.pathname === "/api/razorpay/config") {
+        sendJson(response, 200, {
+            ok: true,
+            keyId: process.env.RAZORPAY_KEY_ID || ""
+        });
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/razorpay/create-order") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const plan = String(body.plan || "pro").trim().toLowerCase();
+        const billing = String(body.billing || "monthly").trim().toLowerCase();
+
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "User must be logged in to create a payment order." });
+            return;
+        }
+
+        let amountInr = 1999;
+        if (plan === "pro") {
+            amountInr = billing === "yearly" ? 1599 : 1999;
+        } else if (plan === "studio") {
+            amountInr = billing === "yearly" ? 5199 : 6499;
+        }
+
+        const amountPaise = amountInr * 100;
+        const receipt = `rcpt_${Date.now()}`;
+
+        try {
+            const order = await createRazorpayOrder(amountPaise, receipt, { userId, plan, billing });
+            sendJson(response, 200, {
+                ok: true,
+                orderId: order.id,
+                amount: order.amount,
+                currency: order.currency,
+                keyId: process.env.RAZORPAY_KEY_ID
+            });
+        } catch (err) {
+            console.error("Razorpay Order Creation Error:", err);
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/razorpay/verify-payment") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const plan = String(body.plan || "pro").trim().toLowerCase();
+        const billing = String(body.billing || "monthly").trim().toLowerCase();
+        const razorpay_order_id = String(body.razorpay_order_id || "").trim();
+        const razorpay_payment_id = String(body.razorpay_payment_id || "").trim();
+        const razorpay_signature = String(body.razorpay_signature || "").trim();
+
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "User must be logged in to verify payment." });
+            return;
+        }
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            sendJson(response, 400, { ok: false, error: "Missing Razorpay payment parameters." });
+            return;
+        }
+
+        const isValid = verifyRazorpaySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+        if (!isValid) {
+            sendJson(response, 400, { ok: false, error: "Invalid Razorpay payment signature." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, {
+                ok: true,
+                user: { user_id: userId, plan, messages_used: 0 }
+            });
+            return;
+        }
+
+        try {
+            const { data: user, error } = await supabase
+                .from("wondrilla_users")
+                .update({ plan, updated_at: new Date().toISOString() })
+                .eq("user_id", userId)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            if (user && user.email && plan !== "free") {
+                sendUpgradeEmail(user.email, plan, billing).catch(console.error);
+            }
+
+            sendJson(response, 200, { ok: true, user });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
         return;
     }
 
@@ -1883,4 +1983,57 @@ async function initMcpServers() {
             });
         }
     }
+}
+
+function createRazorpayOrder(amountPaise, receipt, notes) {
+    return new Promise((resolve, reject) => {
+        const keyId = process.env.RAZORPAY_KEY_ID || "";
+        const keySecret = process.env.RAZORPAY_KEY_SECRET || "";
+        if (!keyId || !keySecret) {
+            return reject(new Error("Razorpay credentials missing on server."));
+        }
+        const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+        const payload = JSON.stringify({
+            amount: amountPaise,
+            currency: "INR",
+            receipt: receipt,
+            notes: notes || {}
+        });
+
+        const req = https.request("https://api.razorpay.com/v1/orders", {
+            method: "POST",
+            headers: {
+                "Authorization": `Basic ${auth}`,
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(payload)
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", (chunk) => body += chunk);
+            res.on("end", () => {
+                try {
+                    const data = JSON.parse(body);
+                    if (res.statusCode >= 200 && res.statusCode < 300 && data.id) {
+                        resolve(data);
+                    } else {
+                        reject(new Error(data.error?.description || data.message || `Razorpay API error (${res.statusCode})`));
+                    }
+                } catch (e) {
+                    reject(new Error("Failed to parse Razorpay order response"));
+                }
+            });
+        });
+
+        req.on("error", (err) => reject(err));
+        req.write(payload);
+        req.end();
+    });
+}
+
+function verifyRazorpaySignature(orderId, paymentId, signature) {
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || "";
+    if (!keySecret) return false;
+    const body = `${orderId}|${paymentId}`;
+    const expectedSignature = crypto.createHmac("sha256", keySecret).update(body).digest("hex");
+    return expectedSignature === signature;
 }

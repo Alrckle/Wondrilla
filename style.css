@@ -2889,3 +2889,32 @@ body.light-theme .profile-detail-card {
 .connector-card.hidden {
     display: none !important;
 }
+
+/* Razorpay Checkout Button */
+.razorpay-checkout-btn {
+    width: 100%;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #072654, #0c3977);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 14px rgba(12, 57, 119, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.razorpay-checkout-btn:hover {
+    background: linear-gradient(135deg, #0c3977, #124da0);
+    box-shadow: 0 6px 18px rgba(18, 77, 160, 0.45);
+    transform: translateY(-1px);
+}
+
+.razorpay-checkout-btn:active {
+    transform: translateY(0);
+}
