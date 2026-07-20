@@ -804,6 +804,7 @@ async function handleApi(request, response, requestUrl) {
 async function answerWithProvider(providerId, prompt, body, requestedModel = providerId) {
     const catalogItem = modelCatalog.find((model) => model.id === providerId) || modelCatalog[0];
     const config = providerConfig[providerId];
+    const conversationHistory = Array.isArray(body.conversationHistory) ? body.conversationHistory : [];
 
     if (!config || !isProviderConfigured(providerId)) {
         return {
@@ -817,7 +818,7 @@ async function answerWithProvider(providerId, prompt, body, requestedModel = pro
 
     try {
         const augmentedPrompt = buildProviderPrompt(prompt, body);
-        const text = await callProvider(providerId, augmentedPrompt);
+        const text = await callProvider(providerId, augmentedPrompt, conversationHistory);
 
         return {
             mode: "live",
@@ -840,21 +841,16 @@ async function answerWithProvider(providerId, prompt, body, requestedModel = pro
 }
 
 function buildProviderPrompt(prompt, body) {
-    const lines = [
-        "You are Wondrilla, a helpful multi-model AI workspace.",
-        "Give a clear, useful answer. Be concise unless the user asks for detail."
-    ];
+    const lines = [];
 
     if (body.customInstructions && body.customInstructions.enabled !== false) {
         const about = String(body.customInstructions.about || "").trim();
         const response = String(body.customInstructions.response || "").trim();
         if (about) {
-            lines.push("");
             lines.push("--- USER CONTEXT (About the User) ---");
             lines.push(about);
         }
         if (response) {
-            lines.push("");
             lines.push("--- RESPONSE GUIDELINES (How to Respond) ---");
             lines.push(response);
         }
@@ -868,24 +864,32 @@ function buildProviderPrompt(prompt, body) {
         lines.push(`Attached file metadata: ${body.file.name}, ${body.file.size || "unknown size"}, ${body.file.type || "unknown type"}. If file contents are not included, explain that file text extraction must be connected for a true file analysis.`);
     }
 
-    lines.push("");
-    lines.push("User prompt:");
+    if (lines.length > 0) {
+        lines.push("");
+        lines.push("User prompt:");
+    }
     lines.push(prompt);
     return lines.join("\n");
 }
 
-async function callProvider(providerId, prompt) {
+async function callProvider(providerId, prompt, conversationHistory = []) {
     const config = providerConfig[providerId];
     if (providerId !== "meta" && providerId !== "ollama" && (!config || !process.env[config.keyEnv]) && process.env.OPENROUTER_API_KEY) {
-        return callOpenRouterFallback(providerId, prompt);
+        return callOpenRouterFallback(providerId, prompt, conversationHistory);
     }
 
     if (providerId === "chatgpt") {
-        return callOpenAiResponses(prompt);
+        return callOpenAiCompatible({
+            url: "https://api.openai.com/v1/chat/completions",
+            key: process.env.OPENAI_API_KEY,
+            model: getProviderModel("chatgpt"),
+            prompt,
+            conversationHistory
+        });
     }
 
     if (providerId === "claude") {
-        return callAnthropic(prompt);
+        return callAnthropic(prompt, conversationHistory);
     }
 
     if (providerId === "grok") {
@@ -893,7 +897,8 @@ async function callProvider(providerId, prompt) {
             url: "https://api.x.ai/v1/chat/completions",
             key: process.env.XAI_API_KEY,
             model: getProviderModel("grok"),
-            prompt
+            prompt,
+            conversationHistory
         });
     }
 
@@ -903,6 +908,7 @@ async function callProvider(providerId, prompt) {
             key: process.env.OPENROUTER_API_KEY,
             model: getProviderModel("meta"),
             prompt,
+            conversationHistory,
             headers: {
                 "HTTP-Referer": process.env.APP_URL || `http://localhost:${port}`,
                 "X-Title": "Wondrilla"
@@ -915,7 +921,8 @@ async function callProvider(providerId, prompt) {
             url: "https://api.moonshot.ai/v1/chat/completions",
             key: process.env.MOONSHOT_API_KEY,
             model: getProviderModel("kimi"),
-            prompt
+            prompt,
+            conversationHistory
         });
     }
 
@@ -924,7 +931,8 @@ async function callProvider(providerId, prompt) {
             url: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
             key: process.env.ZAI_API_KEY,
             model: getProviderModel("zai"),
-            prompt
+            prompt,
+            conversationHistory
         });
     }
 
@@ -933,7 +941,8 @@ async function callProvider(providerId, prompt) {
             url: "https://api.deepseek.com/chat/completions",
             key: process.env.DEEPSEEK_API_KEY,
             model: getProviderModel("deepseek"),
-            prompt
+            prompt,
+            conversationHistory
         });
     }
 
@@ -942,7 +951,8 @@ async function callProvider(providerId, prompt) {
             url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
             key: process.env.GEMINI_API_KEY,
             model: getProviderModel("gemini"),
-            prompt
+            prompt,
+            conversationHistory
         });
     }
 
@@ -952,14 +962,15 @@ async function callProvider(providerId, prompt) {
             url: `${baseUrl}/v1/chat/completions`,
             key: "ollama",
             model: getProviderModel("ollama"),
-            prompt
+            prompt,
+            conversationHistory
         });
     }
 
     throw new Error(`Unsupported provider: ${providerId}`);
 }
 
-async function callOpenRouterFallback(providerId, prompt) {
+async function callOpenRouterFallback(providerId, prompt, conversationHistory = []) {
     const modelMap = {
         chatgpt: "openai/gpt-4o-mini",
         claude: "anthropic/claude-haiku-4.5",
@@ -977,6 +988,7 @@ async function callOpenRouterFallback(providerId, prompt) {
         key: process.env.OPENROUTER_API_KEY,
         model: openRouterModel,
         prompt,
+        conversationHistory,
         headers: {
             "HTTP-Referer": process.env.APP_URL || `http://localhost:${port}`,
             "X-Title": "Wondrilla"
@@ -1007,8 +1019,21 @@ async function callOpenAiResponses(prompt) {
     return text;
 }
 
-async function callAnthropic(prompt) {
-    const messages = [{ role: "user", content: prompt }];
+async function callAnthropic(prompt, conversationHistory = []) {
+    const formattedHistory = [];
+    if (Array.isArray(conversationHistory)) {
+        for (const msg of conversationHistory) {
+            if (msg && (msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string") {
+                formattedHistory.push({ role: msg.role, content: msg.content.trim() });
+            }
+        }
+    }
+
+    const messages = [
+        ...formattedHistory,
+        { role: "user", content: prompt }
+    ];
+
     const llmTools = getMcpToolsForLlm();
     const anthropicTools = llmTools.map((t) => ({
         name: t.function.name,
@@ -1069,9 +1094,19 @@ async function callAnthropic(prompt) {
     throw new Error("Max tool call turns reached.");
 }
 
-async function callOpenAiCompatible({ url, key, model, prompt, headers = {} }) {
+async function callOpenAiCompatible({ url, key, model, prompt, conversationHistory = [], headers = {} }) {
+    const formattedHistory = [];
+    if (Array.isArray(conversationHistory)) {
+        for (const msg of conversationHistory) {
+            if (msg && (msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string") {
+                formattedHistory.push({ role: msg.role, content: msg.content.trim() });
+            }
+        }
+    }
+
     const messages = [
-        { role: "system", content: "You are Wondrilla, a concise and useful AI assistant." },
+        { role: "system", content: "You are Wondrilla, a concise and useful AI assistant. Maintain context across user messages and answer follow-up questions directly." },
+        ...formattedHistory,
         { role: "user", content: prompt }
     ];
 

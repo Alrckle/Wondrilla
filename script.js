@@ -624,6 +624,34 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.messages.appendChild(grid);
     }
 
+    function getActiveConversationHistory(maxTurns = 10) {
+        const history = [];
+        const msgNodes = elements.messages.querySelectorAll(".message");
+        msgNodes.forEach((node) => {
+            const isUser = node.classList.contains("user");
+            const bubble = node.querySelector(".message-bubble");
+            if (!bubble) return;
+            
+            const clone = bubble.cloneNode(true);
+            const meta = clone.querySelector(".message-meta");
+            if (meta) meta.remove();
+            const citationsHeader = clone.querySelector(".search-citations-header");
+            if (citationsHeader) citationsHeader.remove();
+            const citationGrid = clone.querySelector(".search-citations-grid");
+            if (citationGrid) citationGrid.remove();
+
+            const text = clone.textContent.trim();
+            if (text) {
+                history.push({
+                    role: isUser ? "user" : "assistant",
+                    content: text
+                });
+            }
+        });
+        
+        return history.slice(-maxTurns * 2);
+    }
+
     async function submitPrompt(text) {
         const cleanText = text.trim();
         if (!cleanText) return;
@@ -635,6 +663,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             return;
         }
 
+        const conversationHistory = getActiveConversationHistory(10);
         const attachedFile = state.attachedFile;
         resetAttachedFile();
 
@@ -666,7 +695,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     compareModels: state.compareModels,
                     web: state.web,
                     file: publicFilePayload(attachedFile),
-                    customInstructions: state.customInstructions
+                    customInstructions: state.customInstructions,
+                    conversationHistory
                 });
                 typing.remove();
                 addCompareAnswers(response.answers, attachedFile);
@@ -696,7 +726,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 compare: false,
                 web: state.web,
                 file: publicFilePayload(attachedFile),
-                customInstructions: state.customInstructions
+                customInstructions: state.customInstructions,
+                conversationHistory
             });
             const responseModel = modelById(response.modelId || state.selectedModel);
             addAssistantMessage(responseModel, response.text, typing, response);
