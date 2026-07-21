@@ -1519,7 +1519,12 @@ function sendJson(response, statusCode, payload) {
     response.writeHead(statusCode, {
         ...corsHeaders(),
         "Content-Type": "application/json; charset=utf-8",
-        "Cache-Control": "no-store"
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
     });
     response.end(JSON.stringify(payload, null, 2));
 }
