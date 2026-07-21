@@ -111,20 +111,24 @@ a:focus-visible {
     text-decoration: none;
 }
 
-.brand-mark,
-.welcome-mark {
-    align-items: center;
-    display: flex;
-    gap: 2px;
-    justify-content: center;
+.brand-logo-img {
+    height: 38px;
+    width: auto;
+    max-width: 175px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+    transition: transform 180ms ease, filter 180ms ease;
 }
 
-.brand-mark {
-    background: var(--ink);
-    border-radius: 50%;
-    height: 32px;
-    transform: rotate(-10deg);
-    width: 32px;
+.brand:hover .brand-logo-img {
+    transform: scale(1.04);
+    filter: drop-shadow(0 4px 12px rgba(0, 230, 57, 0.3));
+}
+
+.loading-logo-img {
+    width: 64px;
+    height: 64px;
+    animation: pulse 1.5s infinite alternate;
 }
 
 .brand-mark span,
