@@ -1,50 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" width="520" height="180">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 160" width="540" height="160">
   <defs>
-    <!-- Vibrant Green Gradient for the circle -->
-    <linearGradient id="greenCircleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00F048" />
-      <stop offset="100%" stop-color="#00C832" />
+    <!-- Vibrant Emerald / Neon Green Gradient -->
+    <linearGradient id="neonGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F050" />
+      <stop offset="100%" stop-color="#10B981" />
     </linearGradient>
+
+    <!-- Subtle Glow for Green Circle -->
+    <filter id="emeraldGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
     
-    <!-- Purple Gradient for Wondrilla text -->
-    <linearGradient id="purpleTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#9D38FF" />
-      <stop offset="100%" stop-color="#7B1FA2" />
-    </linearGradient>
-    
-    <!-- Soft Glow Filter -->
-    <filter id="brandGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="3" dy="4" stdDeviation="3" flood-color="#110022" flood-opacity="0.6" />
+    <!-- Text Shadow for Depth -->
+    <filter id="textDepth" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.75" />
     </filter>
   </defs>
 
-  <g id="WondrillaLogoGroup">
-    <!-- Green Circle Icon -->
-    <circle cx="90" cy="90" r="76" fill="url(#greenCircleGrad)" />
+  <g id="WondrillaBrandLogo" filter="url(#textDepth)">
+    <!-- Glowing Green Circle -->
+    <circle cx="80" cy="80" r="66" fill="url(#neonGreenGrad)" filter="url(#emeraldGlow)" />
+    
+    <!-- Dark Inner Accent in Circle -->
+    <circle cx="80" cy="80" r="64" fill="url(#neonGreenGrad)" />
 
-    <!-- 3D Shadow Text Layer -->
-    <text x="65" y="116" 
-          font-family="'Manrope', 'DM Sans', 'Trebuchet MS', 'Arial Black', sans-serif" 
-          font-size="82" 
-          font-weight="900" 
-          font-style="normal"
-          letter-spacing="-1.5px" 
-          fill="#1c0033">Wondrilla</text>
-    <text x="64" y="115" 
-          font-family="'Manrope', 'DM Sans', 'Trebuchet MS', 'Arial Black', sans-serif" 
-          font-size="82" 
-          font-weight="900" 
-          font-style="normal"
-          letter-spacing="-1.5px" 
-          fill="#1c0033">Wondrilla</text>
+    <!-- 3D Shadow Layer for Wondrilla Text -->
+    <text x="64" y="107" 
+          font-family="'Manrope', 'DM Sans', system-ui, -apple-system, sans-serif" 
+          font-size="78" 
+          font-weight="800" 
+          letter-spacing="-1px" 
+          fill="#000000" 
+          opacity="0.6">Wondrilla</text>
 
-    <!-- Main Purple Text Layer -->
-    <text x="62" y="113" 
-          font-family="'Manrope', 'DM Sans', 'Trebuchet MS', 'Arial Black', sans-serif" 
-          font-size="82" 
-          font-weight="900" 
-          font-style="normal"
-          letter-spacing="-1.5px" 
-          fill="url(#purpleTextGrad)">Wondrilla</text>
+    <!-- Crisp White Wondrilla Text Layer -->
+    <text x="62" y="105" 
+          font-family="'Manrope', 'DM Sans', system-ui, -apple-system, sans-serif" 
+          font-size="78" 
+          font-weight="800" 
+          letter-spacing="-1px" 
+          fill="#FFFFFF">Wondrilla</text>
   </g>
 </svg>
