@@ -3857,3 +3857,23 @@ body.light-mode .settings-tab-btn.active {
     color: #2563eb !important;
     font-weight: 700 !important;
 }
+
+[data-theme="light"] #connector-search-input,
+body.light-mode #connector-search-input {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .tool-tester-open-btn,
+body.light-mode .tool-tester-open-btn {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .tool-tester-open-btn:hover,
+body.light-mode .tool-tester-open-btn:hover {
+    background: #e2e8f0 !important;
+    color: #2563eb !important;
+}

@@ -1659,6 +1659,80 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 }
             });
         }
+
+        // Anthropic Claude-style Filter Pills & Search Handlers
+        const categoryPills = document.querySelectorAll(".category-pill");
+        const connectorSearchInput = document.getElementById("connector-search-input");
+        const featuredSection = document.getElementById("featured-connectors-section");
+        const connectedContainer = document.getElementById("connected-connectors-container");
+
+        let currentFilter = "all";
+
+        const applyConnectorFilter = () => {
+            const query = (connectorSearchInput?.value || "").toLowerCase().trim();
+            const cards = document.querySelectorAll(".connector-card");
+
+            cards.forEach(card => {
+                const name = (card.querySelector("h5")?.textContent || "").toLowerCase();
+                const desc = (card.querySelector("p")?.textContent || "").toLowerCase();
+                const matchesQuery = !query || name.includes(query) || desc.includes(query);
+                const isConnected = card.classList.contains("connected") || card.querySelector(".connector-btn")?.textContent.trim() === "Connected";
+
+                let matchesFilter = true;
+                if (currentFilter === "connected") matchesFilter = isConnected;
+                else if (currentFilter === "not-connected") matchesFilter = !isConnected;
+
+                card.style.display = (matchesQuery && matchesFilter) ? "flex" : "none";
+            });
+
+            if (connectedContainer) {
+                if (currentFilter === "connected") {
+                    connectedContainer.classList.remove("hidden");
+                    if (featuredSection) featuredSection.style.display = "none";
+                } else if (currentFilter === "not-connected") {
+                    connectedContainer.classList.add("hidden");
+                    if (featuredSection) featuredSection.style.display = "block";
+                } else {
+                    connectedContainer.classList.remove("hidden");
+                    if (featuredSection) featuredSection.style.display = "block";
+                }
+            }
+        };
+
+        categoryPills.forEach(pill => {
+            pill.addEventListener("click", () => {
+                categoryPills.forEach(p => p.classList.remove("active"));
+                pill.classList.add("active");
+                currentFilter = pill.getAttribute("data-filter") || pill.getAttribute("data-category") || "all";
+                applyConnectorFilter();
+            });
+        });
+
+        if (connectorSearchInput) {
+            connectorSearchInput.addEventListener("input", applyConnectorFilter);
+        }
+
+        // Dedicated Tool Tester Modal Handlers
+        const openToolTesterBtn = document.getElementById("open-tool-tester-btn");
+        const toolTesterModal = document.getElementById("tool-tester-modal");
+        const toolTesterClose = document.getElementById("tool-tester-close");
+
+        const closeToolTesterModal = (e) => {
+            if (e) e.stopPropagation();
+            if (toolTesterModal) toolTesterModal.classList.add("hidden");
+        };
+
+        if (openToolTesterBtn && toolTesterModal) {
+            openToolTesterBtn.addEventListener("click", () => {
+                toolTesterModal.classList.remove("hidden");
+            });
+        }
+        if (toolTesterClose) toolTesterClose.addEventListener("click", closeToolTesterModal);
+        if (toolTesterModal) {
+            toolTesterModal.addEventListener("click", (e) => {
+                if (e.target === toolTesterModal) closeToolTesterModal(e);
+            });
+        }
     }
 
     function setAuthMode(mode) {

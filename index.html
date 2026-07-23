@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
-    <link rel="stylesheet" href="style.css?v=4.9">
+    <link rel="stylesheet" href="style.css?v=5.0">
 </head>
 <body>
     <div id="app-loading-screen" class="app-loading-screen">
@@ -662,44 +662,62 @@
                     
                     <!-- Tab 3: MCP Connections -->
                     <div class="settings-panel hidden" id="tab-mcp" role="tabpanel">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                             <div>
                                 <span class="panel-subtitle">Integrations & Protocol</span>
-                                <h3 class="panel-title">Connectors</h3>
-                                <p class="panel-lead">Connect tools, databases, and custom MCP servers to your workspace.</p>
+                                <h3 class="panel-title" style="margin: 0;">Connectors</h3>
                             </div>
                             
-                            <!-- Claude-style "Add v" Dropdown Button -->
-                            <div class="add-connector-dropdown-container" style="position: relative;">
-                                <button class="add-connector-dropdown-btn" id="add-connector-btn" type="button" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s ease;">
-                                    <span>Add</span>
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <!-- Claude Search Input -->
+                                <div style="position: relative; display: flex; align-items: center;">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 10px; color: var(--muted);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                    <input type="text" id="connector-search-input" placeholder="Search connectors..." style="padding: 7px 12px 7px 30px; border-radius: 8px; border: 1px solid var(--line); font-size: 12px; width: 170px; background: rgba(0,0,0,0.15); color: var(--ink);">
+                                </div>
+
+                                <!-- Tool Tester Action Button -->
+                                <button class="tool-tester-open-btn" id="open-tool-tester-btn" type="button" style="display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: rgba(255,255,255,0.06); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s ease;">
+                                    <span>🧪 Test Tools</span>
                                 </button>
-                                
-                                <div class="add-connector-menu hidden" id="add-connector-menu" style="position: absolute; right: 0; top: 110%; background: var(--surface-card, #1e293b); border: 1px solid var(--line, rgba(255,255,255,0.15)); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; min-width: 210px; padding: 6px; display: flex; flex-direction: column; gap: 2px;">
-                                    <button class="menu-item-btn" id="browse-connectors-item" type="button" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: none; background: transparent; color: var(--ink); font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; text-align: left; width: 100%;">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                                        <span>Browse connectors</span>
+
+                                <!-- Claude-style "Add v" Dropdown Button -->
+                                <div class="add-connector-dropdown-container" style="position: relative;">
+                                    <button class="add-connector-dropdown-btn" id="add-connector-btn" type="button" style="display: flex; align-items: center; gap: 6px; padding: 7px 16px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s ease;">
+                                        <span>Add</span>
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                                     </button>
-                                    <button class="menu-item-btn" id="add-custom-connector-item" type="button" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: none; background: transparent; color: var(--ink); font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; text-align: left; width: 100%;">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                        <span>Add custom connector</span>
-                                    </button>
+                                    
+                                    <div class="add-connector-menu hidden" id="add-connector-menu" style="position: absolute; right: 0; top: 110%; background: var(--surface-card, #1e293b); border: 1px solid var(--line, rgba(255,255,255,0.15)); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; min-width: 210px; padding: 6px; display: flex; flex-direction: column; gap: 2px;">
+                                        <button class="menu-item-btn" id="browse-connectors-item" type="button" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: none; background: transparent; color: var(--ink); font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; text-align: left; width: 100%;">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                            <span>Browse connectors</span>
+                                        </button>
+                                        <button class="menu-item-btn" id="add-custom-connector-item" type="button" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: none; background: transparent; color: var(--ink); font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; text-align: left; width: 100%;">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            <span>Add custom connector</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Featured App Store Connectors -->
-                        <div class="featured-connectors-section" style="margin-top: 25px; border-bottom: 1px solid var(--line); padding-bottom: 25px; margin-bottom: 20px;">
-                            <h4 style="margin: 0 0 15px; font-size: 16px; color: var(--ink); font-family: 'Manrope', sans-serif; letter-spacing: -0.01em;">Featured Connectors</h4>
-                            
-                            <!-- Categories Pills -->
-                            <div class="connector-categories" style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
-                                <button class="category-pill active" data-category="all" type="button">All</button>
-                                <button class="category-pill" data-category="productivity" type="button">Productivity</button>
-                                <button class="category-pill" data-category="creative" type="button">Design & Creative</button>
-                                <button class="category-pill" data-category="utilities" type="button">Utilities & Finance</button>
+                        <!-- Anthropic Claude Filter Pills -->
+                        <div class="connector-categories" style="display: flex; gap: 8px; margin-bottom: 20px; padding-bottom: 5px;">
+                            <button class="category-pill active" data-filter="all" type="button">All</button>
+                            <button class="category-pill" data-filter="connected" type="button">Connected</button>
+                            <button class="category-pill" data-filter="not-connected" type="button">Not connected</button>
+                        </div>
+
+                        <!-- Active Connected Connectors List -->
+                        <div id="connected-connectors-container" class="connected-connectors-container hidden" style="margin-bottom: 25px;">
+                            <h4 style="margin: 0 0 12px; font-size: 14px; color: var(--ink); font-weight: 600;">Connected Servers</h4>
+                            <div class="mcp-servers-list" id="mcp-servers-list" style="display: flex; flex-direction: column; gap: 10px;">
+                                <!-- Loaded dynamically -->
                             </div>
+                        </div>
+
+                        <!-- Featured App Store Connectors -->
+                        <div class="featured-connectors-section" id="featured-connectors-section">
 
                             <div class="connectors-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">
                                 <!-- Connector Card: GitHub -->
@@ -940,89 +958,11 @@
                                     <button class="connector-btn" data-app="stripe" type="button">Connect</button>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="mcp-tabs" style="margin-top: 15px;">
-                            <button class="mcp-tab-btn active" id="tab-servers-btn" type="button">Active Servers</button>
-                            <button class="mcp-tab-btn" id="tab-add-btn" type="button">Add Server</button>
-                            <button class="mcp-tab-btn" id="tab-tester-btn" type="button">Tool Tester</button>
-                        </div>
-
-                        <div class="mcp-tab-content" id="mcp-tab-servers">
-                            <div class="mcp-servers-list" id="mcp-servers-list">
-                                <!-- Loaded dynamically -->
-                            </div>
-                        </div>
-
-                        <div class="mcp-tab-content hidden" id="mcp-tab-add">
-                            <form class="mcp-form" id="mcp-add-form" style="display: flex; flex-direction: column; gap: 12px;">
-                                <div class="form-group">
-                                    <label for="mcp-name">Server Name</label>
-                                    <input type="text" id="mcp-name" placeholder="e.g. github-server" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="mcp-type">Connection Type</label>
-                                    <select id="mcp-type" class="mcp-select-input">
-                                        <option value="command">Stdio Command (Local Process)</option>
-                                        <option value="sse">SSE (HTTP/Server-Sent Events)</option>
-                                    </select>
-                                </div>
-                                
-                                <div id="mcp-command-fields" style="display: flex; flex-direction: column; gap: 12px;">
-                                    <div class="form-group">
-                                        <label for="mcp-command">Command</label>
-                                        <input type="text" id="mcp-command" placeholder="e.g. npx or node">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="mcp-args">Arguments (comma-separated)</label>
-                                        <input type="text" id="mcp-args" placeholder='e.g. -y, @modelcontextprotocol/server-github'>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="mcp-env">Environment Variables (JSON object)</label>
-                                        <textarea id="mcp-env" placeholder='e.g. {"GITHUB_PERSONAL_ACCESS_TOKEN": "..."}' rows="3" style="background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 14px; padding: 12px; resize: vertical; width: 100%; font-family: inherit;"></textarea>
-                                    </div>
-                                </div>
-
-                                <div id="mcp-sse-fields" class="hidden" style="display: flex; flex-direction: column; gap: 12px;">
-                                    <div class="form-group">
-                                        <label for="mcp-url">SSE Server URL</label>
-                                        <input type="url" id="mcp-url" placeholder="e.g. http://localhost:3000/sse">
-                                    </div>
-                                </div>
-
-                                <button class="checkout-submit-btn" type="submit" style="margin-top: 10px;">Save & Connect Server</button>
-                            </form>
-                        </div>
-
-                        <div class="mcp-tab-content hidden" id="mcp-tab-tester">
-                            <div class="mcp-tester" style="display: flex; flex-direction: column; gap: 12px;">
-                                <div class="form-group">
-                                    <label for="tester-server">Select Server</label>
-                                    <select id="tester-server" style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 14px; padding: 12px; width: 100%;">
-                                        <option value="">-- Choose Server --</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tester-tool">Select Tool</label>
-                                    <select id="tester-tool" disabled style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 14px; padding: 12px; width: 100%;">
-                                        <option value="">-- Choose Tool --</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tester-args">Arguments (JSON format)</label>
-                                    <textarea id="tester-args" placeholder='e.g. { "path": "index.html" }' rows="4" style="background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 14px; padding: 12px; resize: vertical; width: 100%; font-family: inherit;"></textarea>
-                                </div>
-                                <button class="checkout-submit-btn" id="run-tool-btn" type="button" style="margin-top: 10px;" disabled>Run Tool</button>
-                                
-                                <div class="tester-output-container hidden" id="tester-output-container">
-                                    <label style="color: var(--ink-soft); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">Output Response</label>
-                                    <pre class="tester-output" id="tester-output"></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        </div>                    </div>
                 </div>
             </div>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -1102,7 +1042,7 @@
                 </div>
                 
                 <div id="modal-mcp-command-fields" style="display: flex; flex-direction: column; gap: 14px;">
-                    <div class="form-group">
+                      <div class="form-group">
                         <label for="modal-mcp-command" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Command</label>
                         <input type="text" id="modal-mcp-command" placeholder="e.g. npx or node or python" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
                     </div>
@@ -1131,9 +1071,48 @@
         </div>
     </div>
 
+    <!-- Dedicated Tool Tester Modal -->
+    <div class="modal-shell hidden" id="tool-tester-modal" role="dialog" aria-modal="true" aria-labelledby="tool-tester-title" style="z-index: 10000;">
+        <div class="modal custom-connector-modal-card" style="max-width: 540px; width: 90%; background: var(--surface-card, #121410); border: 1px solid var(--line, rgba(255,255,255,0.15)); border-radius: 16px; padding: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.4);">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--line, rgba(255,255,255,0.1)); padding-bottom: 14px;">
+                <div>
+                    <span class="overline" style="font-size: 10px; letter-spacing: 0.08em; color: #2563eb; font-weight: 700;">MODEL CONTEXT PROTOCOL</span>
+                    <h2 id="tool-tester-title" style="margin: 4px 0 0; font-size: 20px; font-weight: 700; color: var(--ink);">MCP Tool Tester Playground</h2>
+                </div>
+                <button class="icon-btn submodal-close" id="tool-tester-close" type="button" aria-label="Close modal">&times;</button>
+            </div>
+            <p class="modal-lead" style="font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5;">Test live MCP tools across your connected servers in real-time.</p>
+            
+            <div class="mcp-tester" style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="form-group">
+                    <label for="tester-server" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Select Server</label>
+                    <select id="tester-server" class="mcp-select-input" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
+                        <option value="">-- Choose Server --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tester-tool" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Select Tool</label>
+                    <select id="tester-tool" class="mcp-select-input" disabled style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
+                        <option value="">-- Choose Tool --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tester-args" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Arguments (JSON format)</label>
+                    <textarea id="tester-args" placeholder='e.g. { "path": "index.html" }' rows="3" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px; font-family: monospace; resize: vertical;"></textarea>
+                </div>
+                <button class="checkout-submit-btn" id="run-tool-btn" type="button" style="padding: 11px; font-size: 13px; border-radius: 8px;" disabled>Execute Tool</button>
+                
+                <div class="tester-output-container hidden" id="tester-output-container" style="margin-top: 10px;">
+                    <label style="color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">Response Output</label>
+                    <pre class="tester-output" id="tester-output" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 12px; font-family: monospace; max-height: 180px; overflow-y: auto; color: #38bdf8;"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=4.9"></script>
+    <script type="module" src="script.js?v=5.0"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
