@@ -4259,3 +4259,9 @@ body.light-mode .settings-modal-close-top {
     border: 1px solid rgba(0, 0, 0, 0.15) !important;
     color: #0f172a !important;
 }
+
+/* Zero-Flicker Welcome Screen Hide Rule on Page Refresh */
+html.has-active-chat #welcome-state,
+html.has-active-chat .welcome-state {
+    display: none !important;
+}

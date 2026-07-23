@@ -474,6 +474,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     function resetConversation() {
         elements.messages.innerHTML = "";
         elements.welcomeState.classList.remove("hidden");
+        document.documentElement.classList.remove("has-active-chat");
+        localStorage.removeItem("wondrilla_messages");
         elements.promptInput.value = "";
         autoResize();
         setView("chat");
@@ -675,6 +677,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         resetAttachedFile();
 
         elements.welcomeState.classList.add("hidden");
+        document.documentElement.classList.add("has-active-chat");
+        localStorage.setItem("wondrilla_messages", "active");
         addUserMessage(cleanText, attachedFile);
         elements.promptInput.value = "";
         autoResize();
