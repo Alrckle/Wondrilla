@@ -2903,6 +2903,17 @@ body.light-theme .profile-detail-card {
     flex-direction: column;
     gap: 24px;
     justify-content: center;
+    transform: none !important;
+}
+
+.loading-logo-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    transform: none !important;
+    margin: 0 auto;
+    display: block;
+    animation: loading-pulse 2s infinite ease-in-out;
 }
 
 .loading-mark {
@@ -2913,7 +2924,7 @@ body.light-theme .profile-detail-card {
     gap: 4px;
     height: 64px;
     justify-content: center;
-    transform: none;
+    transform: none !important;
     width: 64px;
     animation: loading-pulse 2s infinite ease-in-out;
 }
