@@ -3,37 +3,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 (function () {
     "use strict";
 
-    // Theme Toggle Logic
-    const savedTheme = localStorage.getItem("wondrilla_theme") || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-    
-    function applyTheme(theme) {
-        if (theme === "light") {
-            document.documentElement.setAttribute("data-theme", "light");
-            document.body.classList.add("light-mode");
-        } else {
-            document.documentElement.setAttribute("data-theme", "dark");
-            document.body.classList.remove("light-mode");
-        }
-        const themeText = document.getElementById("theme-toggle-text");
-        if (themeText) {
-            themeText.textContent = theme === "light" ? "Appearance: Light ☀️" : "Appearance: Dark 🌙";
-        }
-    }
-
-    applyTheme(savedTheme);
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const themeToggleBtn = document.getElementById("theme-toggle-btn");
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener("click", () => {
-                const isLight = document.documentElement.getAttribute("data-theme") === "light" || document.body.classList.contains("light-mode");
-                const nextTheme = isLight ? "dark" : "light";
-                localStorage.setItem("wondrilla_theme", nextTheme);
-                applyTheme(nextTheme);
-            });
-        }
-    });
-
     const models = [
         { id: "auto", name: "Wondrilla Auto", maker: "Smart routing", mark: "W", color: "#1f211d", text: "#d9ff43", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="m12 3-1.912 5.886L4.2 9l5.886 1.912L12 16.8l1.912-5.886L19.8 9l-5.886-1.912z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></svg>` },
         { id: "chatgpt", name: "ChatGPT", maker: "OpenAI", mark: "O", color: "#1c1e19", text: "#10a37f", svg: `<svg fill="currentColor" fill-rule="evenodd" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>OpenAI</title><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg>` },
@@ -1498,6 +1467,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.themeLightBtn) elements.themeLightBtn.addEventListener("click", () => applyTheme("light"));
         if (elements.themeSystemBtn) elements.themeSystemBtn.addEventListener("click", () => applyTheme("system"));
 
+        const themeToggleBtn = document.getElementById("theme-toggle-btn");
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener("click", () => {
+                const currentTheme = localStorage.getItem("wondrilla_theme") || (document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark");
+                const nextTheme = currentTheme === "light" ? "dark" : "light";
+                applyTheme(nextTheme);
+            });
+        }
+
         // Accent color selection event listeners
         const accentPicker = document.querySelector(".accent-picker");
         if (accentPicker) {
@@ -1816,20 +1794,31 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         localStorage.setItem("wondrilla_theme", theme);
         
         // Remove active class from all theme buttons
-        [elements.themeDarkBtn, elements.themeLightBtn, elements.themeSystemBtn].forEach(btn => {
-            if (btn) btn.classList.remove("active");
-        });
+        if (typeof elements !== "undefined" && elements) {
+            [elements.themeDarkBtn, elements.themeLightBtn, elements.themeSystemBtn].forEach(btn => {
+                if (btn) btn.classList.remove("active");
+            });
 
-        // Set active button
-        if (theme === "dark" && elements.themeDarkBtn) elements.themeDarkBtn.classList.add("active");
-        if (theme === "light" && elements.themeLightBtn) elements.themeLightBtn.classList.add("active");
-        if (theme === "system" && elements.themeSystemBtn) elements.themeSystemBtn.classList.add("active");
+            // Set active button
+            if (theme === "dark" && elements.themeDarkBtn) elements.themeDarkBtn.classList.add("active");
+            if (theme === "light" && elements.themeLightBtn) elements.themeLightBtn.classList.add("active");
+            if (theme === "system" && elements.themeSystemBtn) elements.themeSystemBtn.classList.add("active");
+        }
 
         const useLight = theme === "light" || (theme === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
         if (useLight) {
+            document.documentElement.setAttribute("data-theme", "light");
+            document.body.classList.add("light-mode");
             document.body.classList.add("light-theme");
         } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            document.body.classList.remove("light-mode");
             document.body.classList.remove("light-theme");
+        }
+
+        const themeText = document.getElementById("theme-toggle-text");
+        if (themeText) {
+            themeText.textContent = useLight ? "Appearance: Light ☀️" : "Appearance: Dark 🌙";
         }
     }
 
