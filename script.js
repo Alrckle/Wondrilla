@@ -1457,6 +1457,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             });
         }
 
+        const returnToChatBtns = document.querySelectorAll(".return-to-chat-btn, #profile-modal-close");
+        returnToChatBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                closeModals();
+                setView("chat");
+                showMobileSettingsPage(false);
+            });
+        });
+
         // Whenever profile-modal opens, always start at Level 1 Main Menu on Mobile!
         const profileBtn = document.getElementById("profile-btn") || elements.profileBtn;
         if (profileBtn) {
