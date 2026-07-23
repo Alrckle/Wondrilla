@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
-    <link rel="stylesheet" href="style.css?v=4.5">
+    <link rel="stylesheet" href="style.css?v=4.6">
 </head>
 <body>
     <div id="app-loading-screen" class="app-loading-screen">
@@ -956,7 +956,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="mcp-type">Connection Type</label>
-                                    <select id="mcp-type" style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 14px; padding: 12px; width: 100%;">
+                                    <select id="mcp-type" class="mcp-select-input">
                                         <option value="command">Stdio Command (Local Process)</option>
                                         <option value="sse">SSE (HTTP/Server-Sent Events)</option>
                                     </select>
@@ -1072,7 +1072,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=4.5"></script>
+    <script type="module" src="script.js?v=4.6"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
