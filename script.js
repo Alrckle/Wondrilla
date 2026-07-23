@@ -2680,6 +2680,16 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
         }
     }
 
+    function hideLoadingScreen() {
+        const loadingScreen = document.getElementById("app-loading-screen");
+        if (loadingScreen) {
+            loadingScreen.classList.add("fade-out");
+            setTimeout(() => {
+                loadingScreen.style.display = "none";
+            }, 400);
+        }
+    }
+
     renderModels();
     renderHistory();
     updateUsage();
@@ -2690,4 +2700,5 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
     initSupabaseAuth();
     initMcpUi();
     initMarketingHub();
+    hideLoadingScreen();
 })();

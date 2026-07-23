@@ -2887,6 +2887,14 @@ body.light-theme .profile-detail-card {
 .app-loading-screen.fade-out {
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
+}
+
+.loading-logo-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    animation: loading-pulse 2s infinite ease-in-out;
 }
 
 .loading-content {
