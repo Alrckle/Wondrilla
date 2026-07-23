@@ -3242,15 +3242,7 @@ body.light-mode .model-row.active {
 
 [data-theme="light"] .model-avatar,
 body.light-mode .model-avatar {
-    background: #f1f5f9 !important;
-    border: 1px solid #cbd5e1 !important;
-    color: #0f172a !important;
-}
-
-[data-theme="light"] .model-avatar.auto,
-body.light-mode .model-avatar.auto {
-    background: #2563eb !important;
-    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .model-copy strong,
