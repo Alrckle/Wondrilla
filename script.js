@@ -1537,6 +1537,41 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 }
             });
         }
+
+        // Claude-style Add Connector Dropdown Handlers
+        const addConnectorBtn = document.getElementById("add-connector-btn");
+        const addConnectorMenu = document.getElementById("add-connector-menu");
+        const browseConnectorsItem = document.getElementById("browse-connectors-item");
+        const addCustomConnectorItem = document.getElementById("add-custom-connector-item");
+
+        if (addConnectorBtn && addConnectorMenu) {
+            addConnectorBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                addConnectorMenu.classList.toggle("hidden");
+            });
+
+            document.addEventListener("click", (e) => {
+                if (addConnectorMenu && !addConnectorMenu.contains(e.target) && e.target !== addConnectorBtn) {
+                    addConnectorMenu.classList.add("hidden");
+                }
+            });
+        }
+
+        if (browseConnectorsItem) {
+            browseConnectorsItem.addEventListener("click", () => {
+                if (addConnectorMenu) addConnectorMenu.classList.add("hidden");
+                const grid = document.querySelector(".featured-connectors-section");
+                if (grid) grid.scrollIntoView({ behavior: "smooth" });
+            });
+        }
+
+        if (addCustomConnectorItem) {
+            addCustomConnectorItem.addEventListener("click", () => {
+                if (addConnectorMenu) addConnectorMenu.classList.add("hidden");
+                const tabAddBtn = document.getElementById("tab-add-btn");
+                if (tabAddBtn) tabAddBtn.click();
+            });
+        }
     }
 
     function setAuthMode(mode) {

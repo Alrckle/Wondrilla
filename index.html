@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
-    <link rel="stylesheet" href="style.css?v=4.4">
+    <link rel="stylesheet" href="style.css?v=4.5">
 </head>
 <body>
     <div id="app-loading-screen" class="app-loading-screen">
@@ -656,9 +656,32 @@
                     
                     <!-- Tab 3: MCP Connections -->
                     <div class="settings-panel hidden" id="tab-mcp" role="tabpanel">
-                        <span class="panel-subtitle">Integrations</span>
-                        <h3 class="panel-title">Model Context Protocol</h3>
-                        <p class="panel-lead">Connect local tools and databases using Claude and ChatGPT-inspired MCP servers.</p>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                            <div>
+                                <span class="panel-subtitle">Integrations & Protocol</span>
+                                <h3 class="panel-title">Connectors</h3>
+                                <p class="panel-lead">Connect tools, databases, and custom MCP servers to your workspace.</p>
+                            </div>
+                            
+                            <!-- Claude-style "Add v" Dropdown Button -->
+                            <div class="add-connector-dropdown-container" style="position: relative;">
+                                <button class="add-connector-dropdown-btn" id="add-connector-btn" type="button" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: #2563eb; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s ease;">
+                                    <span>Add</span>
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                </button>
+                                
+                                <div class="add-connector-menu hidden" id="add-connector-menu" style="position: absolute; right: 0; top: 110%; background: var(--surface-card, #1e293b); border: 1px solid var(--line, rgba(255,255,255,0.15)); border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; min-width: 210px; padding: 6px; display: flex; flex-direction: column; gap: 2px;">
+                                    <button class="menu-item-btn" id="browse-connectors-item" type="button" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: none; background: transparent; color: var(--ink); font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; text-align: left; width: 100%;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                        <span>Browse connectors</span>
+                                    </button>
+                                    <button class="menu-item-btn" id="add-custom-connector-item" type="button" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: none; background: transparent; color: var(--ink); font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; text-align: left; width: 100%;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                        <span>Add custom connector</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Featured App Store Connectors -->
                         <div class="featured-connectors-section" style="margin-top: 25px; border-bottom: 1px solid var(--line); padding-bottom: 25px; margin-bottom: 20px;">
@@ -1049,7 +1072,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=4.4"></script>
+    <script type="module" src="script.js?v=4.5"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {

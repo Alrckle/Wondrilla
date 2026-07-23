@@ -3665,3 +3665,32 @@ body.light-mode .profile-meta-name {
 body.light-mode .profile-meta-email {
     color: #64748b !important;
 }
+
+/* Add Connector Dropdown CSS */
+.add-connector-dropdown-btn:hover {
+    background: #1d4ed8 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.menu-item-btn:hover {
+    background: rgba(37, 99, 235, 0.12) !important;
+    color: #2563eb !important;
+}
+
+[data-theme="light"] .add-connector-menu,
+body.light-mode .add-connector-menu {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-theme="light"] .menu-item-btn,
+body.light-mode .menu-item-btn {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .menu-item-btn:hover,
+body.light-mode .menu-item-btn:hover {
+    background: #f1f5f9 !important;
+    color: #2563eb !important;
+}
