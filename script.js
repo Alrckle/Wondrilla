@@ -1568,8 +1568,82 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (addCustomConnectorItem) {
             addCustomConnectorItem.addEventListener("click", () => {
                 if (addConnectorMenu) addConnectorMenu.classList.add("hidden");
-                const tabAddBtn = document.getElementById("tab-add-btn");
-                if (tabAddBtn) tabAddBtn.click();
+                const customConnectorModal = document.getElementById("custom-connector-modal");
+                if (customConnectorModal) {
+                    customConnectorModal.classList.remove("hidden");
+                    const nameInput = document.getElementById("modal-mcp-name");
+                    if (nameInput) setTimeout(() => nameInput.focus(), 100);
+                }
+            });
+        }
+
+        const customConnectorModal = document.getElementById("custom-connector-modal");
+        const customConnectorClose = document.getElementById("custom-connector-close");
+        const customConnectorCancelBtn = document.getElementById("custom-connector-cancel-btn");
+        const customConnectorModalForm = document.getElementById("custom-connector-modal-form");
+        const modalMcpType = document.getElementById("modal-mcp-type");
+        const modalMcpCmdFields = document.getElementById("modal-mcp-command-fields");
+        const modalMcpSseFields = document.getElementById("modal-mcp-sse-fields");
+
+        if (modalMcpType) {
+            modalMcpType.addEventListener("change", () => {
+                const isSse = modalMcpType.value === "sse";
+                if (modalMcpCmdFields) modalMcpCmdFields.classList.toggle("hidden", isSse);
+                if (modalMcpSseFields) modalMcpSseFields.classList.toggle("hidden", !isSse);
+            });
+        }
+
+        const closeCustomConnectorModal = () => {
+            if (customConnectorModal) customConnectorModal.classList.add("hidden");
+        };
+
+        if (customConnectorClose) customConnectorClose.addEventListener("click", closeCustomConnectorModal);
+        if (customConnectorCancelBtn) customConnectorCancelBtn.addEventListener("click", closeCustomConnectorModal);
+        if (customConnectorModal) {
+            customConnectorModal.addEventListener("click", (e) => {
+                if (e.target === customConnectorModal) closeCustomConnectorModal();
+            });
+        }
+
+        if (customConnectorModalForm) {
+            customConnectorModalForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const name = document.getElementById("modal-mcp-name").value.trim();
+                const type = document.getElementById("modal-mcp-type").value;
+                const command = document.getElementById("modal-mcp-command").value.trim();
+                const argsStr = document.getElementById("modal-mcp-args").value.trim();
+                const envStr = document.getElementById("modal-mcp-env").value.trim();
+                const url = document.getElementById("modal-mcp-url").value.trim();
+
+                let args = [];
+                if (argsStr) args = argsStr.split(",").map(a => a.trim()).filter(Boolean);
+
+                let env = {};
+                if (envStr) {
+                    try {
+                        env = JSON.parse(envStr);
+                    } catch (err) {
+                        showToast("Invalid Environment Variables JSON format");
+                        return;
+                    }
+                }
+
+                showToast(`Connecting custom connector '${name}'...`);
+
+                try {
+                    const payload = { name, type, command, args, env, url, userId: state.userId };
+                    const res = await postJson("/api/mcp/add", payload);
+                    if (res.ok) {
+                        showToast(`Custom Connector '${name}' connected successfully!`);
+                        closeCustomConnectorModal();
+                        customConnectorModalForm.reset();
+                        fetchMcpServers();
+                    } else {
+                        showToast(`Failed to connect server: ${res.error}`);
+                    }
+                } catch (err) {
+                    showToast(`Error: ${err.message}`);
+                }
             });
         }
     }

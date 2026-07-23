@@ -3725,3 +3725,24 @@ body.light-mode .mcp-tab-btn.active {
     color: #2563eb !important;
     border-bottom-color: #2563eb !important;
 }
+
+[data-theme="light"] .custom-connector-modal-card,
+body.light-mode .custom-connector-modal-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2) !important;
+}
+
+[data-theme="light"] .custom-connector-modal-card label,
+body.light-mode .custom-connector-modal-card label {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .custom-connector-modal-card input,
+[data-theme="light"] .custom-connector-modal-card textarea,
+body.light-mode .custom-connector-modal-card input,
+body.light-mode .custom-connector-modal-card textarea {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}

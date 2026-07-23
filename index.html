@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
-    <link rel="stylesheet" href="style.css?v=4.6">
+    <link rel="stylesheet" href="style.css?v=4.7">
 </head>
 <body>
     <div id="app-loading-screen" class="app-loading-screen">
@@ -1070,9 +1070,64 @@
         </div>
     </div>
 
+    <!-- Dedicated Anthropic-style Custom Connector Modal -->
+    <div class="modal-shell hidden" id="custom-connector-modal" role="dialog" aria-modal="true" aria-labelledby="custom-connector-title" style="z-index: 10000;">
+        <div class="modal custom-connector-modal-card" style="max-width: 520px; width: 90%; background: var(--surface-card, #121410); border: 1px solid var(--line, rgba(255,255,255,0.15)); border-radius: 16px; padding: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.4);">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--line, rgba(255,255,255,0.1)); padding-bottom: 14px;">
+                <div>
+                    <span class="overline" style="font-size: 10px; letter-spacing: 0.08em; color: #2563eb; font-weight: 700;">MODEL CONTEXT PROTOCOL</span>
+                    <h2 id="custom-connector-title" style="margin: 4px 0 0; font-size: 20px; font-weight: 700; color: var(--ink);">Add Custom Connector</h2>
+                </div>
+                <button class="icon-btn modal-close" id="custom-connector-close" type="button" aria-label="Close modal">&times;</button>
+            </div>
+            <p class="modal-lead" style="font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5;">Connect any custom MCP server (Stdio command or SSE HTTP endpoint) directly to Wondrilla AI.</p>
+            
+            <form class="mcp-form" id="custom-connector-modal-form" style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="form-group">
+                    <label for="modal-mcp-name" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Connector Name</label>
+                    <input type="text" id="modal-mcp-name" placeholder="e.g. My Database Server" required style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
+                </div>
+                <div class="form-group">
+                    <label for="modal-mcp-type" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Connection Type</label>
+                    <select id="modal-mcp-type" class="mcp-select-input" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
+                        <option value="command">Stdio Command (Local Process)</option>
+                        <option value="sse">SSE (HTTP / Server-Sent Events)</option>
+                    </select>
+                </div>
+                
+                <div id="modal-mcp-command-fields" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="form-group">
+                        <label for="modal-mcp-command" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Command</label>
+                        <input type="text" id="modal-mcp-command" placeholder="e.g. npx or node or python" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-mcp-args" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Arguments (comma-separated)</label>
+                        <input type="text" id="modal-mcp-args" placeholder='e.g. -y, @modelcontextprotocol/server-github' style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-mcp-env" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Environment Variables (JSON Object)</label>
+                        <textarea id="modal-mcp-env" placeholder='e.g. {"GITHUB_PERSONAL_ACCESS_TOKEN": "..."}' rows="3" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px; font-family: monospace; resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <div id="modal-mcp-sse-fields" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+                    <div class="form-group">
+                        <label for="modal-mcp-url" style="font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">SSE Server URL</label>
+                        <input type="url" id="modal-mcp-url" placeholder="e.g. http://localhost:3000/sse" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px;">
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                    <button type="button" class="modal-cancel-btn" id="custom-connector-cancel-btn" style="padding: 10px 18px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-weight: 600; font-size: 13px; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="modal-submit-btn" style="padding: 10px 20px; border-radius: 8px; border: none; background: #2563eb; color: #ffffff; font-weight: 600; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">Save & Connect</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=4.6"></script>
+    <script type="module" src="script.js?v=4.7"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
