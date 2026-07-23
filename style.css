@@ -2913,7 +2913,7 @@ body.light-theme .profile-detail-card {
     gap: 4px;
     height: 64px;
     justify-content: center;
-    transform: rotate(-10deg);
+    transform: none;
     width: 64px;
     animation: loading-pulse 2s infinite ease-in-out;
 }
