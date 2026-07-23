@@ -4051,3 +4051,44 @@ body.light-mode .tool-tester-open-btn:hover {
         overflow-y: auto !important;
     }
 }
+
+/* Mobile Back Button Styling */
+.mobile-settings-back-btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 14px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #2563eb !important;
+    background: rgba(37, 99, 235, 0.1) !important;
+    border: 1px solid rgba(37, 99, 235, 0.2) !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    margin-bottom: 18px !important;
+    transition: all 0.2s ease !important;
+}
+
+.mobile-settings-back-btn.hidden {
+    display: none !important;
+}
+
+/* Light Mode Mobile Back Button */
+[data-theme="light"] .mobile-settings-back-btn,
+body.light-mode .mobile-settings-back-btn {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+/* Tab Chevron Icon for Desktop & Mobile */
+.tab-chevron-icon {
+    display: none;
+    color: var(--muted);
+}
+
+@media (max-width: 768px) {
+    .tab-chevron-icon {
+        display: block !important;
+    }
+}

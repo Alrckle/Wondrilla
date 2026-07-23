@@ -1409,13 +1409,37 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.oauthGithubBtn) elements.oauthGithubBtn.addEventListener("click", () => handleOAuth("github"));
         if (elements.logoutBtn) elements.logoutBtn.addEventListener("click", handleLogout);
 
-        // Settings Tabs switching
+        // Anthropic Claude Mobile Navigation Handler (Drill-Down Detail Page + Back Button)
+        const settingsSidebar = document.querySelector(".settings-sidebar");
+        const settingsContent = document.querySelector(".settings-content");
+        const mobileBackBtn = document.getElementById("mobile-settings-back-btn");
+
+        const updateMobileSettingsView = (showPage = false) => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                if (showPage) {
+                    if (settingsSidebar) settingsSidebar.style.display = "none";
+                    if (settingsContent) settingsContent.style.display = "block";
+                    if (mobileBackBtn) mobileBackBtn.classList.remove("hidden");
+                } else {
+                    if (settingsSidebar) settingsSidebar.style.display = "flex";
+                    if (settingsContent) settingsContent.style.display = "none";
+                    if (mobileBackBtn) mobileBackBtn.classList.add("hidden");
+                }
+            } else {
+                if (settingsSidebar) settingsSidebar.style.display = "flex";
+                if (settingsContent) settingsContent.style.display = "block";
+                if (mobileBackBtn) mobileBackBtn.classList.add("hidden");
+            }
+        };
+
         const settingsTabs = [
             { btn: elements.settingsProfileBtn, panel: elements.tabProfile },
             { btn: elements.settingsGeneralBtn, panel: elements.tabGeneral },
             { btn: elements.settingsPersonalizationBtn, panel: elements.tabPersonalization },
             { btn: elements.settingsMcpBtn, panel: elements.tabMcp }
         ];
+
         settingsTabs.forEach(({ btn, panel }) => {
             if (btn && panel) {
                 btn.addEventListener("click", () => {
@@ -1425,7 +1449,22 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     });
                     btn.classList.add("active");
                     panel.classList.remove("hidden");
+
+                    updateMobileSettingsView(true);
                 });
+            }
+        });
+
+        if (mobileBackBtn) {
+            mobileBackBtn.addEventListener("click", () => {
+                updateMobileSettingsView(false);
+            });
+        }
+
+        window.addEventListener("resize", () => {
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) {
+                updateMobileSettingsView(false);
             }
         });
 
