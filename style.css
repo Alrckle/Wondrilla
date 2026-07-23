@@ -3877,3 +3877,100 @@ body.light-mode .tool-tester-open-btn:hover {
     background: #e2e8f0 !important;
     color: #2563eb !important;
 }
+
+/* ==========================================
+   Anthropic Claude-Style Mobile Responsiveness 
+   ========================================== */
+@media (max-width: 768px) {
+    /* Full-screen sleek modal card on mobile */
+    .settings-modal-card {
+        width: 95vw !important;
+        height: 92vh !important;
+        max-height: 92vh !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .settings-layout {
+        flex-direction: column !important;
+        height: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* Horizontal scrolling top navbar on mobile settings */
+    .settings-sidebar {
+        width: 100% !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.1)) !important;
+        padding: 12px 14px !important;
+        gap: 8px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .settings-sidebar-header {
+        margin-bottom: 0 !important;
+        margin-right: 12px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .settings-sidebar-title {
+        font-size: 16px !important;
+        margin: 0 !important;
+    }
+
+    .settings-nav-group {
+        flex-direction: row !important;
+        gap: 6px !important;
+        align-items: center !important;
+    }
+
+    .settings-nav-label {
+        display: none !important;
+    }
+
+    .settings-tab-btn {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        border-radius: 6px !important;
+        white-space: nowrap !important;
+    }
+
+    .settings-content {
+        padding: 16px 14px !important;
+        flex: 1 !important;
+        overflow-y: auto !important;
+    }
+
+    /* Connectors Header & Grid on Mobile */
+    .connectors-header-container {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    #connector-search-input {
+        width: 100% !important;
+    }
+
+    .connectors-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .connector-card {
+        padding: 14px !important;
+    }
+
+    .custom-connector-modal-card {
+        width: 95vw !important;
+        padding: 18px !important;
+        border-radius: 14px !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+}
