@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
-    <link rel="stylesheet" href="style.css?v=4.8">
+    <link rel="stylesheet" href="style.css?v=4.9">
 </head>
 <body>
     <div id="app-loading-screen" class="app-loading-screen">
@@ -504,33 +504,39 @@
 
     <div class="modal-shell hidden" id="profile-modal" role="dialog" aria-modal="true" aria-labelledby="profile-title">
         <div class="modal settings-modal-card">
-            <div class="modal-header">
-                <div>
-                    <span class="overline">SETTINGS & PROFILE</span>
-                    <h2 id="profile-title">Settings</h2>
-                </div>
-                <button class="icon-btn modal-close" id="profile-modal-close" type="button" aria-label="Close settings">&times;</button>
-            </div>
+            <button class="icon-btn modal-close settings-modal-close-top" id="profile-modal-close" type="button" aria-label="Close settings">&times;</button>
             
             <div class="settings-layout">
-                <!-- Left Sidebar Tabs -->
-                <div class="settings-tabs" role="tablist">
-                    <button class="settings-tab-btn active" data-tab="tab-profile" id="settings-profile-btn" role="tab" aria-selected="true">
-                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        Profile & Plan
-                    </button>
-                    <button class="settings-tab-btn" data-tab="tab-general" id="settings-general-btn" role="tab" aria-selected="false">
-                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                        General Settings
-                    </button>
-                    <button class="settings-tab-btn" data-tab="tab-personalization" id="settings-personalization-btn" role="tab" aria-selected="false">
-                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                        Personalization
-                    </button>
-                    <button class="settings-tab-btn" data-tab="tab-mcp" id="settings-mcp-btn" role="tab" aria-selected="false">
-                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-                        MCP Connections
-                    </button>
+                <!-- Left Sidebar Navigation (Anthropic Claude Style) -->
+                <div class="settings-sidebar" role="tablist">
+                    <div class="settings-sidebar-header">
+                        <span class="overline">WORKSPACE</span>
+                        <h2 class="settings-sidebar-title" id="profile-title">Settings</h2>
+                    </div>
+
+                    <div class="settings-nav-group">
+                        <span class="settings-nav-label">SETTINGS</span>
+                        <button class="settings-tab-btn active" data-tab="tab-profile" id="settings-profile-btn" role="tab" aria-selected="true">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>Profile & Plan</span>
+                        </button>
+                        <button class="settings-tab-btn" data-tab="tab-general" id="settings-general-btn" role="tab" aria-selected="false">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            <span>General Settings</span>
+                        </button>
+                        <button class="settings-tab-btn" data-tab="tab-personalization" id="settings-personalization-btn" role="tab" aria-selected="false">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                            <span>Personalization</span>
+                        </button>
+                    </div>
+
+                    <div class="settings-nav-group" style="margin-top: 18px;">
+                        <span class="settings-nav-label">CUSTOMIZE</span>
+                        <button class="settings-tab-btn" data-tab="tab-mcp" id="settings-mcp-btn" role="tab" aria-selected="false">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                            <span>MCP Connections</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Right Content Panel -->
@@ -1127,7 +1133,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=4.8"></script>
+    <script type="module" src="script.js?v=4.9"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {

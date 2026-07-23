@@ -3746,3 +3746,114 @@ body.light-mode .custom-connector-modal-card textarea {
     border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
 }
+
+/* Anthropic Claude-Style Settings Modal Layout & Backdrop Blur */
+.settings-modal-card {
+    width: min(900px, 92vw) !important;
+    max-height: 85vh !important;
+    padding: 0 !important;
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 16px !important;
+}
+
+.settings-modal-close-top {
+    position: absolute !important;
+    right: 18px !important;
+    top: 18px !important;
+    z-index: 20 !important;
+}
+
+.settings-layout {
+    display: flex !important;
+    height: min(600px, 85vh) !important;
+    margin-top: 0 !important;
+    min-height: 0 !important;
+}
+
+.settings-sidebar {
+    width: 220px !important;
+    flex-shrink: 0 !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-right: 1px solid var(--line, rgba(255, 255, 255, 0.1)) !important;
+    padding: 24px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    overflow-y: auto !important;
+}
+
+.settings-sidebar-header {
+    margin-bottom: 10px !important;
+}
+
+.settings-sidebar-title {
+    margin: 4px 0 0 !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    color: var(--ink) !important;
+}
+
+.settings-nav-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+.settings-nav-label {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    color: var(--muted) !important;
+    margin-bottom: 6px !important;
+    padding-left: 10px !important;
+}
+
+.settings-content {
+    flex: 1 !important;
+    padding: 28px 32px !important;
+    overflow-y: auto !important;
+}
+
+/* Dimmed & Blurred Backdrop when Submodal is open */
+#custom-connector-modal {
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#custom-connector-modal.hidden {
+    display: none !important;
+}
+
+/* Light Mode Overrides for Settings Sidebar & Layout */
+[data-theme="light"] .settings-sidebar,
+body.light-mode .settings-sidebar {
+    background: #f8fafc !important;
+    border-right: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .settings-sidebar-title,
+body.light-mode .settings-sidebar-title {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .settings-nav-label,
+body.light-mode .settings-nav-label {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .settings-tab-btn,
+body.light-mode .settings-tab-btn {
+    color: #334155 !important;
+}
+
+[data-theme="light"] .settings-tab-btn.active,
+body.light-mode .settings-tab-btn.active {
+    background: #e2e8f0 !important;
+    color: #2563eb !important;
+    font-weight: 700 !important;
+}
