@@ -17,6 +17,65 @@
     --shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
     --font-heading: "Manrope", sans-serif;
     --font-body: "DM Sans", sans-serif;
+    --card-bg: rgba(21, 24, 20, 0.55);
+    --composer-bg: rgba(21, 24, 20, 0.85);
+    --composer-border: rgba(255, 255, 255, 0.1);
+    --welcome-mark-bg: #f3f4f2;
+    --model-auto-bg: #f3f4f2;
+    --model-auto-color: #2563eb;
+}
+
+[data-theme="light"],
+body.light-mode {
+    --ink: #0f172a;
+    --ink-soft: #334155;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --line-soft: #cbd5e1;
+    --paper: #ffffff;
+    --paper-deep: #f8fafc;
+    --white: #ffffff;
+    --sidebar: #f8fafc;
+    --acid: #2563eb;
+    --acid-deep: #1d4ed8;
+    --coral: #ea580c;
+    --blue: #2563eb;
+    --green: #059669;
+    --gold: #d97706;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    --card-bg: #ffffff;
+    --composer-bg: #ffffff;
+    --composer-border: #cbd5e1;
+    --welcome-mark-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
+    --model-auto-bg: #2563eb;
+    --model-auto-color: #ffffff;
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+        --ink: #0f172a;
+        --ink-soft: #334155;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --line-soft: #cbd5e1;
+        --paper: #ffffff;
+        --paper-deep: #f8fafc;
+        --white: #ffffff;
+        --sidebar: #f8fafc;
+        --acid: #2563eb;
+        --acid-deep: #1d4ed8;
+        --coral: #ea580c;
+        --blue: #2563eb;
+        --green: #059669;
+        --gold: #d97706;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        --card-bg: #ffffff;
+        --composer-bg: #ffffff;
+        --composer-border: #cbd5e1;
+        --welcome-mark-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
+        --model-auto-bg: #2563eb;
+        --model-auto-color: #ffffff;
+    }
 }
 
 * {
@@ -613,13 +672,14 @@ a:focus-visible {
 }
 
 .welcome-mark {
-    background: var(--ink);
+    background: var(--welcome-mark-bg, var(--ink));
     border-radius: 50%;
     height: 46px;
     position: relative;
     transform: rotate(-10deg);
     width: 46px;
     z-index: 2;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
 
 .welcome-mark span {
@@ -703,7 +763,7 @@ a:focus-visible {
 
 .prompt-card {
     align-items: center;
-    background: rgba(21, 24, 20, 0.55);
+    background: var(--card-bg, rgba(21, 24, 20, 0.55));
     border: 1px solid var(--line);
     border-radius: 12px;
     cursor: pointer;
@@ -711,12 +771,12 @@ a:focus-visible {
     gap: 14px;
     min-height: 76px;
     padding: 12px 16px;
-    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
 }
 
 .prompt-card:hover {
-    border-color: var(--ink-soft);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    border-color: var(--acid);
+    box-shadow: var(--shadow);
     transform: translateY(-2px);
 }
 
@@ -905,25 +965,25 @@ a:focus-visible {
 }
 
 .composer-wrap {
-    background: linear-gradient(to top, var(--paper) 80%, rgba(14, 16, 13, 0));
+    background: linear-gradient(to top, var(--paper) 80%, transparent);
     padding: 12px clamp(24px, 6vw, 88px) 16px;
 }
 
 .composer {
-    background: rgba(21, 24, 20, 0.85);
+    background: var(--composer-bg, rgba(21, 24, 20, 0.85));
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--composer-border, rgba(255, 255, 255, 0.1));
     border-radius: 16px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    box-shadow: var(--shadow);
     margin: 0 auto;
     max-width: 760px;
     padding: 10px 12px 10px 15px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .composer:focus-within {
-    border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border-color: var(--acid);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15), 0 0 0 1px var(--acid);
 }
 
 .composer textarea,
@@ -2938,4 +2998,168 @@ body.light-theme .profile-detail-card {
 
 .razorpay-checkout-btn:active {
     transform: translateY(0);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    align-items: center;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    font-size: 12px;
+    font-weight: 600;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 9px 12px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--paper);
+    border-color: var(--acid);
+    color: var(--ink);
+}
+
+/* EXPLICIT LIGHT MODE HIGH-CONTRAST OVERRIDES (CASCADE PRECEDENCE) */
+[data-theme="light"],
+body.light-mode {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .conversation,
+body.light-mode .conversation {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] .welcome-state h1,
+body.light-mode .welcome-state h1 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .welcome-state h1 em,
+body.light-mode .welcome-state h1 em {
+    color: #2563eb !important;
+    font-style: normal;
+}
+
+[data-theme="light"] .welcome-copy,
+body.light-mode .welcome-copy {
+    color: #475569 !important;
+}
+
+[data-theme="light"] .welcome-orbit,
+body.light-mode .welcome-orbit {
+    border: 1px solid #cbd5e1 !important;
+    background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .welcome-mark,
+body.light-mode .welcome-mark {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+}
+
+[data-theme="light"] .welcome-mark span,
+body.light-mode .welcome-mark span {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] .prompt-card,
+body.light-mode .prompt-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .prompt-card:hover,
+body.light-mode .prompt-card:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12) !important;
+    background: #f8fafc !important;
+}
+
+[data-theme="light"] .prompt-card strong,
+body.light-mode .prompt-card strong {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .prompt-card small,
+body.light-mode .prompt-card small {
+    color: #475569 !important;
+}
+
+[data-theme="light"] .topbar,
+body.light-mode .topbar {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .topbar *,
+body.light-mode .topbar * {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .ghost-btn,
+body.light-mode .ghost-btn {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .primary-btn,
+body.light-mode .primary-btn {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: 1px solid #1d4ed8 !important;
+}
+
+[data-theme="light"] .composer,
+body.light-mode .composer {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .composer textarea,
+body.light-mode .composer textarea {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .composer-wrap,
+body.light-mode .composer-wrap {
+    background: linear-gradient(to top, #ffffff 85%, transparent) !important;
+}
+
+[data-theme="light"] .sidebar,
+body.light-mode .sidebar {
+    background: #f8fafc !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .dock,
+body.light-mode .dock {
+    background: #f8fafc !important;
+    border-left: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .dock-item,
+body.light-mode .dock-item {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .dock-item-title,
+body.light-mode .dock-item-title {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .dock-item-sub,
+body.light-mode .dock-item-sub {
+    color: #64748b !important;
 }

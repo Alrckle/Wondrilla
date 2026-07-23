@@ -9,13 +9,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" href="assets/wondrilla-icon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="style.css?v=3.6">
+    <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
+    <link rel="stylesheet" href="style.css?v=3.7">
 </head>
 <body>
     <div id="app-loading-screen" class="app-loading-screen">
         <div class="loading-content">
-            <img src="assets/wondrilla-icon.svg" alt="Wondrilla AI" class="loading-logo-img">
+            <img src="assets/wondrilla-favicon.png" alt="Wondrilla AI" class="loading-logo-img">
         </div>
     </div>
     <div class="app-shell">
@@ -75,6 +76,10 @@
                     <div class="progress-track"><span id="usage-progress"></span></div>
                     <button class="upgrade-link" id="upgrade-sidebar" type="button">Unlock every model -&gt;</button>
                 </div>
+                <button class="theme-toggle-btn" id="theme-toggle-btn" type="button" aria-label="Toggle dark/light theme">
+                    <span class="theme-icon">🌓</span>
+                    <span class="theme-text" id="theme-toggle-text">Appearance: Dark</span>
+                </button>
                 <button class="profile-row" type="button">
                     <span class="avatar">SY</span>
                     <span>

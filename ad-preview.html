@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wondrilla AI - 30-Second Commercial Ad Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #090b08;
+            color: #f3f4f2;
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-family: 'Manrope', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00f050, #10b981, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: #8c9187;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        /* 9:16 Video Player Card */
+        .player-card {
+            width: 360px;
+            height: 640px;
+            background: #000;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 240, 80, 0.15), 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Overlay UI Elements */
+        .overlay-hud {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .badge-live {
+            background: rgba(0, 240, 80, 0.2);
+            border: 1px solid #00f050;
+            color: #00f050;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .timer {
+            font-family: 'Manrope', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Controls Bottom Bar */
+        .controls-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .btn-play {
+            flex: 1;
+            background: linear-gradient(135deg, #00f050, #10b981);
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 240, 80, 0.4);
+            transition: transform 0.15s ease;
+        }
+        .btn-play:hover {
+            transform: scale(1.03);
+        }
+
+        /* Captions Overlay */
+        .captions-box {
+            position: absolute;
+            bottom: 85px;
+            left: 20px;
+            right: 20px;
+            background: rgba(14, 16, 13, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 12px 16px;
+            border-radius: 14px;
+            text-align: center;
+            z-index: 10;
+        }
+        .captions-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        /* Progress Bar */
+        .progress-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #00f050;
+            width: 0%;
+            transition: width 0.1s linear;
+            z-index: 20;
+            box-shadow: 0 0 10px #00f050;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🎬 Wondrilla AI - 30s Commercial Ad Preview</h1>
+        <p>Interactive 9:16 Video Storyboard & Voiceover Motion Preview</p>
+    </div>
+
+    <div class="player-card">
+        <div class="progress-line" id="progress"></div>
+        <div class="overlay-hud">
+            <span class="badge-live">● 30S COMMERCIAL</span>
+            <span class="timer" id="timer">00:00 / 00:30</span>
+        </div>
+
+        <canvas id="adCanvas" width="360" height="640"></canvas>
+
+        <div class="captions-box">
+            <div class="captions-text" id="captions">Click 'Play 30s Ad' to start video preview!</div>
+        </div>
+
+        <div class="controls-bar">
+            <button class="btn-play" id="playBtn">▶ Play 30s Ad Voiceover</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('adCanvas');
+        const ctx = canvas.getContext('2d');
+        const playBtn = document.getElementById('playBtn');
+        const progress = document.getElementById('progress');
+        const timer = document.getElementById('timer');
+        const captions = document.getElementById('captions');
+
+        let isPlaying = false;
+        let currentTime = 0;
+        let totalDuration = 30;
+        let animationFrame;
+        let lastTime = 0;
+
+        const scenes = [
+            {
+                start: 0,
+                end: 5,
+                title: "❌ STOP SWITCHING TABS!",
+                sub: "Tired of switching 10 tabs for ChatGPT, Claude & Gemini?",
+                color1: "#ef4444",
+                color2: "#991b1b",
+                caption: "क्या आप भी अलग-अलग AI मॉडल्स के लिए बार-बार टैब्स स्विच करते-करते थक गए हैं?"
+            },
+            {
+                start: 5,
+                end: 13,
+                title: "⚡ WONDRILLA AI",
+                sub: "Every Leading AI Model in One Workspace",
+                color1: "#00f050",
+                color2: "#10b981",
+                caption: "पेश है Wondrilla AI! दुनिया के सबसे पावरफुल AI मॉडल्स - सब एक ही वर्कस्पेस में!"
+            },
+            {
+                start: 13,
+                end: 23,
+                title: "🚀 10X PRODUCTIVITY",
+                sub: "Compare Responses • Generate Code • MCP Tools",
+                color1: "#3b82f6",
+                color2: "#1d4ed8",
+                caption: "एक साथ मॉडल्स को कंपेयर करें, कोड जनरेट करें और MCP टूल्स से अपने काम को 10x फ़ास्ट बनाएं!"
+            },
+            {
+                start: 23,
+                end: 30,
+                title: "🔥 VISIT WONDRILLA.COM",
+                sub: "Try For Free Today!",
+                color1: "#00f050",
+                color2: "#ffffff",
+                caption: "तो देर किस बात की? अभी विजिट करें wondrilla.com पर और बिल्कुल फ्री में शुरू करें!"
+            }
+        ];
+
+        function getActiveScene(t) {
+            return scenes.find(s => t >= s.start && t < s.end) || scenes[scenes.length - 1];
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const ut = new SpeechSynthesisUtterance(text);
+                ut.rate = 1.05;
+                ut.pitch = 1.0;
+                window.speechSynthesis.speak(ut);
+            }
+        }
+
+        let currentSceneIndex = -1;
+
+        function draw(now) {
+            if (!lastTime) lastTime = now;
+            const delta = (now - lastTime) / 1000;
+            lastTime = now;
+
+            if (isPlaying) {
+                currentTime += delta;
+                if (currentTime >= totalDuration) {
+                    currentTime = totalDuration;
+                    isPlaying = false;
+                    playBtn.textContent = "🔄 Replay 30s Ad";
+                }
+            }
+
+            const pct = (currentTime / totalDuration) * 100;
+            progress.style.width = pct + '%';
+            
+            const secs = Math.floor(currentTime);
+            timer.textContent = `00:${secs < 10 ? '0' : ''}${secs} / 00:30`;
+
+            const scene = getActiveScene(currentTime);
+            const sceneIdx = scenes.indexOf(scene);
+
+            if (isPlaying && sceneIdx !== currentSceneIndex) {
+                currentSceneIndex = sceneIdx;
+                captions.textContent = scene.caption;
+                speak(scene.caption);
+            }
+
+            // Draw Graphic Scene
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Animated Gradient Background
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#040504');
+            grad.addColorStop(0.5, scene.color2 + '44');
+            grad.addColorStop(1, '#090b08');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Pulsing Particles
+            ctx.fillStyle = scene.color1 + 'aa';
+            for (let i = 0; i < 15; i++) {
+                const px = (Math.sin(now * 0.001 * (i + 1)) * 0.5 + 0.5) * canvas.width;
+                const py = (Math.cos(now * 0.0015 * (i + 1)) * 0.5 + 0.5) * canvas.height;
+                ctx.beginPath();
+                ctx.arc(px, py, 3 + (i % 4), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Central Glowing Ring / Logo
+            const scale = 1 + Math.sin(now * 0.003) * 0.04;
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2 - 40);
+            ctx.scale(scale, scale);
+
+            // Outer Ring
+            ctx.strokeStyle = scene.color1;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = scene.color1;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(0, 0, 75, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Inner Circle with "Won"
+            ctx.fillStyle = scene.color1;
+            ctx.beginPath();
+            ctx.arc(0, 0, 70, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Text "Won" inside circle
+            ctx.shadowBlur = 0;
+            ctx.font = "900 44px 'Manrope', sans-serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("Won", 0, 0);
+
+            ctx.restore();
+
+            // Scene Main Title
+            ctx.font = "900 24px 'Manrope', sans-serif";
+            ctx.fillStyle = scene.color1;
+            ctx.textAlign = "center";
+            ctx.fillText(scene.title, canvas.width / 2, canvas.height / 2 + 80);
+
+            // Subtitle
+            ctx.font = "500 13px 'DM Sans', sans-serif";
+            ctx.fillStyle = "#b8bdb4";
+            ctx.fillText(scene.sub, canvas.width / 2, canvas.height / 2 + 115);
+
+            if (isPlaying) {
+                animationFrame = requestAnimationFrame(draw);
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (currentTime >= totalDuration) {
+                currentTime = 0;
+                currentSceneIndex = -1;
+            }
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playBtn.textContent = "⏸ Pause Ad";
+                lastTime = performance.now();
+                animationFrame = requestAnimationFrame(draw);
+            } else {
+                playBtn.textContent = "▶ Resume 30s Ad";
+                window.speechSynthesis.cancel();
+            }
+        });
+
+        // Initial Frame Draw
+        requestAnimationFrame(draw);
+    </script>
+</body>
+</html>

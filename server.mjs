@@ -394,6 +394,274 @@ async function handleApi(request, response, requestUrl) {
         } catch (err) {
             sendJson(response, 500, { ok: false, error: err.message });
         }
+        return;
+    }
+
+    if (request.method === "GET" && requestUrl.pathname === "/api/paypal/config") {
+        const clientId = process.env.PAYPAL_CLIENT_ID || "";
+        if (!clientId) {
+            sendJson(response, 400, { ok: false, error: "PayPal Client ID not configured" });
+            return;
+        }
+        sendJson(response, 200, {
+            ok: true,
+            clientId,
+            plans: {
+                pro: process.env.PAYPAL_PLAN_PRO || "P-9YC10567CY499580XNJQNK4A",
+                studio: process.env.PAYPAL_PLAN_STUDIO || "P-7FE110662L896332FNJQNK4I",
+                pro_yearly: process.env.PAYPAL_PLAN_PRO_YEARLY || "P-4A365122NJ180603VNJQNK4I",
+                studio_yearly: process.env.PAYPAL_PLAN_STUDIO_YEARLY || "P-13D9971022978854LNJQNK4Q"
+            }
+        });
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/paypal/webhook") {
+        try {
+            const body = await readJsonBody(request);
+            const eventType = body.event_type || "";
+            const resource = body.resource || {};
+            
+            console.log(`[PayPal Webhook Received] Event: ${eventType}`, resource.id || "");
+
+            if (eventType === "BILLING.SUBSCRIPTION.ACTIVATED" || eventType === "PAYMENT.SALE.COMPLETED") {
+                const customId = resource.custom_id || resource.custom || resource.subscriber?.custom_id || "";
+                const planId = resource.plan_id || "";
+                
+                let detectedPlan = "pro";
+                if (planId === process.env.PAYPAL_PLAN_STUDIO || planId === process.env.PAYPAL_PLAN_STUDIO_YEARLY) {
+                    detectedPlan = "studio";
+                }
+
+                if (customId && supabase) {
+                    await supabase
+                        .from("wondrilla_users")
+                        .update({ plan: detectedPlan, updated_at: new Date().toISOString() })
+                        .eq("user_id", customId);
+                    console.log(`[PayPal Webhook] User ${customId} plan updated to ${detectedPlan}`);
+                }
+            } else if (eventType === "BILLING.SUBSCRIPTION.CANCELLED" || eventType === "BILLING.SUBSCRIPTION.EXPIRED" || eventType === "BILLING.SUBSCRIPTION.SUSPENDED") {
+                const customId = resource.custom_id || resource.custom || resource.subscriber?.custom_id || "";
+                if (customId && supabase) {
+                    await supabase
+                        .from("wondrilla_users")
+                        .update({ plan: "free", updated_at: new Date().toISOString() })
+                        .eq("user_id", customId);
+                    console.log(`[PayPal Webhook] User ${customId} plan reset to free due to ${eventType}`);
+                }
+            }
+
+            sendJson(response, 200, { ok: true, received: true });
+        } catch (err) {
+            console.error("PayPal Webhook processing error:", err);
+            sendJson(response, 200, { ok: true });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/razorpay/webhook") {
+        try {
+            const body = await readJsonBody(request);
+            const event = body.event || "";
+            const payload = body.payload || {};
+            const entity = payload.subscription?.entity || payload.payment?.entity || {};
+
+            console.log(`[Razorpay Webhook Received] Event: ${event}`, entity.id || "");
+
+            if (event === "subscription.charged" || event === "subscription.activated" || event === "payment.captured") {
+                const notes = entity.notes || {};
+                const userId = notes.userId || "";
+                const plan = notes.plan || "pro";
+
+                if (userId && supabase) {
+                    await supabase
+                        .from("wondrilla_users")
+                        .update({ plan: plan.toLowerCase(), updated_at: new Date().toISOString() })
+                        .eq("user_id", userId);
+                    console.log(`[Razorpay Webhook] User ${userId} plan updated to ${plan}`);
+                }
+            } else if (event === "subscription.cancelled" || event === "subscription.halted") {
+                const notes = entity.notes || {};
+                const userId = notes.userId || "";
+                if (userId && supabase) {
+                    await supabase
+                        .from("wondrilla_users")
+                        .update({ plan: "free", updated_at: new Date().toISOString() })
+                        .eq("user_id", userId);
+                    console.log(`[Razorpay Webhook] User ${userId} plan reset to free due to ${event}`);
+                }
+            }
+
+            sendJson(response, 200, { ok: true, received: true });
+        } catch (err) {
+            console.error("Razorpay Webhook error:", err);
+            sendJson(response, 200, { ok: true });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/razorpay/create-subscription") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const plan = String(body.plan || "").trim().toLowerCase();
+        const billing = String(body.billing || "monthly").trim().toLowerCase();
+
+        if (!userId || !plan) {
+            sendJson(response, 400, { ok: false, error: "userId and plan are required." });
+            return;
+        }
+
+        let planId = "";
+        if (plan === "pro") {
+            planId = billing === "yearly" ? process.env.RAZORPAY_PLAN_PRO_YEARLY : process.env.RAZORPAY_PLAN_PRO;
+        } else if (plan === "studio") {
+            planId = billing === "yearly" ? process.env.RAZORPAY_PLAN_STUDIO_YEARLY : process.env.RAZORPAY_PLAN_STUDIO;
+        }
+
+        if (!planId) {
+            sendJson(response, 400, { ok: false, error: `No Razorpay plan configured for ${plan} (${billing})` });
+            return;
+        }
+
+        try {
+            const sub = await createRazorpaySubscription(planId, { userId, plan, billing });
+            sendJson(response, 200, {
+                ok: true,
+                subscriptionId: sub.id,
+                keyId: process.env.RAZORPAY_KEY_ID,
+                planId: sub.plan_id
+            });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/razorpay/verify-subscription") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const plan = String(body.plan || "pro").trim().toLowerCase();
+        const paymentId = String(body.razorpay_payment_id || "").trim();
+        const subscriptionId = String(body.razorpay_subscription_id || "").trim();
+        const signature = String(body.razorpay_signature || "").trim();
+
+        if (!userId || !paymentId || !subscriptionId || !signature) {
+            sendJson(response, 400, { ok: false, error: "Missing required verification parameters." });
+            return;
+        }
+
+        const isValid = verifyRazorpaySubscriptionSignature(subscriptionId, paymentId, signature);
+        if (!isValid) {
+            sendJson(response, 400, { ok: false, error: "Invalid Razorpay payment signature." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true, user: { user_id: userId, plan, messages_used: 0 } });
+            return;
+        }
+
+        try {
+            const { data: user, error } = await supabase
+                .from("wondrilla_users")
+                .update({ plan, updated_at: new Date().toISOString() })
+                .eq("user_id", userId)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            if (user && user.email) {
+                sendUpgradeEmail(user.email, plan, "monthly").catch(console.error);
+            }
+
+            sendJson(response, 200, { ok: true, user });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/razorpay/create-order") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const plan = String(body.plan || "pro").trim().toLowerCase();
+        const billing = String(body.billing || "monthly").trim().toLowerCase();
+
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+
+        let amountInInr = 1999;
+        if (plan === "pro") {
+            amountInInr = billing === "yearly" ? 15999 : 1999;
+        } else if (plan === "studio") {
+            amountInInr = billing === "yearly" ? 51999 : 6499;
+        }
+
+        const amountPaise = amountInInr * 100;
+        const receipt = `rcpt_${userId.slice(0, 10)}_${Date.now().toString().slice(-6)}`;
+
+        try {
+            const order = await createRazorpayOrder(amountPaise, receipt, { userId, plan, billing });
+            sendJson(response, 200, {
+                ok: true,
+                orderId: order.id,
+                amount: order.amount,
+                currency: order.currency,
+                keyId: process.env.RAZORPAY_KEY_ID
+            });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/razorpay/verify-payment") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const plan = String(body.plan || "pro").trim().toLowerCase();
+        const billing = String(body.billing || "monthly").trim().toLowerCase();
+        const orderId = String(body.razorpay_order_id || "").trim();
+        const paymentId = String(body.razorpay_payment_id || "").trim();
+        const signature = String(body.razorpay_signature || "").trim();
+
+        if (!userId || !orderId || !paymentId || !signature) {
+            sendJson(response, 400, { ok: false, error: "Missing required verification parameters." });
+            return;
+        }
+
+        const isValid = verifyRazorpaySignature(orderId, paymentId, signature);
+        if (!isValid) {
+            sendJson(response, 400, { ok: false, error: "Invalid Razorpay payment signature." });
+            return;
+        }
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true, user: { user_id: userId, plan, messages_used: 0 } });
+            return;
+        }
+
+        try {
+            const { data: user, error } = await supabase
+                .from("wondrilla_users")
+                .update({ plan, updated_at: new Date().toISOString() })
+                .eq("user_id", userId)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            if (user && user.email) {
+                sendUpgradeEmail(user.email, plan, billing).catch(console.error);
+            }
+
+            sendJson(response, 200, { ok: true, user });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
     }
 
     if (request.method === "POST" && requestUrl.pathname === "/api/user/personalization") {
@@ -2074,6 +2342,60 @@ function verifyRazorpaySignature(orderId, paymentId, signature) {
     const keySecret = process.env.RAZORPAY_KEY_SECRET || "";
     if (!keySecret) return false;
     const body = `${orderId}|${paymentId}`;
+    const expectedSignature = crypto.createHmac("sha256", keySecret).update(body).digest("hex");
+    return expectedSignature === signature;
+}
+
+function createRazorpaySubscription(planId, customerNotes = {}) {
+    return new Promise((resolve, reject) => {
+        const keyId = process.env.RAZORPAY_KEY_ID || "";
+        const keySecret = process.env.RAZORPAY_KEY_SECRET || "";
+        if (!keyId || !keySecret) {
+            return reject(new Error("Razorpay credentials missing on server."));
+        }
+        const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+        const payload = JSON.stringify({
+            plan_id: planId,
+            total_count: 120,
+            quantity: 1,
+            customer_notify: 1,
+            notes: customerNotes
+        });
+
+        const req = https.request("https://api.razorpay.com/v1/subscriptions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Basic ${auth}`,
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(payload)
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", (chunk) => body += chunk);
+            res.on("end", () => {
+                try {
+                    const data = JSON.parse(body);
+                    if (res.statusCode >= 200 && res.statusCode < 300 && data.id) {
+                        resolve(data);
+                    } else {
+                        reject(new Error(data.error?.description || data.message || `Razorpay API error (${res.statusCode})`));
+                    }
+                } catch (e) {
+                    reject(new Error("Failed to parse Razorpay subscription response"));
+                }
+            });
+        });
+
+        req.on("error", (err) => reject(err));
+        req.write(payload);
+        req.end();
+    });
+}
+
+function verifyRazorpaySubscriptionSignature(subscriptionId, paymentId, signature) {
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || "";
+    if (!keySecret) return false;
+    const body = `${paymentId}|${subscriptionId}`;
     const expectedSignature = crypto.createHmac("sha256", keySecret).update(body).digest("hex");
     return expectedSignature === signature;
 }

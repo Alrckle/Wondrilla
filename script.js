@@ -3,6 +3,37 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 (function () {
     "use strict";
 
+    // Theme Toggle Logic
+    const savedTheme = localStorage.getItem("wondrilla_theme") || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    
+    function applyTheme(theme) {
+        if (theme === "light") {
+            document.documentElement.setAttribute("data-theme", "light");
+            document.body.classList.add("light-mode");
+        } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            document.body.classList.remove("light-mode");
+        }
+        const themeText = document.getElementById("theme-toggle-text");
+        if (themeText) {
+            themeText.textContent = theme === "light" ? "Appearance: Light ☀️" : "Appearance: Dark 🌙";
+        }
+    }
+
+    applyTheme(savedTheme);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const themeToggleBtn = document.getElementById("theme-toggle-btn");
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener("click", () => {
+                const isLight = document.documentElement.getAttribute("data-theme") === "light" || document.body.classList.contains("light-mode");
+                const nextTheme = isLight ? "dark" : "light";
+                localStorage.setItem("wondrilla_theme", nextTheme);
+                applyTheme(nextTheme);
+            });
+        }
+    });
+
     const models = [
         { id: "auto", name: "Wondrilla Auto", maker: "Smart routing", mark: "W", color: "#1f211d", text: "#d9ff43", svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="m12 3-1.912 5.886L4.2 9l5.886 1.912L12 16.8l1.912-5.886L19.8 9l-5.886-1.912z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></svg>` },
         { id: "chatgpt", name: "ChatGPT", maker: "OpenAI", mark: "O", color: "#1c1e19", text: "#10a37f", svg: `<svg fill="currentColor" fill-rule="evenodd" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>OpenAI</title><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg>` },
@@ -1001,21 +1032,26 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         });
 
         let paypalLoaded = false;
-        let paypalClientId = null;
+        let paypalConfigData = null;
         
-        async function getPayPalClientId() {
-            if (paypalClientId) return paypalClientId;
+        async function getPayPalConfig() {
+            if (paypalConfigData) return paypalConfigData;
             try {
                 const res = await fetch("/api/paypal/config");
                 const data = await res.json();
                 if (data.ok && data.clientId) {
-                    paypalClientId = data.clientId;
-                    return paypalClientId;
+                    paypalConfigData = data;
+                    return paypalConfigData;
                 }
             } catch (err) {
                 console.error("Failed to fetch PayPal config:", err);
             }
             return null;
+        }
+
+        async function getPayPalClientId() {
+            const cfg = await getPayPalConfig();
+            return cfg ? cfg.clientId : null;
         }
 
         function loadPayPalSDK(clientId) {
@@ -1025,7 +1061,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     return;
                 }
                 const script = document.createElement("script");
-                script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture`;
+                script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&vault=true&intent=subscription`;
                 script.onload = () => {
                     paypalLoaded = true;
                     resolve();
@@ -1061,22 +1097,72 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 openModal(elements.checkoutModal);
                 
                 try {
-                    const clientId = await getPayPalClientId();
-                    if (!clientId) {
+                    const cfg = await getPayPalConfig();
+                    if (!cfg || !cfg.clientId) {
                         if (container) {
                             container.innerHTML = `<div style="color: #ea5455; text-align: center; font-size: 13px; padding: 20px;">PayPal configuration missing on server.</div>`;
                         }
                         return;
                     }
                     
-                    await loadPayPalSDK(clientId);
+                    await loadPayPalSDK(cfg.clientId);
                     
                     if (container) {
                         container.innerHTML = "";
                     }
                     
-                    window.paypal.Buttons({
-                        createOrder: (data, actions) => {
+                    const plans = cfg.plans || {};
+                    let paypalPlanId = "";
+                    if (plan.toLowerCase() === "pro") {
+                        paypalPlanId = state.billing === "yearly" ? plans.pro_yearly : plans.pro;
+                    } else if (plan.toLowerCase() === "studio") {
+                        paypalPlanId = state.billing === "yearly" ? plans.studio_yearly : plans.studio;
+                    }
+
+                    const buttonConfig = {};
+                    if (paypalPlanId && window.paypal.Buttons) {
+                        buttonConfig.createSubscription = (data, actions) => {
+                            return actions.subscription.create({
+                                plan_id: paypalPlanId
+                            });
+                        };
+                        buttonConfig.onApprove = async (data, actions) => {
+                            if (container) {
+                                container.innerHTML = `<div style="text-align: center; color: var(--ink); font-size: 13px; padding: 20px;">Activating subscription...</div>`;
+                            }
+                            try {
+                                const response = await fetch("/api/upgrade", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        userId: state.userId,
+                                        plan: plan.toLowerCase(),
+                                        billing: state.billing,
+                                        paypalOrderId: data.subscriptionID || data.orderID
+                                    })
+                                });
+                                
+                                const resData = await response.json();
+                                if (!response.ok || !resData.ok) {
+                                    throw new Error(resData.error || "Upgrade activation failed.");
+                                }
+                                
+                                state.plan = resData.user.plan;
+                                state.used = resData.user.messages_used;
+                                localStorage.setItem("wondrilla_plan", state.plan);
+                                updateUsage();
+                                updatePlanUI();
+                                
+                                elements.checkoutForm.classList.add("hidden");
+                                elements.successPlanName.textContent = plan;
+                                elements.checkoutSuccessState.classList.remove("hidden");
+                                showToast(`Wondrilla ${plan} subscription activated successfully!`);
+                            } catch (err) {
+                                showToast(`Upgrade failed: ${err.message}`);
+                            }
+                        };
+                    } else {
+                        buttonConfig.createOrder = (data, actions) => {
                             return actions.order.create({
                                 purchase_units: [{
                                     amount: {
@@ -1086,13 +1172,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                                     description: `${plan} Plan (${state.billing})`
                                 }]
                             });
-                        },
-                        onApprove: async (data, actions) => {
+                        };
+                        buttonConfig.onApprove = async (data, actions) => {
                             if (container) {
                                 container.innerHTML = `<div style="text-align: center; color: var(--ink); font-size: 13px; padding: 20px;">Processing payment...</div>`;
                             }
                             try {
-                                const details = await actions.order.capture();
+                                await actions.order.capture();
                                 
                                 const response = await fetch("/api/upgrade", {
                                     method: "POST",
@@ -1122,15 +1208,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                                 showToast(`Wondrilla ${plan} plan activated successfully!`);
                             } catch (err) {
                                 showToast(`Upgrade failed: ${err.message}`);
-                                button.click();
                             }
-                        },
-                        onError: (err) => {
-                            console.error(err);
-                            showToast("PayPal checkout failed or was cancelled.");
-                            button.click();
-                        }
-                    }).render("#paypal-button-container");
+                        };
+                    }
+
+                    buttonConfig.onError = (err) => {
+                        console.error(err);
+                        showToast("PayPal checkout failed or was cancelled.");
+                    };
+
+                    window.paypal.Buttons(buttonConfig).render("#paypal-button-container");
                     
                 } catch (err) {
                     console.error("PayPal init error:", err);
@@ -1151,7 +1238,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     razorpayBtn.disabled = true;
                     razorpayBtn.style.opacity = "0.7";
 
-                    const response = await fetch("/api/razorpay/create-order", {
+                    let subRes = await fetch("/api/razorpay/create-subscription", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -1161,74 +1248,136 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                         })
                     });
 
-                    const data = await response.json();
+                    let subData = await subRes.json();
                     razorpayBtn.disabled = false;
                     razorpayBtn.style.opacity = "1";
-
-                    if (!response.ok || !data.ok) {
-                        showToast(`Razorpay error: ${data.error || "Order creation failed"}`);
-                        return;
-                    }
 
                     if (!window.Razorpay) {
                         showToast("Razorpay Checkout SDK is still loading. Please try again.");
                         return;
                     }
 
-                    const options = {
-                        key: data.keyId,
-                        amount: data.amount,
-                        currency: data.currency || "INR",
-                        name: "Wondrilla AI",
-                        description: `${plan} Plan (${state.billing})`,
-                        order_id: data.orderId,
-                        prefill: {
-                            email: loggedInUser?.email || ""
-                        },
-                        theme: {
-                            color: "#072654"
-                        },
-                        handler: async function (paymentRes) {
-                            showToast("Verifying Razorpay payment...");
-                            try {
-                                const verifyRes = await fetch("/api/razorpay/verify-payment", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                        userId: state.userId,
-                                        plan: plan.toLowerCase(),
-                                        billing: state.billing,
-                                        razorpay_order_id: paymentRes.razorpay_order_id,
-                                        razorpay_payment_id: paymentRes.razorpay_payment_id,
-                                        razorpay_signature: paymentRes.razorpay_signature
-                                    })
-                                });
+                    let options = {};
 
-                                const verifyData = await verifyRes.json();
-                                if (!verifyRes.ok || !verifyData.ok) {
-                                    throw new Error(verifyData.error || "Verification failed");
+                    if (subRes.ok && subData.ok && subData.subscriptionId) {
+                        options = {
+                            key: subData.keyId,
+                            subscription_id: subData.subscriptionId,
+                            name: "Wondrilla AI",
+                            description: `Wondrilla ${plan} Subscription`,
+                            prefill: {
+                                email: loggedInUser?.email || ""
+                            },
+                            theme: {
+                                color: "#072654"
+                            },
+                            handler: async function (paymentRes) {
+                                showToast("Verifying Razorpay subscription...");
+                                try {
+                                    const verifyRes = await fetch("/api/razorpay/verify-subscription", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            userId: state.userId,
+                                            plan: plan.toLowerCase(),
+                                            razorpay_payment_id: paymentRes.razorpay_payment_id,
+                                            razorpay_subscription_id: paymentRes.razorpay_subscription_id,
+                                            razorpay_signature: paymentRes.razorpay_signature
+                                        })
+                                    });
+
+                                    const verifyData = await verifyRes.json();
+                                    if (!verifyRes.ok || !verifyData.ok) {
+                                        throw new Error(verifyData.error || "Verification failed");
+                                    }
+
+                                    state.plan = verifyData.user.plan;
+                                    state.used = verifyData.user.messages_used || 0;
+                                    localStorage.setItem("wondrilla_plan", state.plan);
+                                    updateUsage();
+                                    updatePlanUI();
+
+                                    elements.checkoutForm.classList.add("hidden");
+                                    elements.successPlanName.textContent = plan;
+                                    elements.checkoutSuccessState.classList.remove("hidden");
+                                    showToast(`Wondrilla ${plan} subscription activated!`);
+                                } catch (vErr) {
+                                    showToast(`Subscription activation error: ${vErr.message}`);
                                 }
-
-                                state.plan = verifyData.user.plan;
-                                state.used = verifyData.user.messages_used || 0;
-                                localStorage.setItem("wondrilla_plan", state.plan);
-                                updateUsage();
-                                updatePlanUI();
-
-                                elements.checkoutForm.classList.add("hidden");
-                                elements.successPlanName.textContent = plan;
-                                elements.checkoutSuccessState.classList.remove("hidden");
-                                showToast(`Wondrilla ${plan} plan activated successfully!`);
-                            } catch (vErr) {
-                                showToast(`Payment activation error: ${vErr.message}`);
+                            },
+                            modal: {
+                                ondismiss: function () {
+                                    showToast("Razorpay checkout cancelled.");
+                                }
                             }
-                        },
-                        modal: {
-                            ondismiss: function () {
-                                showToast("Razorpay checkout cancelled.");
-                            }
+                        };
+                    } else {
+                        const response = await fetch("/api/razorpay/create-order", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                userId: state.userId,
+                                plan: plan.toLowerCase(),
+                                billing: state.billing
+                            })
+                        });
+                        const data = await response.json();
+                        if (!response.ok || !data.ok) {
+                            showToast(`Razorpay error: ${data.error || "Order creation failed"}`);
+                            return;
                         }
-                    };
+
+                        options = {
+                            key: data.keyId,
+                            amount: data.amount,
+                            currency: data.currency || "INR",
+                            name: "Wondrilla AI",
+                            description: `${plan} Plan (${state.billing})`,
+                            order_id: data.orderId,
+                            prefill: { email: loggedInUser?.email || "" },
+                            theme: { color: "#072654" },
+                            handler: async function (paymentRes) {
+                                showToast("Verifying Razorpay payment...");
+                                try {
+                                    const verifyRes = await fetch("/api/razorpay/verify-payment", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                            userId: state.userId,
+                                            plan: plan.toLowerCase(),
+                                            billing: state.billing,
+                                            razorpay_order_id: paymentRes.razorpay_order_id,
+                                            razorpay_payment_id: paymentRes.razorpay_payment_id,
+                                            razorpay_signature: paymentRes.razorpay_signature
+                                        })
+                                    });
+
+                                    const verifyData = await verifyRes.json();
+                                    if (!verifyRes.ok || !verifyData.ok) {
+                                        throw new Error(verifyData.error || "Verification failed");
+                                    }
+
+                                    state.plan = verifyData.user.plan;
+                                    state.used = verifyData.user.messages_used || 0;
+                                    localStorage.setItem("wondrilla_plan", state.plan);
+                                    updateUsage();
+                                    updatePlanUI();
+
+                                    elements.checkoutForm.classList.add("hidden");
+                                    elements.successPlanName.textContent = plan;
+                                    elements.checkoutSuccessState.classList.remove("hidden");
+                                    showToast(`Wondrilla ${plan} plan activated!`);
+                                } catch (vErr) {
+                                    showToast(`Payment activation error: ${vErr.message}`);
+                                }
+                            },
+                            modal: {
+                                ondismiss: function () {
+                                    showToast("Razorpay checkout cancelled.");
+                                }
+                            }
+                        };
+                    }
 
                     const rzp = new window.Razorpay(options);
                     rzp.open();
