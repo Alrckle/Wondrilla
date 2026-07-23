@@ -1593,7 +1593,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             });
         }
 
-        const closeCustomConnectorModal = () => {
+        const closeCustomConnectorModal = (e) => {
+            if (e) e.stopPropagation();
             if (customConnectorModal) customConnectorModal.classList.add("hidden");
         };
 
@@ -1601,7 +1602,19 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (customConnectorCancelBtn) customConnectorCancelBtn.addEventListener("click", closeCustomConnectorModal);
         if (customConnectorModal) {
             customConnectorModal.addEventListener("click", (e) => {
-                if (e.target === customConnectorModal) closeCustomConnectorModal();
+                if (e.target === customConnectorModal) {
+                    e.stopPropagation();
+                    closeCustomConnectorModal(e);
+                }
+            });
+        }
+
+        const mcpConnectCloseBtn = document.getElementById("mcp-connect-close");
+        const mcpConnectModal = document.getElementById("mcp-connect-modal");
+        if (mcpConnectCloseBtn && mcpConnectModal) {
+            mcpConnectCloseBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                mcpConnectModal.classList.add("hidden");
             });
         }
 
