@@ -3396,3 +3396,272 @@ body.light-mode .theme-toggle-btn:hover {
     background: #f1f5f9 !important;
     border-color: #2563eb !important;
 }
+
+/* ==========================================================================
+   SETTINGS MODAL & MCP CONNECTORS FULL LIGHT & DARK MODE STYLES
+   ========================================================================== */
+.settings-modal-card {
+    background: var(--surface-card, #121410);
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+    color: var(--ink, #ffffff);
+}
+
+.connector-card {
+    background: var(--surface-soft, rgba(255, 255, 255, 0.02));
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.connector-card:hover {
+    border-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.connector-card h5 {
+    color: var(--ink, #ffffff);
+    font-weight: 600;
+}
+
+.connector-card p,
+.connector-card span {
+    color: var(--muted, #94a3b8);
+}
+
+.connector-btn {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.15)) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--ink, #ffffff) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.connector-btn:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+}
+
+.connector-btn.connected {
+    background: rgba(34, 197, 94, 0.15) !important;
+    color: #4ade80 !important;
+    border-color: rgba(34, 197, 94, 0.4) !important;
+}
+
+.category-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+    color: var(--muted, #94a3b8);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-pill:hover {
+    color: var(--ink, #ffffff);
+    border-color: #2563eb;
+}
+
+.category-pill.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+}
+
+.github-svg-icon,
+.notion-svg-icon {
+    fill: var(--ink, #ffffff) !important;
+}
+
+/* Light Mode Overrides for Settings & MCP Connections */
+[data-theme="light"] .settings-modal-card,
+body.light-mode .settings-modal-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-theme="light"] .modal-header,
+body.light-mode .modal-header {
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .modal-header h2,
+[data-theme="light"] .panel-title,
+[data-theme="light"] .featured-connectors-section h4,
+body.light-mode .modal-header h2,
+body.light-mode .panel-title,
+body.light-mode .featured-connectors-section h4 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .overline,
+[data-theme="light"] .panel-subtitle,
+[data-theme="light"] .panel-lead,
+body.light-mode .overline,
+body.light-mode .panel-subtitle,
+body.light-mode .panel-lead {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .modal-close,
+body.light-mode .modal-close {
+    color: #475569 !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="light"] .settings-tabs,
+body.light-mode .settings-tabs {
+    background: #f8fafc !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .settings-tab-btn,
+body.light-mode .settings-tab-btn {
+    color: #475569 !important;
+}
+
+[data-theme="light"] .settings-tab-btn .tab-icon,
+body.light-mode .settings-tab-btn .tab-icon {
+    stroke: #64748b !important;
+}
+
+[data-theme="light"] .settings-tab-btn:hover,
+body.light-mode .settings-tab-btn:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .settings-tab-btn.active,
+body.light-mode .settings-tab-btn.active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+
+[data-theme="light"] .settings-tab-btn.active .tab-icon,
+body.light-mode .settings-tab-btn.active .tab-icon {
+    stroke: #ffffff !important;
+}
+
+[data-theme="light"] .category-pill,
+body.light-mode .category-pill {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+[data-theme="light"] .category-pill:hover,
+body.light-mode .category-pill:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .category-pill.active,
+body.light-mode .category-pill.active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+}
+
+[data-theme="light"] .connector-card,
+body.light-mode .connector-card {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="light"] .connector-card h5,
+body.light-mode .connector-card h5 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .connector-card p,
+[data-theme="light"] .connector-card span,
+body.light-mode .connector-card p,
+body.light-mode .connector-card span {
+    color: #475569 !important;
+}
+
+[data-theme="light"] .connector-btn,
+body.light-mode .connector-btn {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="light"] .connector-btn:hover,
+body.light-mode .connector-btn:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+}
+
+[data-theme="light"] .connector-btn.connected,
+body.light-mode .connector-btn.connected {
+    background: #dcfce7 !important;
+    border: 1px solid #86efac !important;
+    color: #15803d !important;
+}
+
+[data-theme="light"] .github-svg-icon,
+[data-theme="light"] .notion-svg-icon,
+body.light-mode .github-svg-icon,
+body.light-mode .notion-svg-icon {
+    fill: #0f172a !important;
+}
+
+[data-theme="light"] .form-group label,
+body.light-mode .form-group label {
+    color: #334155 !important;
+}
+
+[data-theme="light"] .form-group input,
+[data-theme="light"] .form-group textarea,
+body.light-mode .form-group input,
+body.light-mode .form-group textarea {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .profile-detail-card,
+body.light-mode .profile-detail-card {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .profile-detail-label,
+body.light-mode .profile-detail-label {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .profile-detail-value,
+body.light-mode .profile-detail-value {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .profile-meta-name,
+body.light-mode .profile-meta-name {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .profile-meta-email,
+body.light-mode .profile-meta-email {
+    color: #64748b !important;
+}
