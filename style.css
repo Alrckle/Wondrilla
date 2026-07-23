@@ -3922,28 +3922,28 @@ body.light-mode .tool-tester-open-btn:hover {
 
     .settings-sidebar-header {
         display: block !important;
-        margin-bottom: 6px !important;
+        margin-bottom: 8px !important;
     }
 
     .settings-sidebar-title {
-        font-size: 18px !important;
+        font-size: 22px !important;
         font-weight: 800 !important;
         margin: 0 !important;
     }
 
     .settings-nav-group {
         flex-direction: column !important;
-        gap: 4px !important;
+        gap: 6px !important;
         width: 100% !important;
     }
 
     .settings-nav-label {
         display: block !important;
-        font-size: 10px !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.08em !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.1em !important;
         color: var(--muted, #94a3b8) !important;
-        margin: 6px 0 4px 4px !important;
+        margin: 10px 0 6px 4px !important;
     }
 
     .settings-tab-btn {
@@ -3952,14 +3952,15 @@ body.light-mode .tool-tester-open-btn:hover {
         justify-content: space-between !important;
         align-items: center !important;
         text-align: left !important;
-        padding: 12px 14px !important;
-        font-size: 14px !important;
+        padding: 15px 18px !important;
+        font-size: 16px !important;
         font-weight: 600 !important;
-        border-radius: 10px !important;
-        background: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 12px !important;
+        background: rgba(255, 255, 255, 0.04) !important;
         color: var(--ink, #ffffff) !important;
         border: 1px solid var(--line, rgba(255, 255, 255, 0.1)) !important;
         white-space: normal !important;
+        min-height: 52px !important;
         transition: all 0.2s ease !important;
     }
 
@@ -3985,7 +3986,7 @@ body.light-mode .tool-tester-open-btn:hover {
 
     .settings-layout.mobile-page-active .settings-content {
         display: block !important;
-        padding: 20px 16px !important;
+        padding: 22px 18px !important;
         flex: 1 !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
@@ -3995,23 +3996,24 @@ body.light-mode .tool-tester-open-btn:hover {
     #tab-mcp > div:first-child {
         flex-direction: column !important;
         align-items: flex-start !important;
-        gap: 14px !important;
+        gap: 16px !important;
     }
 
     #tab-mcp > div:first-child > div:last-child {
         width: 100% !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 10px !important;
+        gap: 12px !important;
     }
 
     #connector-search-input {
         width: 100% !important;
         min-width: 100% !important;
         box-sizing: border-box !important;
-        padding: 10px 14px 10px 34px !important;
-        font-size: 14px !important;
-        border-radius: 10px !important;
+        padding: 12px 16px 12px 38px !important;
+        font-size: 15px !important;
+        border-radius: 12px !important;
+        min-height: 48px !important;
     }
 
     .add-connector-dropdown-container {
@@ -4021,9 +4023,18 @@ body.light-mode .tool-tester-open-btn:hover {
     .add-connector-dropdown-btn {
         width: 100% !important;
         justify-content: center !important;
-        padding: 10px 16px !important;
+        padding: 12px 18px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        border-radius: 12px !important;
+        min-height: 48px !important;
+    }
+
+    .category-pill {
         font-size: 14px !important;
-        border-radius: 10px !important;
+        font-weight: 600 !important;
+        padding: 8px 18px !important;
+        border-radius: 20px !important;
     }
 
     .connector-categories {
@@ -4035,32 +4046,68 @@ body.light-mode .tool-tester-open-btn:hover {
 
     .connectors-grid {
         grid-template-columns: 1fr !important;
-        gap: 14px !important;
+        gap: 16px !important;
     }
 
     .connector-card {
-        padding: 16px !important;
-        border-radius: 14px !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
-        gap: 14px !important;
+        gap: 16px !important;
+    }
+
+    .connector-card h5 {
+        font-size: 17px !important;
+        font-weight: 700 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .connector-card p {
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        color: var(--muted, #94a3b8) !important;
     }
 
     .connector-card .connector-btn {
         width: 100% !important;
-        padding: 10px !important;
+        padding: 12px 20px !important;
         text-align: center !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        border-radius: 10px !important;
+        min-height: 46px !important;
+    }
+
+    .form-group label {
         font-size: 14px !important;
         font-weight: 600 !important;
-        border-radius: 8px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 15px !important;
+        padding: 12px 14px !important;
+        border-radius: 10px !important;
+    }
+
+    .profile-meta-name {
+        font-size: 20px !important;
+        font-weight: 800 !important;
+    }
+
+    .profile-meta-email {
+        font-size: 14px !important;
     }
 
     /* Submodal Cards on Mobile */
     .custom-connector-modal-card {
         width: 92vw !important;
-        padding: 20px !important;
-        border-radius: 16px !important;
+        padding: 24px 20px !important;
+        border-radius: 18px !important;
         max-height: 88vh !important;
         overflow-y: auto !important;
     }
