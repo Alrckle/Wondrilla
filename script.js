@@ -1410,25 +1410,21 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.logoutBtn) elements.logoutBtn.addEventListener("click", handleLogout);
 
         // Anthropic Claude Mobile Navigation Handler (Drill-Down Detail Page + Back Button)
-        const settingsSidebar = document.querySelector(".settings-sidebar");
-        const settingsContent = document.querySelector(".settings-content");
+        const settingsLayout = document.querySelector(".settings-layout");
         const mobileBackBtn = document.getElementById("mobile-settings-back-btn");
 
-        const updateMobileSettingsView = (showPage = false) => {
+        const showMobileSettingsPage = (showPage = false) => {
             const isMobile = window.innerWidth <= 768;
-            if (isMobile) {
+            if (isMobile && settingsLayout) {
                 if (showPage) {
-                    if (settingsSidebar) settingsSidebar.style.display = "none";
-                    if (settingsContent) settingsContent.style.display = "block";
+                    settingsLayout.classList.add("mobile-page-active");
                     if (mobileBackBtn) mobileBackBtn.classList.remove("hidden");
                 } else {
-                    if (settingsSidebar) settingsSidebar.style.display = "flex";
-                    if (settingsContent) settingsContent.style.display = "none";
+                    settingsLayout.classList.remove("mobile-page-active");
                     if (mobileBackBtn) mobileBackBtn.classList.add("hidden");
                 }
-            } else {
-                if (settingsSidebar) settingsSidebar.style.display = "flex";
-                if (settingsContent) settingsContent.style.display = "block";
+            } else if (settingsLayout) {
+                settingsLayout.classList.remove("mobile-page-active");
                 if (mobileBackBtn) mobileBackBtn.classList.add("hidden");
             }
         };
@@ -1450,21 +1446,28 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     btn.classList.add("active");
                     panel.classList.remove("hidden");
 
-                    updateMobileSettingsView(true);
+                    showMobileSettingsPage(true);
                 });
             }
         });
 
         if (mobileBackBtn) {
             mobileBackBtn.addEventListener("click", () => {
-                updateMobileSettingsView(false);
+                showMobileSettingsPage(false);
+            });
+        }
+
+        // Whenever profile-modal opens, always start at Level 1 Main Menu on Mobile!
+        const profileBtn = document.getElementById("profile-btn") || elements.profileBtn;
+        if (profileBtn) {
+            profileBtn.addEventListener("click", () => {
+                showMobileSettingsPage(false);
             });
         }
 
         window.addEventListener("resize", () => {
-            const isMobile = window.innerWidth <= 768;
-            if (!isMobile) {
-                updateMobileSettingsView(false);
+            if (window.innerWidth > 768) {
+                showMobileSettingsPage(false);
             }
         });
 
