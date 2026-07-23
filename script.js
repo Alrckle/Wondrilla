@@ -2914,7 +2914,16 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
         }
     }
 
+    function preventWelcomeFlicker() {
+        const messagesContainer = document.getElementById("messages");
+        const welcomeState = document.getElementById("welcome-state");
+        if (messagesContainer && welcomeState && messagesContainer.children.length > 0) {
+            welcomeState.classList.add("hidden");
+        }
+    }
+
     function hideLoadingScreen() {
+        preventWelcomeFlicker();
         const loadingScreen = document.getElementById("app-loading-screen");
         if (loadingScreen) {
             loadingScreen.classList.add("fade-out");
@@ -2934,5 +2943,6 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
     initSupabaseAuth();
     initMcpUi();
     initMarketingHub();
+    preventWelcomeFlicker();
     hideLoadingScreen();
 })();

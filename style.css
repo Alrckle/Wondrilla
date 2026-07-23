@@ -4142,6 +4142,33 @@ body.light-mode .mobile-settings-back-btn {
     border: 1px solid #bfdbfe !important;
 }
 
+/* Sidebar User Profile Button Sizing & Touch Targets */
+.sidebar-footer {
+    padding: 16px !important;
+}
+
+.profile-btn {
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+    min-height: 58px !important;
+}
+
+.profile-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+}
+
+.profile-name {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+}
+
+.profile-plan {
+    font-size: 12px !important;
+}
+
 /* Tab Chevron Icon for Desktop & Mobile */
 .tab-chevron-icon {
     display: none;
@@ -4151,5 +4178,51 @@ body.light-mode .mobile-settings-back-btn {
 @media (max-width: 768px) {
     .tab-chevron-icon {
         display: block !important;
+    }
+
+    .settings-tab-btn {
+        padding: 18px 20px !important;
+        font-size: 17px !important;
+        font-weight: 700 !important;
+        border-radius: 14px !important;
+        min-height: 60px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .settings-tab-btn .tab-icon {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .settings-nav-label {
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.12em !important;
+        margin: 14px 0 8px 6px !important;
+    }
+
+    .settings-sidebar-title {
+        font-size: 24px !important;
+        font-weight: 800 !important;
+    }
+
+    .profile-btn {
+        padding: 16px 18px !important;
+        min-height: 64px !important;
+    }
+
+    .profile-avatar {
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 16px !important;
+    }
+
+    .profile-name {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+    }
+
+    .profile-plan {
+        font-size: 13px !important;
     }
 }
