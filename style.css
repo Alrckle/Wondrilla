@@ -3882,50 +3882,53 @@ body.light-mode .tool-tester-open-btn:hover {
    Anthropic Claude-Style Mobile Responsiveness 
    ========================================== */
 @media (max-width: 768px) {
-    /* Full-screen sleek modal card on mobile */
+    /* Full-screen sleek mobile modal card */
     .settings-modal-card {
-        width: 95vw !important;
-        height: 92vh !important;
-        max-height: 92vh !important;
-        border-radius: 14px !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        margin: 0 !important;
         display: flex !important;
         flex-direction: column !important;
+    }
+
+    .settings-modal-close-top {
+        right: 14px !important;
+        top: 14px !important;
     }
 
     .settings-layout {
         flex-direction: column !important;
         height: 100% !important;
         overflow: hidden !important;
+        margin-top: 45px !important;
     }
 
-    /* Horizontal scrolling top navbar on mobile settings */
+    /* Top Horizontal Segment Control Bar for Mobile Settings */
     .settings-sidebar {
         width: 100% !important;
         border-right: none !important;
-        border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.1)) !important;
-        padding: 12px 14px !important;
+        border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.12)) !important;
+        padding: 10px 14px !important;
         gap: 8px !important;
         flex-direction: row !important;
         align-items: center !important;
         overflow-x: auto !important;
         white-space: nowrap !important;
         -webkit-overflow-scrolling: touch !important;
+        background: var(--surface-card-soft, rgba(15, 23, 42, 0.95)) !important;
     }
 
     .settings-sidebar-header {
-        margin-bottom: 0 !important;
-        margin-right: 12px !important;
-        flex-shrink: 0 !important;
-    }
-
-    .settings-sidebar-title {
-        font-size: 16px !important;
-        margin: 0 !important;
+        display: none !important;
     }
 
     .settings-nav-group {
         flex-direction: row !important;
-        gap: 6px !important;
+        gap: 8px !important;
         align-items: center !important;
     }
 
@@ -3934,43 +3937,102 @@ body.light-mode .tool-tester-open-btn:hover {
     }
 
     .settings-tab-btn {
-        padding: 6px 12px !important;
-        font-size: 12px !important;
-        border-radius: 6px !important;
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border-radius: 20px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: var(--muted, #94a3b8) !important;
+        border: 1px solid var(--line, rgba(255, 255, 255, 0.1)) !important;
+        flex-shrink: 0 !important;
         white-space: nowrap !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .settings-tab-btn.active {
+        background: #2563eb !important;
+        color: #ffffff !important;
+        border-color: #2563eb !important;
     }
 
     .settings-content {
-        padding: 16px 14px !important;
+        padding: 20px 16px !important;
         flex: 1 !important;
         overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     /* Connectors Header & Grid on Mobile */
-    .connectors-header-container {
+    #tab-mcp > div:first-child {
         flex-direction: column !important;
-        align-items: stretch !important;
+        align-items: flex-start !important;
+        gap: 14px !important;
+    }
+
+    #tab-mcp > div:first-child > div:last-child {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
         gap: 10px !important;
     }
 
     #connector-search-input {
         width: 100% !important;
+        min-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 10px 14px 10px 34px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+    }
+
+    .add-connector-dropdown-container {
+        width: 100% !important;
+    }
+
+    .add-connector-dropdown-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+    }
+
+    .connector-categories {
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        padding-bottom: 8px !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .connectors-grid {
         grid-template-columns: 1fr !important;
-        gap: 12px !important;
+        gap: 14px !important;
     }
 
     .connector-card {
-        padding: 14px !important;
+        padding: 16px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        gap: 14px !important;
     }
 
+    .connector-card .connector-btn {
+        width: 100% !important;
+        padding: 10px !important;
+        text-align: center !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+    }
+
+    /* Submodal Cards on Mobile */
     .custom-connector-modal-card {
-        width: 95vw !important;
-        padding: 18px !important;
-        border-radius: 14px !important;
-        max-height: 90vh !important;
+        width: 92vw !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+        max-height: 88vh !important;
         overflow-y: auto !important;
     }
 }
