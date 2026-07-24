@@ -47,6 +47,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         gatewayOnline: false,
         providerStatus: new Map(),
         history: [],
+        currentConversationId: null,
         compareModels: ["claude", "chatgpt", "deepseek"],
         customInstructions: {
             about: "",
@@ -472,6 +473,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function resetConversation() {
+        saveCurrentConversation();
+        state.currentConversationId = null;
         elements.messages.innerHTML = "";
         elements.welcomeState.classList.remove("hidden");
         document.documentElement.classList.remove("has-active-chat");
@@ -480,6 +483,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         autoResize();
         setView("chat");
         elements.promptInput.focus();
+        renderHistory();
     }
 
     function loadHistory() {
@@ -499,20 +503,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (!elements.historyList) return;
         elements.historyList.innerHTML = "";
         
-        if (!state.history || state.history.length === 0) {
+        const historyIndex = loadHistoryIndex();
+        
+        if (!historyIndex || historyIndex.length === 0) {
             elements.historyList.innerHTML = `<div style="padding: 10px 8px; font-size: 13px; color: var(--muted); opacity: 0.6; text-align: left;">No recent conversations</div>`;
             return;
         }
 
-        state.history.forEach((title) => {
+        historyIndex.forEach((item) => {
             const btn = document.createElement("button");
             btn.className = "history-item";
+            if (state.currentConversationId === item.id) {
+                btn.classList.add("active");
+            }
             btn.type = "button";
-            btn.setAttribute("title", title);
-            btn.innerHTML = `<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">${escapeHtml(title)}</span>`;
+            btn.setAttribute("title", item.title);
+            btn.innerHTML = `<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">${escapeHtml(item.title)}</span>`;
             btn.addEventListener("click", () => {
-                showToast(`Loading chat: ${title}`);
+                if (state.currentConversationId === item.id) {
+                    toggleSidebar(false);
+                    return;
+                }
+                const loaded = loadConversation(item.id);
+                if (loaded) {
+                    showToast(`Loaded: ${item.title}`);
+                } else {
+                    showToast(`Chat "${item.title}" — messages not available`);
+                }
                 toggleSidebar(false);
+                renderHistory();
             });
             elements.historyList.appendChild(btn);
         });
@@ -523,15 +542,79 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const cleanTitle = title.trim();
         if (!cleanTitle) return;
         
-        state.history = (state.history || []).filter(h => h !== cleanTitle);
-        state.history.unshift(cleanTitle);
-        if (state.history.length > 30) state.history = state.history.slice(0, 30);
+        if (!state.currentConversationId) {
+            state.currentConversationId = 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        }
+
+        const convId = state.currentConversationId;
+        
+        let historyIndex = loadHistoryIndex();
+        historyIndex = historyIndex.filter(h => h.id !== convId);
+        historyIndex.unshift({ id: convId, title: cleanTitle });
+        if (historyIndex.length > 30) historyIndex = historyIndex.slice(0, 30);
+        
+        try {
+            localStorage.setItem("wondrilla_history_index", JSON.stringify(historyIndex));
+        } catch (e) {}
+        
+        state.history = historyIndex.map(h => h.title);
         
         try {
             localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
         } catch (e) {}
         
         renderHistory();
+    }
+
+    function loadHistoryIndex() {
+        try {
+            const saved = localStorage.getItem("wondrilla_history_index");
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].id) {
+                    return parsed;
+                }
+            }
+        } catch (e) {}
+        
+        return (state.history || []).map((title, i) => ({
+            id: 'conv_legacy_' + i,
+            title: title
+        }));
+    }
+
+    function saveCurrentConversation() {
+        if (!state.currentConversationId) return;
+        if (!elements.messages || !elements.messages.innerHTML.trim()) return;
+        
+        try {
+            localStorage.setItem(
+                'wondrilla_conv_' + state.currentConversationId,
+                elements.messages.innerHTML
+            );
+        } catch (e) {
+            console.warn('Could not save conversation:', e);
+        }
+    }
+
+    function loadConversation(convId) {
+        saveCurrentConversation();
+        
+        try {
+            const savedHtml = localStorage.getItem('wondrilla_conv_' + convId);
+            if (savedHtml) {
+                state.currentConversationId = convId;
+                elements.messages.innerHTML = savedHtml;
+                elements.welcomeState.classList.add("hidden");
+                document.documentElement.classList.add("has-active-chat");
+                localStorage.setItem("wondrilla_messages", "active");
+                scrollToBottom();
+                return true;
+            }
+        } catch (e) {
+            console.warn('Could not load conversation:', e);
+        }
+        return false;
     }
 
     function escapeHtml(value) {
@@ -777,6 +860,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             } finally {
                 elements.sendBtn.disabled = false;
                 scrollToBottom();
+                saveCurrentConversation();
             }
             return;
         }
@@ -808,6 +892,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         } finally {
             elements.sendBtn.disabled = false;
             scrollToBottom();
+            saveCurrentConversation();
         }
     }
     async function gatewayChat(payload) {
