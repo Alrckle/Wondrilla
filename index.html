@@ -519,51 +519,74 @@
             <button class="icon-btn modal-close settings-modal-close-top" id="profile-modal-close" type="button" aria-label="Close settings">&times;</button>
             
             <div class="settings-layout">
-                <!-- Left Sidebar Navigation (Anthropic Claude Style) -->
                 <div class="settings-sidebar" role="tablist">
                     <div class="settings-sidebar-header">
-                        <span class="overline">WORKSPACE</span>
-                        <h2 class="settings-sidebar-title" id="profile-title">Settings</h2>
+                        <div class="mobile-settings-topbar">
+                            <button class="icon-btn modal-close" type="button" aria-label="Menu" style="background: transparent; border: none; color: var(--ink); cursor: pointer;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+                            <h2 class="settings-sidebar-title" id="profile-title">Settings</h2>
+                            <button class="icon-btn" type="button" aria-label="Info" style="background: transparent; border: none; color: var(--ink); opacity: 0.85; cursor: pointer;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="mobile-profile-card">
+                        <span class="mobile-user-email" id="mobile-card-email">swarnyashayah@gmail.com</span>
+                        <span class="mobile-plan-badge" id="mobile-card-badge">Free</span>
+                    </div>
+
+                    <div class="mobile-upgrade-card">
+                        <h3>Want more Wondrilla?</h3>
+                        <p>Upgrade for more usage and capabilities.</p>
+                        <button class="upgrade-btn modal-close" id="mobile-upgrade-action" type="button">Upgrade</button>
                     </div>
 
                     <div class="settings-nav-group">
-                        <span class="settings-nav-label">SETTINGS</span>
                         <button class="settings-tab-btn active" data-tab="tab-profile" id="settings-profile-btn" role="tab" aria-selected="true">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                <span>Profile & Plan</span>
+                            <div class="tab-btn-content">
+                                <svg class="tab-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+                                <div class="tab-btn-titles">
+                                    <strong>Profile & Plan</strong>
+                                </div>
                             </div>
-                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
                         </button>
-                        <button class="settings-tab-btn" data-tab="tab-general" id="settings-general-btn" role="tab" aria-selected="false">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                                <span>General Settings</span>
-                            </div>
-                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                        </button>
+                    </div>
+
+                    <div class="settings-nav-group">
                         <button class="settings-tab-btn" data-tab="tab-personalization" id="settings-personalization-btn" role="tab" aria-selected="false">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                                <span>Personalization</span>
+                            <div class="tab-btn-content">
+                                <svg class="tab-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                                <div class="tab-btn-titles">
+                                    <strong>Capabilities</strong>
+                                    <small style="color: var(--muted); font-size: 12px;">Custom instructions enabled</small>
+                                </div>
                             </div>
-                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
                         </button>
-                    </div>
 
-                    <div class="settings-nav-group" style="margin-top: 18px;">
-                        <span class="settings-nav-label">CUSTOMIZE</span>
                         <button class="settings-tab-btn" data-tab="tab-mcp" id="settings-mcp-btn" role="tab" aria-selected="false">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-                                <span>Connectors</span>
+                            <div class="tab-btn-content">
+                                <svg class="tab-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                                <div class="tab-btn-titles">
+                                    <strong>Connectors</strong>
+                                </div>
                             </div>
-                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
                         </button>
                     </div>
 
-                    <!-- Return to Chat Button (Mobile & Desktop) -->
-                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line, rgba(255,255,255,0.1));">
+                    <div class="settings-nav-group">
+                        <button class="settings-tab-btn" data-tab="tab-general" id="settings-general-btn" role="tab" aria-selected="false">
+                            <div class="tab-btn-content">
+                                <svg class="tab-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                <div class="tab-btn-titles">
+                                    <strong>General Settings</strong>
+                                </div>
+                            </div>
+                            <svg class="tab-chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line, rgba(255,255,255,0.1));">
                         <button class="return-to-chat-btn modal-close" type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px 18px; border-radius: 12px; border: 1px solid rgba(37, 99, 235, 0.4); background: rgba(37, 99, 235, 0.12); color: #38bdf8; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s ease;">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
                             <span>Return to Chat</span>
@@ -738,13 +761,29 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Anthropic Claude Filter Pills -->
-                        <div class="connector-categories" style="display: flex; gap: 8px; margin-bottom: 20px; padding-bottom: 5px;">
-                            <button class="category-pill active" data-filter="all" type="button">All</button>
-                            <button class="category-pill" data-filter="connected" type="button">Connected</button>
-                            <button class="category-pill" data-filter="not-connected" type="button">Not connected</button>
+                               <!-- Top Connector Discovery Card (Screenshot #3) -->
+                        <div class="connector-discovery-card" style="background: rgba(255,255,255,0.04); border: 1px solid var(--line, rgba(255,255,255,0.1)); border-radius: 14px; padding: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+                            <div style="display: flex; align-items: flex-start; gap: 14px;">
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--ink); flex-shrink: 0; margin-top: 2px;"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                                <div>
+                                    <strong style="display: block; font-size: 16px; color: var(--ink); margin-bottom: 4px;">Connector discovery</strong>
+                                    <p style="margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45;">Wondrilla will help you find available connectors in your directory.</p>
+                                </div>
+                            </div>
+                            <label class="switch-toggle" style="position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0;">
+                                <input type="checkbox" id="connector-discovery-toggle" checked style="opacity: 0; width: 0; height: 0;">
+                                <span class="slider-toggle" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2563eb; transition: .3s; border-radius: 26px;"></span>
+                            </label>
                         </div>
+
+                        <!-- Anthropic Claude Filter Pills (Screenshot #4) -->
+                        <div class="connector-categories" style="display: flex; gap: 8px; margin-bottom: 20px; padding-bottom: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                            <button class="category-pill active" data-filter="all" type="button">All</button>
+                            <button class="category-pill" data-filter="commerce" type="button">Commerce & shopping</button>
+                            <button class="category-pill" data-filter="communication" type="button">Communication</button>
+                            <button class="category-pill" data-filter="productivity" type="button">Productivity</button>
+                            <button class="category-pill" data-filter="developer" type="button">Developer</button>
+                        </div>                     </div>
 
                         <!-- Active Connected Connectors List -->
                         <div id="connected-connectors-container" class="connected-connectors-container hidden" style="margin-bottom: 25px;">
@@ -1150,7 +1189,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=5.9"></script>
+    <script type="module" src="script.js?v=6.0"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {

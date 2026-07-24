@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+
 :root {
     --ink: #f3f4f2;
     --ink-soft: #b8bdb4;
@@ -4264,4 +4266,183 @@ body.light-mode .settings-modal-close-top {
 html.has-active-chat #welcome-state,
 html.has-active-chat .welcome-state {
     display: none !important;
+}
+
+/* Claude Mobile Reference Design Guidelines (Screenshots #1, #2, #3, #4) */
+
+.sidebar .brand {
+    font-family: 'DM Serif Display', Georgia, serif !important;
+    font-size: 26px !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.02em !important;
+}
+
+.new-chat-btn {
+    background: #d97757 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+.section-kicker {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    color: var(--muted) !important;
+    text-transform: none !important;
+    margin-bottom: 12px !important;
+}
+
+.mobile-settings-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.mobile-settings-topbar .settings-sidebar-title {
+    font-family: 'DM Serif Display', Georgia, serif !important;
+    font-size: 22px !important;
+    font-weight: 400 !important;
+    text-align: center;
+}
+
+.mobile-profile-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.mobile-user-email {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    word-break: break-all;
+}
+
+.mobile-plan-badge {
+    background: #ffffff;
+    color: #000000;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.mobile-upgrade-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.mobile-upgrade-card h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.mobile-upgrade-card p {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.mobile-upgrade-card .upgrade-btn {
+    background: #ffffff;
+    color: #000000;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 22px;
+    cursor: pointer;
+}
+
+.settings-nav-group {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    padding: 0;
+}
+
+.settings-nav-group .settings-tab-btn {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.06)) !important;
+    border-radius: 0 !important;
+    padding: 16px 18px !important;
+}
+
+.settings-nav-group .settings-tab-btn:last-child {
+    border-bottom: none !important;
+}
+
+.tab-btn-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.tab-btn-titles strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.tab-btn-titles small {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.connector-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.connector-card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.connector-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.connector-tag-popular {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.connector-connect-btn {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 8px 20px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
 }
