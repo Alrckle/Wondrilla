@@ -486,14 +486,32 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         renderHistory();
     }
 
+    function isDummyTitle(title) {
+        if (!title) return true;
+        const lower = String(title).toLowerCase();
+        return [
+            "houris in islam",
+            "rcb ipl victory",
+            "air quality in patna",
+            "medical condition inquiry",
+            "ai identity confusion",
+            "antichrist in christian",
+            "identity unknown",
+            "video prompt for bible"
+        ].some(dummy => lower.includes(dummy));
+    }
+
     function loadHistory() {
         try {
             const saved = localStorage.getItem("wondrilla_history");
             if (saved) {
-                state.history = JSON.parse(saved);
-            } else {
-                state.history = [];
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    state.history = parsed.filter(t => !isDummyTitle(t));
+                    return;
+                }
             }
+            state.history = [];
         } catch (e) {
             state.history = [];
         }
@@ -534,7 +552,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function addToHistory(title) {
-        if (!title) return;
+        if (!title || isDummyTitle(title)) return;
         const cleanTitle = title.trim();
         if (!cleanTitle) return;
         
@@ -545,7 +563,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const convId = state.currentConversationId;
         
         let historyIndex = loadHistoryIndex();
-        historyIndex = historyIndex.filter(h => h.id !== convId);
+        historyIndex = historyIndex.filter(h => h.id !== convId && !isDummyTitle(h.title));
         historyIndex.unshift({ id: convId, title: cleanTitle });
         if (historyIndex.length > 30) historyIndex = historyIndex.slice(0, 30);
         
@@ -576,13 +594,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const saved = localStorage.getItem("wondrilla_history_index");
             if (saved) {
                 const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].id) {
-                    return parsed;
+                if (Array.isArray(parsed)) {
+                    const filtered = parsed.filter(item => item && item.id && item.title && !isDummyTitle(item.title));
+                    return filtered;
                 }
             }
         } catch (e) {}
         
-        return (state.history || []).map((title, i) => ({
+        const validHistory = (state.history || []).filter(t => !isDummyTitle(t));
+        return validHistory.map((title, i) => ({
             id: 'conv_legacy_' + i,
             title: title
         }));
@@ -2453,8 +2473,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             if (state.userId) {
                 try {
                     const convRes = await fetchJson(`/api/conversations?userId=${state.userId}`);
-                    if (convRes.ok && Array.isArray(convRes.conversations) && convRes.conversations.length > 0) {
-                        const historyIndex = convRes.conversations.map(c => ({ id: c.id, title: c.title }));
+                    if (convRes.ok && Array.isArray(convRes.conversations)) {
+                        const historyIndex = convRes.conversations
+                            .filter(c => c && c.id && c.title && !isDummyTitle(c.title))
+                            .map(c => ({ id: c.id, title: c.title }));
                         localStorage.setItem("wondrilla_history_index", JSON.stringify(historyIndex));
                         state.history = historyIndex.map(h => h.title);
                         localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
