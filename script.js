@@ -524,12 +524,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     toggleSidebar(false);
                     return;
                 }
-                const loaded = loadConversation(item.id);
-                if (loaded) {
-                    showToast(`Loaded: ${item.title}`);
-                } else {
-                    showToast(`Chat "${item.title}" — messages not available`);
-                }
+                loadConversation(item.id);
+                showToast(`Loaded: ${item.title}`);
                 toggleSidebar(false);
                 renderHistory();
             });
@@ -563,6 +559,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
         } catch (e) {}
         
+        // Sync conversation title to Supabase
+        if (state.userId) {
+            postJson("/api/conversations", {
+                userId: state.userId,
+                id: convId,
+                title: cleanTitle
+            }).catch(() => {});
+        }
+
         renderHistory();
     }
 
@@ -597,26 +602,50 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
     }
 
-    function loadConversation(convId) {
+    async function loadConversation(convId) {
         saveCurrentConversation();
+        state.currentConversationId = convId;
+        setView("chat");
         
+        // 1. Render instantly from local storage if cached
+        let loadedLocal = false;
         try {
             const savedHtml = localStorage.getItem('wondrilla_conv_' + convId);
             if (savedHtml) {
-                state.currentConversationId = convId;
                 elements.messages.innerHTML = '';
                 elements.messages.innerHTML = savedHtml;
                 elements.welcomeState.classList.add("hidden");
                 document.documentElement.classList.add("has-active-chat");
                 localStorage.setItem("wondrilla_messages", "active");
-                setView("chat");
                 scrollToBottom();
-                return true;
+                loadedLocal = true;
             }
         } catch (e) {
-            console.warn('Could not load conversation:', e);
+            console.warn('Could not load cached conversation:', e);
         }
-        return false;
+
+        // 2. Fetch latest conversation messages from Supabase
+        if (state.userId) {
+            try {
+                const res = await fetchJson(`/api/messages?userId=${state.userId}&conversationId=${convId}`);
+                if (res.ok && Array.isArray(res.messages) && res.messages.length > 0) {
+                    elements.welcomeState.classList.add("hidden");
+                    document.documentElement.classList.add("has-active-chat");
+                    localStorage.setItem("wondrilla_messages", "active");
+                    elements.messages.innerHTML = "";
+                    res.messages.forEach((msg) => {
+                        addChatBubble(msg.role, msg.content, msg.model_id);
+                    });
+                    scrollToBottom();
+                    saveCurrentConversation();
+                    return true;
+                }
+            } catch (err) {
+                console.warn("Could not fetch messages from Supabase:", err);
+            }
+        }
+
+        return loadedLocal;
     }
 
     function escapeHtml(value) {
@@ -629,16 +658,37 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function formatText(value) {
+        if (!value) return "";
         let text = escapeHtml(value);
-        
-        // Match Markdown images first: ![alt](url)
+
+        // Code blocks: ```lang ... ```
+        text = text.replace(/```([\s\S]*?)```/g, '<pre style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; overflow-x: auto; font-family: monospace; margin: 8px 0; font-size: 13px; line-height: 1.5;"><code>$1</code></pre>');
+
+        // Inline code: `code`
+        text = text.replace(/`([^`]+)`/g, '<code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px;">$1</code>');
+
+        // Headings: ### Header, ## Header, # Header
+        text = text.replace(/^###\s+(.*$)/gim, '<h4 style="margin: 12px 0 6px; font-size: 15px; font-weight: 700; color: var(--ink);">$1</h4>');
+        text = text.replace(/^##\s+(.*$)/gim, '<h3 style="margin: 14px 0 6px; font-size: 17px; font-weight: 700; color: var(--ink);">$1</h3>');
+        text = text.replace(/^#\s+(.*$)/gim, '<h2 style="margin: 16px 0 8px; font-size: 19px; font-weight: 800; color: var(--ink);">$1</h2>');
+
+        // Markdown images: ![alt](url)
         text = text.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--line-soft); display: block;">');
         
-        // Match Markdown links: [text](url)
+        // Markdown links: [text](url)
         text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: var(--acid); text-decoration: underline;">$1</a>');
-        
-        text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+        // Bold: **text** or __text__
+        text = text.replace(/\*\*((?:[^*]|\*[^*])*?)\*\*/g, "<strong>$1</strong>");
+        text = text.replace(/__((?:[^_]|_[^_])*?)__/g, "<strong>$1</strong>");
+
+        // Italics: *text* or _text_
+        text = text.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+        text = text.replace(/_([^_]+)_/g, "<em>$1</em>");
+
+        // Strip remaining raw asterisks so raw ** formatting never shows in UI
+        text = text.replace(/\*\*/g, "");
+
         return text.replace(/\n/g, "<br>");
     }
 
@@ -836,6 +886,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             try {
                 const response = await gatewayChat({
                     userId: state.userId,
+                    conversationId: state.currentConversationId,
+                    conversationTitle: cleanText.slice(0, 40),
                     modelId: state.selectedModel,
                     prompt: cleanText,
                     compare: true,
@@ -869,6 +921,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         try {
             const response = await gatewayChat({
                 userId: state.userId,
+                conversationId: state.currentConversationId,
+                conversationTitle: cleanText.slice(0, 40),
                 modelId: state.selectedModel,
                 prompt: cleanText,
                 compare: false,
@@ -2395,22 +2449,24 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 updatePlanUI();
             }
 
-            if (loggedInUser) {
-                const messagesData = await fetchJson(`/api/messages?userId=${state.userId}`);
-                if (messagesData.ok && Array.isArray(messagesData.messages) && messagesData.messages.length > 0) {
-                    elements.welcomeState.classList.add("hidden");
-                    elements.messages.innerHTML = "";
-                    messagesData.messages.forEach((msg) => {
-                        addChatBubble(msg.role, msg.content, msg.model_id);
-                    });
-                    scrollToBottom();
-                } else {
-                    elements.messages.innerHTML = "";
-                    elements.welcomeState.classList.remove("hidden");
+            // Sync conversation history index from Supabase
+            if (state.userId) {
+                try {
+                    const convRes = await fetchJson(`/api/conversations?userId=${state.userId}`);
+                    if (convRes.ok && Array.isArray(convRes.conversations) && convRes.conversations.length > 0) {
+                        const historyIndex = convRes.conversations.map(c => ({ id: c.id, title: c.title }));
+                        localStorage.setItem("wondrilla_history_index", JSON.stringify(historyIndex));
+                        state.history = historyIndex.map(h => h.title);
+                        localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
+                        renderHistory();
+                    }
+                } catch (e) {
+                    console.warn("Could not sync conversations from Supabase:", e);
                 }
-            } else {
-                elements.messages.innerHTML = "";
-                elements.welcomeState.classList.remove("hidden");
+            }
+
+            if (state.currentConversationId) {
+                await loadConversation(state.currentConversationId);
             }
         } catch (error) {
             console.error("Failed to sync user and history with Supabase:", error);

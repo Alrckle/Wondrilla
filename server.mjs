@@ -812,8 +812,88 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "GET" && requestUrl.pathname === "/api/conversations") {
+        const userId = requestUrl.searchParams.get("userId");
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+        if (!supabase) {
+            sendJson(response, 200, { ok: true, conversations: [] });
+            return;
+        }
+        try {
+            const { data: conversations, error } = await supabase
+                .from("wondrilla_conversations")
+                .select("*")
+                .eq("user_id", userId)
+                .order("updated_at", { ascending: false });
+
+            if (error) throw error;
+            sendJson(response, 200, { ok: true, conversations: conversations || [] });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "POST" && requestUrl.pathname === "/api/conversations") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const id = String(body.id || "").trim();
+        const title = String(body.title || "").trim();
+        if (!userId || !id || !title) {
+            sendJson(response, 400, { ok: false, error: "userId, id, and title are required." });
+            return;
+        }
+        if (!supabase) {
+            sendJson(response, 200, { ok: true });
+            return;
+        }
+        try {
+            const { data, error } = await supabase
+                .from("wondrilla_conversations")
+                .upsert([{ id, user_id: userId, title, updated_at: new Date().toISOString() }])
+                .select()
+                .single();
+            if (error) throw error;
+            sendJson(response, 200, { ok: true, conversation: data });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
+    if (request.method === "DELETE" && requestUrl.pathname === "/api/conversations") {
+        const body = await readJsonBody(request);
+        const userId = String(body.userId || "").trim();
+        const conversationId = String(body.conversationId || "").trim();
+        if (!userId) {
+            sendJson(response, 400, { ok: false, error: "userId is required." });
+            return;
+        }
+        if (!supabase) {
+            sendJson(response, 200, { ok: true });
+            return;
+        }
+        try {
+            if (conversationId) {
+                await supabase.from("wondrilla_messages").delete().eq("user_id", userId).eq("conversation_id", conversationId);
+                await supabase.from("wondrilla_conversations").delete().eq("user_id", userId).eq("id", conversationId);
+            } else {
+                await supabase.from("wondrilla_messages").delete().eq("user_id", userId);
+                await supabase.from("wondrilla_conversations").delete().eq("user_id", userId);
+            }
+            sendJson(response, 200, { ok: true });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
     if (request.method === "GET" && requestUrl.pathname === "/api/messages") {
         const userId = requestUrl.searchParams.get("userId");
+        const conversationId = requestUrl.searchParams.get("conversationId");
         if (!userId) {
             sendJson(response, 400, { ok: false, error: "userId is required." });
             return;
@@ -825,14 +905,19 @@ async function handleApi(request, response, requestUrl) {
         }
 
         try {
-            const { data: messages, error } = await supabase
+            let query = supabase
                 .from("wondrilla_messages")
                 .select("*")
-                .eq("user_id", userId)
-                .order("created_at", { ascending: true });
+                .eq("user_id", userId);
+
+            if (conversationId) {
+                query = query.eq("conversation_id", conversationId);
+            }
+
+            const { data: messages, error } = await query.order("created_at", { ascending: true });
 
             if (error) throw error;
-            sendJson(response, 200, { ok: true, messages });
+            sendJson(response, 200, { ok: true, messages: messages || [] });
         } catch (err) {
             sendJson(response, 500, { ok: false, error: err.message });
         }
@@ -984,8 +1069,17 @@ async function handleApi(request, response, requestUrl) {
         // Save user message to database
         if (supabase && userId) {
             try {
+                if (body.conversationId) {
+                    await supabase.from("wondrilla_conversations").upsert([{
+                        id: String(body.conversationId),
+                        user_id: userId,
+                        title: String(body.conversationTitle || prompt.slice(0, 40) || "New conversation"),
+                        updated_at: new Date().toISOString()
+                    }]);
+                }
                 await supabase.from("wondrilla_messages").insert([{
                     user_id: userId,
+                    conversation_id: body.conversationId ? String(body.conversationId) : null,
                     role: "user",
                     content: prompt,
                     model_id: body.modelId || "auto"
@@ -1013,6 +1107,7 @@ async function handleApi(request, response, requestUrl) {
 
                     const insertPayloads = answers.map((ans) => ({
                         user_id: userId,
+                        conversation_id: body.conversationId ? String(body.conversationId) : null,
                         role: "assistant",
                         content: ans.text,
                         model_id: ans.modelId
@@ -1049,6 +1144,7 @@ async function handleApi(request, response, requestUrl) {
 
                 await supabase.from("wondrilla_messages").insert([{
                     user_id: userId,
+                    conversation_id: body.conversationId ? String(body.conversationId) : null,
                     role: "assistant",
                     content: answer.text,
                     model_id: answer.modelId
