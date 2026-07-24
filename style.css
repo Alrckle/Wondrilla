@@ -1652,6 +1652,7 @@ textarea::-webkit-scrollbar {
     .sidebar {
         bottom: 0;
         box-shadow: 18px 0 50px rgba(34, 36, 31, 0.18);
+        height: 100%;
         left: 0;
         position: fixed;
         top: 0;
@@ -1765,6 +1766,9 @@ textarea::-webkit-scrollbar {
     .sidebar {
         max-width: 290px;
         width: 86vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        box-sizing: border-box;
     }
 
     .workspace {
