@@ -514,6 +514,17 @@ a:focus-visible {
     padding: 0 24px;
 }
 
+[data-theme="light"] .topbar,
+body.light-mode .topbar {
+    background: rgba(248, 250, 252, 0.85);
+}
+
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .topbar {
+        background: rgba(248, 250, 252, 0.85);
+    }
+}
+
 .model-picker {
     background: transparent;
     border: 0;
@@ -1619,9 +1630,13 @@ textarea::-webkit-scrollbar {
     transform: translate(-50%, 0);
 }
 
-@media (max-width: 1050px) {
+/* ===========================================
+   RESPONSIVE: Tablet + Mobile Shared (≤1079px)
+   Sidebar becomes off-canvas overlay, dock hidden
+   =========================================== */
+@media (max-width: 1079px) {
     .app-shell {
-        grid-template-columns: 230px minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .model-dock {
@@ -1631,9 +1646,95 @@ textarea::-webkit-scrollbar {
     .dock-insight {
         display: none;
     }
+
+    .sidebar {
+        bottom: 0;
+        box-shadow: 18px 0 50px rgba(34, 36, 31, 0.18);
+        left: 0;
+        position: fixed;
+        top: 0;
+        transform: translateX(-105%);
+        transition: transform 220ms ease;
+        width: min(320px, 80vw);
+        z-index: 65;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-close,
+    .menu-btn {
+        display: block;
+    }
+
+    .desktop-only,
+    .demo-pill {
+        display: none;
+    }
+
+    .model-picker {
+        margin-right: auto;
+    }
+
+    .topbar {
+        padding: 0 16px;
+    }
 }
 
-@media (max-width: 760px) {
+/* ===========================================
+   RESPONSIVE: Tablet Only (768px – 1079px)
+   2-column grids, adapted modals, comfortable spacing
+   =========================================== */
+@media (min-width: 768px) and (max-width: 1079px) {
+    .conversation {
+        padding: 32px 24px 16px;
+    }
+
+    .message-bubble {
+        max-width: min(580px, 75%);
+    }
+
+    .prompt-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .library-grid,
+    .pricing-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .compare-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .modal-model-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .settings-modal-card {
+        width: min(700px, 92vw);
+        max-height: 85vh;
+    }
+
+    .settings-layout {
+        grid-template-columns: 180px 1fr;
+    }
+
+    .connectors-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .welcome-state h1 {
+        font-size: 42px;
+    }
+}
+
+/* ===========================================
+   RESPONSIVE: Mobile Only (≤767px)
+   Full mobile layout with dvh, single-column, bottom-sheet modals
+   =========================================== */
+@media (max-width: 767px) {
     body {
         overflow: hidden;
         height: 100dvh;
@@ -1646,25 +1747,8 @@ textarea::-webkit-scrollbar {
     }
 
     .sidebar {
-        bottom: 0;
-        box-shadow: 18px 0 50px rgba(34, 36, 31, 0.18);
-        left: 0;
         max-width: 290px;
-        position: fixed;
-        top: 0;
-        transform: translateX(-105%);
-        transition: transform 220ms ease;
         width: 86vw;
-        z-index: 65; /* higher than .scrim (60) to prevent blocked clicks */
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
-    }
-
-    .sidebar-close,
-    .menu-btn {
-        display: block;
     }
 
     .workspace {
@@ -1679,15 +1763,6 @@ textarea::-webkit-scrollbar {
         font-size: 17px;
     }
 
-    .desktop-only,
-    .demo-pill {
-        display: none;
-    }
-
-    .model-picker {
-        margin-right: auto;
-    }
-
     .conversation {
         padding: 30px 16px 16px;
     }
@@ -1697,7 +1772,7 @@ textarea::-webkit-scrollbar {
     }
 
     .welcome-state h1 {
-        font-size: 36px;
+        font-size: 32px;
     }
 
     .prompt-grid {
@@ -1706,7 +1781,8 @@ textarea::-webkit-scrollbar {
     }
 
     .prompt-card {
-        min-height: 60px;
+        min-height: 56px;
+        padding: 12px 14px;
     }
 
     .composer-wrap {
@@ -1718,11 +1794,11 @@ textarea::-webkit-scrollbar {
     }
 
     .message-bubble {
-        max-width: 90%;
+        max-width: 92%;
     }
 
     .library-view {
-        padding: 42px 20px;
+        padding: 42px 16px;
     }
 
     .library-grid,
@@ -1750,6 +1826,30 @@ textarea::-webkit-scrollbar {
         top: -22px;
         padding-top: 22px;
         margin-top: -22px;
+    }
+
+    /* Mobile touch targets */
+    .nav-item {
+        padding: 12px 14px;
+        font-size: 15px;
+    }
+
+    .send-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 19px;
+        border-radius: 10px;
+    }
+
+    .tool-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+    }
+
+    .mode-toggle {
+        padding: 8px 10px;
+        font-size: 12px;
     }
 }
 
@@ -2269,7 +2369,7 @@ textarea::-webkit-scrollbar {
     line-height: 1.5;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767px) {
     .settings-layout {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -3891,7 +3991,7 @@ body.light-mode .tool-tester-open-btn:hover {
 /* ==========================================
    Anthropic Claude-Style Mobile Responsiveness 
    ========================================== */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     /* Full-screen sleek mobile modal card */
     .settings-modal-card {
         width: 100vw !important;
@@ -4185,7 +4285,7 @@ body.light-mode .mobile-settings-back-btn {
     color: var(--muted);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .tab-chevron-icon {
         display: block !important;
     }
@@ -4456,7 +4556,7 @@ html.has-active-chat .welcome-state {
 }
 
 /* Desktop vs Mobile Media Query Isolation */
-@media (min-width: 769px) {
+@media (min-width: 768px) {
     .mobile-profile-card,
     .mobile-upgrade-card,
     .mobile-settings-topbar {
@@ -4502,4 +4602,21 @@ html.has-active-chat .welcome-state {
     text-overflow: ellipsis !important;
     display: block !important;
     max-width: 145px !important;
+}
+
+/* Safe-area insets for notched phones (iPhone X+, Android cutouts) */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .composer-wrap {
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .sidebar {
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    @media (max-width: 767px) {
+        .modal {
+            padding-bottom: calc(22px + env(safe-area-inset-bottom));
+        }
+    }
 }
