@@ -894,10 +894,6 @@ async function handleApi(request, response, requestUrl) {
     if (request.method === "GET" && requestUrl.pathname === "/api/messages") {
         const userId = requestUrl.searchParams.get("userId");
         const conversationId = requestUrl.searchParams.get("conversationId");
-        if (!userId) {
-            sendJson(response, 400, { ok: false, error: "userId is required." });
-            return;
-        }
 
         if (!supabase) {
             sendJson(response, 200, { ok: true, messages: [] });
@@ -905,13 +901,15 @@ async function handleApi(request, response, requestUrl) {
         }
 
         try {
-            let query = supabase
-                .from("wondrilla_messages")
-                .select("*")
-                .eq("user_id", userId);
+            let query = supabase.from("wondrilla_messages").select("*");
 
             if (conversationId) {
                 query = query.eq("conversation_id", conversationId);
+            } else if (userId) {
+                query = query.eq("user_id", userId);
+            } else {
+                sendJson(response, 400, { ok: false, error: "userId or conversationId is required." });
+                return;
             }
 
             const { data: messages, error } = await query.order("created_at", { ascending: true });

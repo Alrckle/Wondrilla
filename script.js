@@ -537,14 +537,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             btn.type = "button";
             btn.setAttribute("title", item.title);
             btn.innerHTML = `<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">${escapeHtml(item.title)}</span>`;
-            btn.addEventListener("click", () => {
+            btn.addEventListener("click", async () => {
                 if (state.currentConversationId === item.id) {
                     toggleSidebar(false);
                     return;
                 }
-                loadConversation(item.id);
-                showToast(`Loaded: ${item.title}`);
                 toggleSidebar(false);
+                await loadConversation(item.id);
+                showToast(`Loaded: ${item.title}`);
                 renderHistory();
             });
             elements.historyList.appendChild(btn);
@@ -627,16 +627,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         state.currentConversationId = convId;
         setView("chat");
         
+        // Always clear current message list immediately so previous conversation never lingers
+        elements.messages.innerHTML = '';
+        elements.welcomeState.classList.add("hidden");
+        document.documentElement.classList.add("has-active-chat");
+        localStorage.setItem("wondrilla_messages", "active");
+
         // 1. Render instantly from local storage if cached
         let loadedLocal = false;
         try {
             const savedHtml = localStorage.getItem('wondrilla_conv_' + convId);
-            if (savedHtml) {
-                elements.messages.innerHTML = '';
+            if (savedHtml && savedHtml.trim()) {
                 elements.messages.innerHTML = savedHtml;
-                elements.welcomeState.classList.add("hidden");
-                document.documentElement.classList.add("has-active-chat");
-                localStorage.setItem("wondrilla_messages", "active");
                 scrollToBottom();
                 loadedLocal = true;
             }
@@ -644,25 +646,20 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             console.warn('Could not load cached conversation:', e);
         }
 
-        // 2. Fetch latest conversation messages from Supabase
-        if (state.userId) {
-            try {
-                const res = await fetchJson(`/api/messages?userId=${state.userId}&conversationId=${convId}`);
-                if (res.ok && Array.isArray(res.messages) && res.messages.length > 0) {
-                    elements.welcomeState.classList.add("hidden");
-                    document.documentElement.classList.add("has-active-chat");
-                    localStorage.setItem("wondrilla_messages", "active");
-                    elements.messages.innerHTML = "";
-                    res.messages.forEach((msg) => {
-                        addChatBubble(msg.role, msg.content, msg.model_id);
-                    });
-                    scrollToBottom();
-                    saveCurrentConversation();
-                    return true;
-                }
-            } catch (err) {
-                console.warn("Could not fetch messages from Supabase:", err);
+        // 2. Fetch latest conversation messages from Supabase by conversationId
+        try {
+            const res = await fetchJson(`/api/messages?conversationId=${convId}`);
+            if (res.ok && Array.isArray(res.messages) && res.messages.length > 0) {
+                elements.messages.innerHTML = "";
+                res.messages.forEach((msg) => {
+                    addChatBubble(msg.role, msg.content, msg.model_id);
+                });
+                scrollToBottom();
+                saveCurrentConversation();
+                return true;
             }
+        } catch (err) {
+            console.warn("Could not fetch messages from Supabase:", err);
         }
 
         return loadedLocal;
