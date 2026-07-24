@@ -330,8 +330,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
 
         elements.usedMessages = document.getElementById("used-messages");
-        elements.usagePercent.textContent = `${percent}%`;
-        elements.usageProgress.style.width = `${percent}%`;
+        if (elements.usagePercent) elements.usagePercent.textContent = `${percent}%`;
+        if (elements.usageProgress) elements.usageProgress.style.width = `${percent}%`;
         localStorage.setItem("wondrilla_used", state.used);
     }
 
