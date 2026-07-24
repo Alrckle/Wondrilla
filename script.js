@@ -482,6 +482,69 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.promptInput.focus();
     }
 
+    const defaultHistoryItems = [
+        "Houris in Islam and their characteristics",
+        "RCB IPL Victory YouTube Script",
+        "Air Quality in Patna",
+        "Medical Condition Inquiry",
+        "AI Identity Confusion",
+        "The Antichrist in Christian prophecy",
+        "Identity Unknown",
+        "Video prompt for Bible verse lip-sync"
+    ];
+
+    function loadHistory() {
+        try {
+            const saved = localStorage.getItem("wondrilla_history");
+            if (saved) {
+                state.history = JSON.parse(saved);
+            } else {
+                state.history = defaultHistoryItems;
+                localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
+            }
+        } catch (e) {
+            state.history = defaultHistoryItems;
+        }
+    }
+
+    function renderHistory() {
+        if (!elements.historyList) return;
+        elements.historyList.innerHTML = "";
+        
+        if (!state.history || state.history.length === 0) {
+            state.history = defaultHistoryItems;
+        }
+
+        state.history.forEach((title) => {
+            const btn = document.createElement("button");
+            btn.className = "history-item";
+            btn.type = "button";
+            btn.setAttribute("title", title);
+            btn.innerHTML = `<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">${escapeHtml(title)}</span>`;
+            btn.addEventListener("click", () => {
+                showToast(`Loading chat: ${title}`);
+                toggleSidebar(false);
+            });
+            elements.historyList.appendChild(btn);
+        });
+    }
+
+    function addToHistory(title) {
+        if (!title) return;
+        const cleanTitle = title.trim();
+        if (!cleanTitle) return;
+        
+        state.history = (state.history || []).filter(h => h !== cleanTitle);
+        state.history.unshift(cleanTitle);
+        if (state.history.length > 25) state.history = state.history.slice(0, 25);
+        
+        try {
+            localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
+        } catch (e) {}
+        
+        renderHistory();
+    }
+
     function escapeHtml(value) {
         return String(value)
             .replaceAll("&", "&amp;")
@@ -504,7 +567,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
         return text.replace(/\n/g, "<br>");
     }
+
     function addUserMessage(text, file) {
+        if (text) {
+            addToHistory(text);
+        }
         const wrapper = document.createElement("div");
         wrapper.className = "message user";
         let fileHtml = "";
@@ -2946,6 +3013,7 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
         }
     }
 
+    loadHistory();
     renderModels();
     renderHistory();
     updateUsage();

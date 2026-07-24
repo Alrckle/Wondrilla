@@ -4454,3 +4454,52 @@ html.has-active-chat .welcome-state {
     font-size: 14px !important;
     font-weight: 700 !important;
 }
+
+/* Desktop vs Mobile Media Query Isolation */
+@media (min-width: 769px) {
+    .mobile-profile-card,
+    .mobile-upgrade-card,
+    .mobile-settings-topbar {
+        display: none !important;
+    }
+
+    .settings-sidebar-header-desktop {
+        display: block !important;
+        margin-bottom: 14px !important;
+    }
+
+    .settings-nav-group {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .settings-nav-group .settings-tab-btn {
+        padding: 12px 14px !important;
+        border-radius: 10px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .settings-nav-group .settings-tab-btn.active {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: transparent !important;
+    }
+}
+
+/* Single-Line Truncation for Profile Row on Desktop and Mobile */
+.profile-row {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+}
+
+.profile-row strong,
+.profile-row small,
+#sidebar-user-name,
+#sidebar-user-plan {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    max-width: 145px !important;
+}
