@@ -482,28 +482,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.promptInput.focus();
     }
 
-    const defaultHistoryItems = [
-        "Houris in Islam and their characteristics",
-        "RCB IPL Victory YouTube Script",
-        "Air Quality in Patna",
-        "Medical Condition Inquiry",
-        "AI Identity Confusion",
-        "The Antichrist in Christian prophecy",
-        "Identity Unknown",
-        "Video prompt for Bible verse lip-sync"
-    ];
-
     function loadHistory() {
         try {
             const saved = localStorage.getItem("wondrilla_history");
             if (saved) {
                 state.history = JSON.parse(saved);
             } else {
-                state.history = defaultHistoryItems;
-                localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
+                state.history = [];
             }
         } catch (e) {
-            state.history = defaultHistoryItems;
+            state.history = [];
         }
     }
 
@@ -512,7 +500,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.historyList.innerHTML = "";
         
         if (!state.history || state.history.length === 0) {
-            state.history = defaultHistoryItems;
+            elements.historyList.innerHTML = `<div style="padding: 10px 8px; font-size: 13px; color: var(--muted); opacity: 0.6; text-align: left;">No recent conversations</div>`;
+            return;
         }
 
         state.history.forEach((title) => {
@@ -536,7 +525,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         
         state.history = (state.history || []).filter(h => h !== cleanTitle);
         state.history.unshift(cleanTitle);
-        if (state.history.length > 25) state.history = state.history.slice(0, 25);
+        if (state.history.length > 30) state.history = state.history.slice(0, 30);
         
         try {
             localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
