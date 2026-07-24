@@ -136,6 +136,7 @@ a:focus-visible {
     display: flex;
     flex-direction: column;
     min-width: 0;
+    overflow: hidden;
     padding: 20px 16px 16px;
     position: relative;
     z-index: 30;
