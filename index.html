@@ -77,28 +77,13 @@
             </div>
 
             <div class="sidebar-footer">
-                <div class="usage-card">
-                    <div class="usage-card-top">
-                        <div>
-                            <span class="eyebrow">Free plan</span>
-                            <strong><span id="used-messages">7</span> of 20 messages</strong>
-                        </div>
-                        <span class="usage-percent" id="usage-percent">35%</span>
-                    </div>
-                    <div class="progress-track"><span id="usage-progress"></span></div>
-                    <button class="upgrade-link" id="upgrade-sidebar" type="button">Unlock every model -&gt;</button>
-                </div>
-                <button class="theme-toggle-btn" id="theme-toggle-btn" type="button" aria-label="Toggle dark/light theme">
-                    <span class="theme-icon">🌓</span>
-                    <span class="theme-text" id="theme-toggle-text">Appearance: Dark</span>
-                </button>
-                <button class="profile-row" type="button">
-                    <span class="avatar">SY</span>
-                    <span>
-                        <strong>Sanatan Yashayah</strong>
-                        <small>Personal workspace</small>
+                <button class="profile-row" id="profile-btn" type="button" style="padding: 12px 14px; border-radius: 12px; transition: all 0.2s ease;">
+                    <span class="avatar" id="sidebar-avatar" style="width: 38px; height: 38px; font-size: 15px; font-weight: 700; background: #2563eb; color: #ffffff;">SK</span>
+                    <span style="display: flex; flex-direction: column; justify-content: center; overflow: hidden; text-align: left; margin-left: 4px;">
+                        <strong id="sidebar-user-name" style="font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.2;">Sonu Kumar</strong>
+                        <small id="sidebar-user-plan" style="font-size: 12px; color: var(--muted); margin-top: 2px;">Free Plan</small>
                     </span>
-                    <span class="profile-menu" aria-hidden="true">...</span>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--muted); flex-shrink: 0;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </button>
                 <div class="disclaimer-text" style="font-size: 8px; color: var(--muted); opacity: 0.55; padding: 12px 16px 4px; line-height: 1.35; text-align: left; border-top: 1px solid var(--line-soft);">
                     Wondrilla is an independent platform and is not affiliated, associated, authorized, or endorsed by OpenAI, Anthropic, DeepSeek, xAI, Google, Zhipu, or Moonshot. All product names, logos, and brands are property of their respective owners.
@@ -783,7 +768,7 @@
                             <button class="category-pill" data-filter="communication" type="button">Communication</button>
                             <button class="category-pill" data-filter="productivity" type="button">Productivity</button>
                             <button class="category-pill" data-filter="developer" type="button">Developer</button>
-                        </div>                     </div>
+                        </div>
 
                         <!-- Active Connected Connectors List -->
                         <div id="connected-connectors-container" class="connected-connectors-container hidden" style="margin-bottom: 25px;">
@@ -1189,7 +1174,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=6.0"></script>
+    <script type="module" src="script.js?v=7.0"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
