@@ -4082,23 +4082,24 @@ body.light-mode .tool-tester-open-btn:hover {
     .settings-layout {
         flex-direction: column !important;
         height: 100% !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
+        overflow: hidden !important;
         margin-top: 45px !important;
     }
 
     /* Vertical Top-to-Bottom Portrait Menu Stack for Mobile Settings */
     .settings-sidebar {
         width: 100% !important;
+        flex: 1 !important;
+        min-height: 0 !important;
         border-right: none !important;
         border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.12)) !important;
-        padding: 16px 14px 10px !important;
-        gap: 10px !important;
+        padding: 12px 14px 10px !important;
+        gap: 8px !important;
         flex-direction: column !important;
-        flex-shrink: 0 !important;
         align-items: stretch !important;
         overflow-x: hidden !important;
         overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
         background: var(--surface-card-soft, rgba(15, 23, 42, 0.95)) !important;
     }
 
@@ -4490,12 +4491,12 @@ html.has-active-chat .welcome-state {
 .mobile-profile-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
-    border-radius: 14px;
-    padding: 16px 18px;
+    border-radius: 10px;
+    padding: 10px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
 }
 
 .mobile-user-email {
@@ -4517,23 +4518,23 @@ html.has-active-chat .welcome-state {
 .mobile-upgrade-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--line, rgba(255, 255, 255, 0.1));
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 20px;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
 }
 
 .mobile-upgrade-card h3 {
-    margin: 0 0 6px;
-    font-size: 18px;
+    margin: 0 0 4px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--ink);
 }
 
 .mobile-upgrade-card p {
-    margin: 0 0 14px;
-    font-size: 14px;
+    margin: 0 0 8px;
+    font-size: 13px;
     color: var(--muted);
-    line-height: 1.45;
+    line-height: 1.35;
 }
 
 .mobile-upgrade-card .upgrade-btn {
