@@ -853,7 +853,7 @@ async function handleApi(request, response, requestUrl) {
         try {
             const { data, error } = await supabase
                 .from("wondrilla_conversations")
-                .upsert([{ id, user_id: userId, title, updated_at: new Date().toISOString() }])
+                .upsert([{ id, user_id: userId, title, updated_at: new Date().toISOString() }], { onConflict: "id" })
                 .select()
                 .single();
             if (error) throw error;
@@ -1075,7 +1075,7 @@ async function handleApi(request, response, requestUrl) {
                         user_id: userId,
                         title: String(body.conversationTitle || prompt.slice(0, 40) || "New conversation"),
                         updated_at: new Date().toISOString()
-                    }]);
+                    }], { onConflict: "id" });
                 }
                 await supabase.from("wondrilla_messages").insert([{
                     user_id: userId,
