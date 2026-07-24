@@ -604,10 +604,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const savedHtml = localStorage.getItem('wondrilla_conv_' + convId);
             if (savedHtml) {
                 state.currentConversationId = convId;
+                elements.messages.innerHTML = '';
                 elements.messages.innerHTML = savedHtml;
                 elements.welcomeState.classList.add("hidden");
                 document.documentElement.classList.add("has-active-chat");
                 localStorage.setItem("wondrilla_messages", "active");
+                setView("chat");
                 scrollToBottom();
                 return true;
             }
@@ -823,11 +825,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         autoResize();
         elements.sendBtn.disabled = true;
 
-        if (!state.history.includes(cleanText)) {
-            state.history.unshift(cleanText.length > 38 ? `${cleanText.slice(0, 38)}...` : cleanText);
-            state.history = state.history.slice(0, 6);
-            renderHistory();
-        }
 
         state.used += state.compare ? 3 : 1;
         updateUsage();
