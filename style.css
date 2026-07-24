@@ -387,6 +387,7 @@ a:focus-visible {
 
 .sidebar-footer {
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 .usage-card {
@@ -1675,10 +1676,24 @@ textarea::-webkit-scrollbar {
 
     .model-picker {
         margin-right: auto;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .menu-btn {
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .topbar {
         padding: 0 16px;
+        gap: 8px;
     }
 }
 
@@ -1760,7 +1775,20 @@ textarea::-webkit-scrollbar {
     }
 
     .menu-btn {
-        font-size: 17px;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .model-picker small {
+        display: none;
+    }
+
+    .model-picker strong {
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
     }
 
     .conversation {
