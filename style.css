@@ -1880,6 +1880,21 @@ textarea::-webkit-scrollbar {
         padding: 8px 10px;
         font-size: 12px;
     }
+
+    /* Hide disclaimer on mobile to save vertical space for chat history */
+    .disclaimer-text {
+        display: none;
+    }
+
+    .sidebar {
+        padding: 16px 12px 12px;
+    }
+
+    .sidebar-footer {
+        padding-top: 8px;
+        border-top: 1px solid var(--line-soft);
+        margin-top: 8px;
+    }
 }
 
 /* Secure Checkout Styling */
@@ -4282,9 +4297,6 @@ body.light-mode .mobile-settings-back-btn {
 }
 
 /* Sidebar User Profile Button Sizing & Touch Targets */
-.sidebar-footer {
-    padding: 16px !important;
-}
 
 .profile-btn {
     padding: 14px 16px !important;
@@ -4630,7 +4642,7 @@ html.has-active-chat .welcome-state {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     display: block !important;
-    max-width: 145px !important;
+    max-width: 100% !important;
 }
 
 /* Safe-area insets for notched phones (iPhone X+, Android cutouts) */
