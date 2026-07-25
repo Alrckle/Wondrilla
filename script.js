@@ -2523,12 +2523,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     let mcpServers = [];
 
     async function initMcpUi() {
-        if (!elements.settingsMcpBtn) return;
+        if (!elements.settingsMcpBtn || !elements.mcpType) return;
 
         elements.mcpType.addEventListener("change", (e) => {
             const isCommand = e.target.value === "command";
-            elements.mcpCommandFields.classList.toggle("hidden", !isCommand);
-            elements.mcpSseFields.classList.toggle("hidden", isCommand);
+            if (elements.mcpCommandFields) elements.mcpCommandFields.classList.toggle("hidden", !isCommand);
+            if (elements.mcpSseFields) elements.mcpSseFields.classList.toggle("hidden", isCommand);
         });
 
         const tabs = [
