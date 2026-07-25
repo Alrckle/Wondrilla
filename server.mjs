@@ -1292,8 +1292,9 @@ async function handleApi(request, response, requestUrl) {
 
     if (request.method === "GET" && requestUrl.pathname === "/api/conversations") {
         const userId = requestUrl.searchParams.get("userId");
-        if (!userId) {
-            sendJson(response, 400, { ok: false, error: "userId is required." });
+        const email = requestUrl.searchParams.get("email");
+        if (!userId && !email) {
+            sendJson(response, 400, { ok: false, error: "userId or email is required." });
             return;
         }
         if (!supabase) {
@@ -1301,13 +1302,45 @@ async function handleApi(request, response, requestUrl) {
             return;
         }
         try {
-            const { data: conversations, error } = await supabase
+            let targetUserId = userId;
+            if (email && (!targetUserId || targetUserId.startsWith("user_"))) {
+                const { data: uData } = await supabase.from("wondrilla_users").select("user_id").eq("email", email).single();
+                if (uData && uData.user_id) targetUserId = uData.user_id;
+            }
+
+            let { data: conversations, error } = await supabase
                 .from("wondrilla_conversations")
                 .select("*")
-                .eq("user_id", userId)
+                .eq("user_id", targetUserId || userId)
                 .order("updated_at", { ascending: false });
 
             if (error) throw error;
+
+            // Fallback: If wondrilla_conversations is missing entries, sync dynamically from wondrilla_messages
+            if (!conversations || conversations.length === 0) {
+                const { data: msgConvs } = await supabase
+                    .from("wondrilla_messages")
+                    .select("conversation_id, content, created_at")
+                    .eq("user_id", targetUserId || userId)
+                    .eq("role", "user")
+                    .order("created_at", { ascending: false });
+
+                if (msgConvs && msgConvs.length > 0) {
+                    const map = new Map();
+                    msgConvs.forEach(m => {
+                        if (m.conversation_id && !map.has(m.conversation_id)) {
+                            map.set(m.conversation_id, {
+                                id: m.conversation_id,
+                                user_id: targetUserId || userId,
+                                title: (m.content || "New conversation").slice(0, 40),
+                                updated_at: m.created_at
+                            });
+                        }
+                    });
+                    conversations = Array.from(map.values());
+                }
+            }
+
             sendJson(response, 200, { ok: true, conversations: conversations || [] });
         } catch (err) {
             sendJson(response, 500, { ok: false, error: err.message });

@@ -2515,7 +2515,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             // Sync conversation history index from Supabase
             if (state.userId) {
                 try {
-                    const convRes = await fetchJson(`/api/conversations?userId=${state.userId}`);
+                    const convRes = await fetchJson(`/api/conversations?userId=${state.userId}${emailParam}`);
                     if (convRes.ok && Array.isArray(convRes.conversations)) {
                         const historyIndex = convRes.conversations
                             .filter(c => c && c.id && c.title && !isDummyTitle(c.title))
