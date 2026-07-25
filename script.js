@@ -2263,7 +2263,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (state.userId && !state.userId.startsWith("user_")) return true;
         try {
             const saved = localStorage.getItem("wondrilla_auth_user");
-            if (saved) return true;
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && parsed.email) return true;
+            }
         } catch (e) {}
         return false;
     }
@@ -3429,6 +3432,9 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
     bindEvents();
     autoResize();
     loadRuntimeStatus();
+    if (isUserLoggedIn()) {
+        syncUserAndHistory();
+    }
     initSupabaseAuth();
     initMcpUi();
     initMarketingHub();
