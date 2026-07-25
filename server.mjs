@@ -1392,6 +1392,28 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "GET" && requestUrl.pathname === "/api/images") {
+        const userId = requestUrl.searchParams.get("userId");
+
+        if (!supabase) {
+            sendJson(response, 200, { ok: true, images: [] });
+            return;
+        }
+
+        try {
+            let query = supabase.from("wondrilla_generated_images").select("*").order("created_at", { ascending: false });
+            if (userId) {
+                query = query.eq("user_id", userId);
+            }
+            const { data, error } = await query;
+            if (error) throw error;
+            sendJson(response, 200, { ok: true, images: data || [] });
+        } catch (err) {
+            sendJson(response, 500, { ok: false, error: err.message });
+        }
+        return;
+    }
+
     if (requestUrl.pathname === "/api/mcp") {
         if (request.method === "GET") {
             const list = [];
@@ -1617,6 +1639,20 @@ async function handleApi(request, response, requestUrl) {
                     content: answer.text,
                     model_id: answer.modelId
                 }]);
+
+                if (answer.text && answer.text.includes("![") && answer.text.includes("image.pollinations.ai")) {
+                    const match = answer.text.match(/!\[(.*?)\]\((.*?)\)/);
+                    if (match && match[2]) {
+                        const imgAlt = match[1] || prompt;
+                        const imgUrl = match[2];
+                        await supabase.from("wondrilla_generated_images").insert([{
+                            user_id: userId,
+                            prompt: imgAlt,
+                            image_url: imgUrl,
+                            created_at: new Date().toISOString()
+                        }]).catch((err) => console.error("Failed to insert into wondrilla_generated_images:", err));
+                    }
+                }
             } catch (err) {
                 console.error("Failed to update usage or save assistant answer:", err);
             }
