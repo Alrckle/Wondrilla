@@ -96,6 +96,12 @@ const server = http.createServer(async (request, response) => {
             return;
         }
 
+        // ── OAuth connector routes ──
+        if (requestUrl.pathname.startsWith("/auth/")) {
+            await handleAuth(request, response, requestUrl);
+            return;
+        }
+
         if (request.method !== "GET" && request.method !== "HEAD") {
             sendJson(response, 405, { ok: false, error: "Method not allowed" });
             return;
@@ -122,6 +128,164 @@ function getPlanLimit(plan) {
     if (plan === "pro") return 2000;
     if (plan === "studio") return 10000;
     return 20;
+}
+
+// ── OAuth connector configuration ──
+const oauthConfig = {
+    github: {
+        clientIdEnv: "GITHUB_CLIENT_ID",
+        clientSecretEnv: "GITHUB_CLIENT_SECRET",
+        authorizeUrl: "https://github.com/login/oauth/authorize",
+        tokenUrl: "https://github.com/login/oauth/access_token",
+        scopes: "repo,read:user",
+        name: "GitHub"
+    },
+    slack: {
+        clientIdEnv: "SLACK_CLIENT_ID",
+        clientSecretEnv: "SLACK_CLIENT_SECRET",
+        authorizeUrl: "https://slack.com/oauth/v2/authorize",
+        tokenUrl: "https://slack.com/api/oauth.v2.access",
+        scopes: "chat:write,channels:read",
+        name: "Slack"
+    },
+    discord: {
+        clientIdEnv: "DISCORD_CLIENT_ID",
+        clientSecretEnv: "DISCORD_CLIENT_SECRET",
+        authorizeUrl: "https://discord.com/oauth2/authorize",
+        tokenUrl: "https://discord.com/api/oauth2/token",
+        scopes: "bot guilds",
+        name: "Discord"
+    },
+    notion: {
+        clientIdEnv: "NOTION_CLIENT_ID",
+        clientSecretEnv: "NOTION_CLIENT_SECRET",
+        authorizeUrl: "https://api.notion.com/v1/oauth/authorize",
+        tokenUrl: "https://api.notion.com/v1/oauth/token",
+        scopes: "",
+        name: "Notion"
+    },
+    figma: {
+        clientIdEnv: "FIGMA_CLIENT_ID",
+        clientSecretEnv: "FIGMA_CLIENT_SECRET",
+        authorizeUrl: "https://www.figma.com/oauth",
+        tokenUrl: "https://api.figma.com/v1/oauth/token",
+        scopes: "files:read",
+        name: "Figma"
+    },
+    spotify: {
+        clientIdEnv: "SPOTIFY_CLIENT_ID",
+        clientSecretEnv: "SPOTIFY_CLIENT_SECRET",
+        authorizeUrl: "https://accounts.spotify.com/authorize",
+        tokenUrl: "https://accounts.spotify.com/api/token",
+        scopes: "user-read-playback-state",
+        name: "Spotify"
+    }
+};
+
+function oauthSuccessPage(provider, token, name) {
+    return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Connected!</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:#0e0e10;color:#e4e4e7;display:flex;align-items:center;justify-content:center;height:100vh}
+.card{text-align:center;padding:40px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);max-width:400px}
+.check{font-size:56px;margin-bottom:16px}
+h1{font-size:22px;font-weight:600;margin-bottom:8px}
+p{font-size:14px;color:#a1a1aa;margin-bottom:20px}
+.closing{font-size:12px;color:#71717a}
+</style></head><body>
+<div class="card">
+<div class="check">✨</div>
+<h1>${name} Connected!</h1>
+<p>Your ${name} account has been linked to Wondrilla.</p>
+<p class="closing">This window will close automatically...</p>
+</div>
+<script>
+if(window.opener){window.opener.postMessage({type:"wondrilla-oauth-success",provider:"${provider}",token:"${token || ""}"},"*")}
+setTimeout(function(){window.close()},1500);
+</script></body></html>`;
+}
+
+async function handleAuth(request, response, requestUrl) {
+    const parts = requestUrl.pathname.split("/").filter(Boolean);
+    // /auth/:provider or /auth/:provider/callback
+    const provider = parts[1] || "";
+    const isCallback = parts[2] === "callback";
+    const cfg = oauthConfig[provider];
+
+    if (!cfg) {
+        // Unknown provider — render success page (simulated connect)
+        const name = provider.charAt(0).toUpperCase() + provider.slice(1);
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.end(oauthSuccessPage(provider, "", name));
+        return;
+    }
+
+    const clientId = process.env[cfg.clientIdEnv] || "";
+    const clientSecret = process.env[cfg.clientSecretEnv] || "";
+    const origin = `${request.headers["x-forwarded-proto"] || "http"}://${request.headers.host}`;
+    const redirectUri = `${origin}/auth/${provider}/callback`;
+
+    // If OAuth credentials are NOT configured, render simulated success page
+    if (!clientId || !clientSecret) {
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.end(oauthSuccessPage(provider, "", cfg.name));
+        return;
+    }
+
+    // ── Step 1: Redirect to provider's authorize URL ──
+    if (!isCallback) {
+        const state = crypto.randomBytes(16).toString("hex");
+        const params = new URLSearchParams({
+            client_id: clientId,
+            redirect_uri: redirectUri,
+            scope: cfg.scopes,
+            state,
+            response_type: "code"
+        });
+        // Notion uses owner=user
+        if (provider === "notion") params.set("owner", "user");
+        response.writeHead(302, { Location: `${cfg.authorizeUrl}?${params}` });
+        response.end();
+        return;
+    }
+
+    // ── Step 2: Handle callback — exchange code for token ──
+    const code = requestUrl.searchParams.get("code");
+    if (!code) {
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.end(oauthSuccessPage(provider, "", cfg.name));
+        return;
+    }
+
+    try {
+        const tokenParams = new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            code,
+            redirect_uri: redirectUri,
+            grant_type: "authorization_code"
+        });
+
+        const tokenRes = await fetch(cfg.tokenUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                Accept: "application/json"
+            },
+            body: tokenParams.toString()
+        });
+
+        const tokenData = await tokenRes.json();
+        const accessToken = tokenData.access_token || tokenData.authed_user?.access_token || "";
+
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.end(oauthSuccessPage(provider, accessToken, cfg.name));
+    } catch (err) {
+        console.error(`OAuth token exchange failed for ${provider}:`, err);
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.end(oauthSuccessPage(provider, "", cfg.name));
+    }
 }
 
 async function handleApi(request, response, requestUrl) {

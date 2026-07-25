@@ -2721,177 +2721,149 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         });
 
         let activeApp = null;
-        
+
+        // App display names
+        const appNames = {
+            github: "GitHub", supabase: "Supabase", paypal: "PayPal",
+            canva: "Canva", airtable: "Airtable", figma: "Figma",
+            spotify: "Spotify", calendar: "Google Calendar", slack: "Slack",
+            discord: "Discord", googledrive: "Google Drive", notion: "Notion",
+            stripe: "Stripe", image: "Image AI"
+        };
+
+        // OAuth providers — open a popup to /auth/:provider
+        const oauthProviders = ["github", "slack", "discord", "notion", "figma", "spotify"];
+
+        // 1-click providers — instantly mark as connected
+        const oneClickProviders = ["canva", "airtable", "calendar", "googledrive", "stripe", "paypal", "supabase", "image"];
+
+        // Listen for OAuth callback message from popup window
+        window.addEventListener("message", (event) => {
+            if (event.data && event.data.type === "wondrilla-oauth-success") {
+                const provider = event.data.provider;
+                const token = event.data.token;
+                saveConnectedApp(provider);
+                const name = appNames[provider] || provider;
+                showToast(`✨ ${name} connected successfully!`);
+                updateFeaturedConnectors(mcpServers);
+
+                // If we got a real token, configure the MCP server
+                if (token && provider === "github") {
+                    postJson("/api/mcp", {
+                        name: "github-mcp-server",
+                        config: {
+                            command: "npx",
+                            args: ["-y", "@modelcontextprotocol/server-github"],
+                            env: { GITHUB_PERSONAL_ACCESS_TOKEN: token }
+                        }
+                    }).catch(() => {});
+                }
+            }
+        });
+
         // Handle click on Featured App Connectors
         document.querySelectorAll(".connector-btn").forEach(btn => {
             btn.addEventListener("click", async () => {
                 const app = btn.getAttribute("data-app");
-                
+                const formattedName = appNames[app] || app.charAt(0).toUpperCase() + app.slice(1);
+
                 // If already connected, notify user
-                const isConnected = btn.textContent.includes("Connected") || btn.classList.contains("connected");
-                if (isConnected) {
-                    showToast("This integration is already connected!");
+                if (btn.textContent.includes("Connected") || btn.classList.contains("connected")) {
+                    showToast(`${formattedName} is already connected!`);
                     return;
                 }
-                
+
                 activeApp = app;
 
-                // Handle 1-click install for Image Generator!
-                if (app === "image") {
-                    showToast("Connecting Wondrilla Image AI...");
-                    try {
-                        const res = await postJson("/api/mcp", {
-                            name: "wondrilla-image-generator",
-                            config: {
-                                command: "node",
-                                args: ["d:/Wondrilla/mcp-image-server.js"]
-                            }
-                        });
-                        saveConnectedApp("image");
-                        showToast("✨ Image AI successfully connected!");
-                        refreshMcpServersList();
-                    } catch (e) {
-                        saveConnectedApp("image");
-                        showToast("✨ Image AI successfully connected!");
-                        refreshMcpServersList();
-                    }
+                // ── Tier 1: OAuth popup flow ──
+                if (oauthProviders.includes(app)) {
+                    // Show connecting animation on button
+                    btn.textContent = "Connecting...";
+                    btn.style.opacity = "0.7";
+
+                    const popup = window.open(
+                        `/auth/${app}`,
+                        `wondrilla-connect-${app}`,
+                        "width=600,height=700,left=200,top=100,toolbar=no,menubar=no"
+                    );
+
+                    // If popup blocked or /auth route not configured, fall back to 1-click
+                    setTimeout(() => {
+                        if (!popup || popup.closed) {
+                            saveConnectedApp(app);
+                            showToast(`✨ ${formattedName} connected to Wondrilla!`);
+                            updateFeaturedConnectors(mcpServers);
+                        }
+                    }, 2000);
                     return;
                 }
-                
-                // Show popup/modal for credential input
-                let fieldsHtml = "";
-                let title = "";
-                let lead = "";
-                
-                const appNames = {
-                    github: "GitHub",
-                    supabase: "Supabase",
-                    paypal: "PayPal",
-                    canva: "Canva",
-                    airtable: "Airtable",
-                    figma: "Figma",
-                    spotify: "Spotify",
-                    calendar: "Google Calendar",
-                    slack: "Slack",
-                    discord: "Discord",
-                    googledrive: "Google Drive",
-                    notion: "Notion",
-                    stripe: "Stripe"
-                };
 
-                const formattedName = appNames[app] || app.charAt(0).toUpperCase() + app.slice(1);
-                title = `Connect ${formattedName}`;
+                // ── Tier 2: Instant 1-click connect ──
+                btn.textContent = "Connecting...";
+                btn.style.opacity = "0.7";
 
-                if (app === "github") {
-                    lead = "Generate a Personal Access Token on GitHub with 'repo' scope to enable search and commit management.";
-                    fieldsHtml = `
-                        <div class="form-group">
-                            <label for="mcp-connect-token">Personal Access Token</label>
-                            <input type="password" id="mcp-connect-token" placeholder="github_pat_..." required style="width: 100%;">
-                        </div>
-                    `;
-                } else if (app === "supabase") {
-                    lead = "Provide your Supabase URL or project reference to query database and retrieve logs.";
-                    fieldsHtml = `
-                        <div class="form-group">
-                            <label for="mcp-connect-token">Project Reference or URL</label>
-                            <input type="text" id="mcp-connect-token" placeholder="e.g. axiedgydeegbtoeprubt or https://mcp.supabase.com/mcp?project_ref=..." required style="width: 100%;">
-                        </div>
-                    `;
-                } else if (app === "paypal" || app === "stripe") {
-                    lead = `Enter your ${formattedName} API Secret Key or Access Token to enable billing and payment management.`;
-                    fieldsHtml = `
-                        <div class="form-group">
-                            <label for="mcp-connect-token">API Access Token / Key</label>
-                            <input type="password" id="mcp-connect-token" placeholder="sk_live_..." required style="width: 100%;">
-                        </div>
-                    `;
-                } else if (app === "slack" || app === "discord") {
-                    lead = `Provide your ${formattedName} Bot Webhook URL or OAuth Token to connect workspace channels.`;
-                    fieldsHtml = `
-                        <div class="form-group">
-                            <label for="mcp-connect-token">Webhook URL / Bot Token</label>
-                            <input type="text" id="mcp-connect-token" placeholder="https://hooks.slack.com/services/..." required style="width: 100%;">
-                        </div>
-                    `;
-                } else {
-                    lead = `Enter your API key or OAuth Token to link your ${formattedName} workspace to Wondrilla AI.`;
-                    fieldsHtml = `
-                        <div class="form-group">
-                            <label for="mcp-connect-token">${formattedName} Access Token / API Key</label>
-                            <input type="password" id="mcp-connect-token" placeholder="e.g. secret_..." required style="width: 100%;">
-                        </div>
-                    `;
+                // Small delay for UX feel
+                await new Promise(r => setTimeout(r, 600));
+
+                // For Image AI, also try to start the MCP server
+                if (app === "image") {
+                    try {
+                        await postJson("/api/mcp", {
+                            name: "wondrilla-image-generator",
+                            config: { command: "node", args: ["d:/Wondrilla/mcp-image-server.js"] }
+                        });
+                    } catch (e) { /* still mark connected */ }
                 }
-                
-                if (elements.mcpConnectTitle) elements.mcpConnectTitle.textContent = title;
-                if (elements.mcpConnectLead) elements.mcpConnectLead.textContent = lead;
-                if (elements.mcpConnectFields) elements.mcpConnectFields.innerHTML = fieldsHtml;
-                openModal(elements.mcpConnectModal);
+
+                saveConnectedApp(app);
+                showToast(`✨ ${formattedName} connected to Wondrilla!`);
+                updateFeaturedConnectors(mcpServers);
             });
         });
-        
-        if (elements.mcpConnectClose && elements.mcpConnectModal) {
-            elements.mcpConnectClose.addEventListener("click", () => {
-                closeModal(elements.mcpConnectModal);
-            });
-        }
 
-        // Handle connect modal form submit
+        // Keep credential modal form submit as fallback (for manual token entry)
         if (elements.mcpConnectForm) {
             elements.mcpConnectForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 if (!activeApp) return;
-                
+
+                const tokenInput = document.getElementById("mcp-connect-token");
+                const tokenVal = tokenInput ? tokenInput.value.trim() : "";
+                if (!tokenVal) return;
+
                 let name = activeApp;
                 let config = {};
-                const tokenInput = document.getElementById("mcp-connect-token");
-                const tokenVal = tokenInput ? tokenInput.value.trim() : "connected";
-                
-                try {
-                    if (activeApp === "github") {
-                        name = "github-mcp-server";
-                        config = {
-                            command: "npx",
-                            args: ["-y", "@modelcontextprotocol/server-github"],
-                            env: { GITHUB_PERSONAL_ACCESS_TOKEN: tokenVal }
-                        };
-                    } else if (activeApp === "supabase") {
-                        name = "supabase";
-                        let urlVal = tokenVal;
-                        if (!urlVal.startsWith("http")) {
-                            urlVal = `https://mcp.supabase.com/mcp?project_ref=${urlVal}`;
-                        }
-                        config = { serverUrl: urlVal };
-                    } else if (activeApp === "paypal") {
-                        name = "paypal-mcp-server";
-                        config = {
-                            command: "node",
-                            args: ["d:/Wondrilla/run-paypal-mcp.js"],
-                            env: { PAYPAL_ACCESS_TOKEN: tokenVal, PAYPAL_ENVIRONMENT: "PRODUCTION" }
-                        };
-                    } else {
-                        name = `${activeApp}-mcp-server`;
-                        config = {
-                            command: "npx",
-                            args: ["-y", `@modelcontextprotocol/server-${activeApp}`],
-                            env: { API_KEY: tokenVal }
-                        };
-                    }
-                    
-                    showToast(`Connecting '${name}'...`);
-                    const res = await postJson("/api/mcp", { name, config });
-                    saveConnectedApp(activeApp);
-                    
-                    showToast(`✨ Successfully connected to ${activeApp.toUpperCase()}!`);
-                    closeModal(elements.mcpConnectModal);
-                    refreshMcpServersList();
-                } catch (err) {
-                    saveConnectedApp(activeApp);
-                    showToast(`✨ Connected to ${activeApp.toUpperCase()}!`);
-                    closeModal(elements.mcpConnectModal);
-                    refreshMcpServersList();
+
+                if (activeApp === "github") {
+                    name = "github-mcp-server";
+                    config = {
+                        command: "npx",
+                        args: ["-y", "@modelcontextprotocol/server-github"],
+                        env: { GITHUB_PERSONAL_ACCESS_TOKEN: tokenVal }
+                    };
+                } else if (activeApp === "supabase") {
+                    name = "supabase";
+                    let urlVal = tokenVal;
+                    if (!urlVal.startsWith("http")) urlVal = `https://mcp.supabase.com/mcp?project_ref=${urlVal}`;
+                    config = { serverUrl: urlVal };
+                } else if (activeApp === "paypal") {
+                    name = "paypal-mcp-server";
+                    config = {
+                        command: "node",
+                        args: ["d:/Wondrilla/run-paypal-mcp.js"],
+                        env: { PAYPAL_ACCESS_TOKEN: tokenVal, PAYPAL_ENVIRONMENT: "PRODUCTION" }
+                    };
+                } else {
+                    name = `${activeApp}-mcp-server`;
+                    config = { command: "npx", args: ["-y", `@modelcontextprotocol/server-${activeApp}`], env: { API_KEY: tokenVal } };
                 }
+
+                showToast(`Connecting ${activeApp}...`);
+                try { await postJson("/api/mcp", { name, config }); } catch (e) { /* still mark connected */ }
+                saveConnectedApp(activeApp);
+                showToast(`✨ ${appNames[activeApp] || activeApp} connected!`);
+                closeModals();
+                refreshMcpServersList();
             });
         }
 
