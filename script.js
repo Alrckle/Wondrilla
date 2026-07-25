@@ -1014,7 +1014,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     async function fetchJson(url) {
-        const response = await fetch(url, { headers: { Accept: "application/json" } });
+        const separator = url.includes("?") ? "&" : "?";
+        const nocacheUrl = `${url}${separator}_t=${Date.now()}`;
+        const response = await fetch(nocacheUrl, {
+            headers: { Accept: "application/json" },
+            cache: "no-store"
+        });
 
         if (!response.ok) {
             throw new Error(`Request failed: ${response.status}`);
@@ -2588,7 +2593,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             initUserId();
         }
         try {
-            const emailParam = loggedInUser && loggedInUser.email ? `&email=${encodeURIComponent(loggedInUser.email)}` : "";
+            let emailParam = loggedInUser && loggedInUser.email ? `&email=${encodeURIComponent(loggedInUser.email)}` : "";
             const userData = await fetchJson(`/api/user?userId=${state.userId}${emailParam}`);
             if (userData.ok && userData.user) {
                 if (userData.user.user_id) {
@@ -2612,10 +2617,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 updateProfileUI();
             }
 
+            emailParam = loggedInUser && loggedInUser.email ? `&email=${encodeURIComponent(loggedInUser.email)}` : "";
+            const activeUserId = state.userId || (loggedInUser ? loggedInUser.id : null);
+
             // Sync conversation history index from Supabase
-            if (state.userId) {
+            if (activeUserId || (loggedInUser && loggedInUser.email)) {
                 try {
-                    const convRes = await fetchJson(`/api/conversations?userId=${state.userId}${emailParam}`);
+                    const convRes = await fetchJson(`/api/conversations?userId=${activeUserId || ""}${emailParam}`);
                     if (convRes.ok && Array.isArray(convRes.conversations)) {
                         const historyIndex = convRes.conversations
                             .filter(c => c && c.id && c.title && !isDummyTitle(c.title))
