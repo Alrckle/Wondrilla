@@ -353,6 +353,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function updatePlanUI() {
+        if (!loggedInUser) {
+            state.plan = "free";
+        }
         const planCapitalized = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
         const usageCardKicker = document.querySelector(".usage-card .eyebrow");
         const upgradeSidebar = document.getElementById("upgrade-sidebar");
@@ -377,7 +380,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
 
         if (upgradeTop) {
-            if (state.plan === "free") {
+            if (state.plan === "free" || !loggedInUser) {
                 upgradeTop.textContent = "Upgrade";
                 upgradeTop.className = "primary-btn compact";
                 upgradeTop.style.cssText = "";
@@ -540,11 +543,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     function renderHistory() {
         if (!elements.historyList) return;
         elements.historyList.innerHTML = "";
+
+        if (!loggedInUser) {
+            elements.historyList.innerHTML = `<div style="padding: 12px 10px; font-size: 13px; color: var(--muted); opacity: 0.7; text-align: left;">No recent conversations</div>`;
+            return;
+        }
         
         const historyIndex = loadHistoryIndex();
         
         if (!historyIndex || historyIndex.length === 0) {
-            elements.historyList.innerHTML = `<div style="padding: 10px 8px; font-size: 13px; color: var(--muted); opacity: 0.6; text-align: left;">No recent conversations</div>`;
+            elements.historyList.innerHTML = `<div style="padding: 12px 10px; font-size: 13px; color: var(--muted); opacity: 0.7; text-align: left;">No recent conversations</div>`;
             return;
         }
 
@@ -2255,7 +2263,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function getUserInitials(user) {
-        if (!user) return "SK";
+        if (!user) return "G";
         const rawName = user.user_metadata?.display_name || 
                          user.user_metadata?.full_name || 
                          user.user_metadata?.name || "";
@@ -2278,7 +2286,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             }
             return emailPrefix.slice(0, 2).toUpperCase();
         }
-        return "SK";
+        return "G";
     }
 
     function openProfileModal() {
@@ -2429,17 +2437,36 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
     function handleUserLogoutState() {
         loggedInUser = null;
-        initUserId();
-        
-        const avatarEl = elements.profileRow.querySelector(".avatar");
-        const strongEl = elements.profileRow.querySelector("strong");
-        const smallEl = elements.profileRow.querySelector("small");
-        
-        if (avatarEl) avatarEl.textContent = "SK";
-        if (strongEl) strongEl.textContent = "SK";
+        state.userId = null;
+        state.plan = "free";
+        state.used = 0;
+        state.history = [];
+        state.currentConversationId = null;
+
+        const avatarEl = elements.profileRow ? elements.profileRow.querySelector(".avatar") : null;
+        const strongEl = elements.profileRow ? elements.profileRow.querySelector("strong") : null;
+        const smallEl = elements.profileRow ? elements.profileRow.querySelector("small") : null;
+
+        if (avatarEl) avatarEl.textContent = "G";
+        if (strongEl) strongEl.textContent = "Guest";
         if (smallEl) smallEl.style.display = "none";
-        
-        syncUserAndHistory();
+
+        try {
+            localStorage.removeItem("wondrilla_auth_user");
+            localStorage.removeItem("wondrilla_user_id");
+            localStorage.removeItem("wondrilla_history_index");
+            localStorage.removeItem("wondrilla_history");
+            localStorage.removeItem("wondrilla_plan");
+            localStorage.removeItem("wondrilla_active_conv_id");
+            localStorage.removeItem("wondrilla_messages");
+        } catch (e) {}
+
+        if (elements.messages) elements.messages.innerHTML = "";
+        if (elements.welcomeState) elements.welcomeState.classList.remove("hidden");
+        document.documentElement.classList.remove("has-active-chat");
+
+        renderHistory();
+        updatePlanUI();
     }
 
     function hideAppLoadingScreen() {
