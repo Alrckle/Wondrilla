@@ -358,6 +358,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const upgradeSidebar = document.getElementById("upgrade-sidebar");
         const upgradeTop = document.getElementById("upgrade-top");
 
+        const mobileCardBadge = document.getElementById("mobile-card-badge");
+        const mobileCardEmail = document.getElementById("mobile-card-email");
+        if (mobileCardBadge) {
+            mobileCardBadge.textContent = state.plan === "free" ? "Free" : `${planCapitalized}`;
+            mobileCardBadge.className = `mobile-plan-badge ${state.plan}`;
+        }
+        if (mobileCardEmail) {
+            mobileCardEmail.textContent = loggedInUser && loggedInUser.email ? loggedInUser.email : "Guest";
+        }
+
         if (usageCardKicker) {
             usageCardKicker.textContent = `${planCapitalized} plan`;
         }
@@ -2204,17 +2214,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     async function handleLogout() {
-        if (!supabaseClient) return;
-        try {
-            const { error } = await supabaseClient.auth.signOut();
-            if (error) throw error;
-            showToast("Signed out successfully!");
-            closeModals();
-            resetConversation();
-        } catch (error) {
-            console.error("Sign out failed:", error);
-            showToast(`Error: ${error.message}`);
+        if (supabaseClient) {
+            try { await supabaseClient.auth.signOut(); } catch (e) {}
         }
+        loggedInUser = null;
+        state.userId = null;
+        state.plan = "free";
+        state.used = 0;
+        state.history = [];
+        state.currentConversationId = null;
+
+        try {
+            localStorage.removeItem("wondrilla_auth_user");
+            localStorage.removeItem("wondrilla_user_id");
+            localStorage.removeItem("wondrilla_history_index");
+            localStorage.removeItem("wondrilla_history");
+            localStorage.removeItem("wondrilla_plan");
+            localStorage.removeItem("wondrilla_active_conv_id");
+            localStorage.removeItem("wondrilla_messages");
+        } catch (e) {}
+
+        if (elements.messages) elements.messages.innerHTML = "";
+        if (elements.welcomeState) elements.welcomeState.classList.remove("hidden");
+        document.documentElement.classList.remove("has-active-chat");
+
+        renderHistory();
+        updatePlanUI();
+        updateProfileUI();
+        closeModals();
+        showToast("Signed out successfully!");
     }
 
     function getUserName(user) {
@@ -2500,6 +2528,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const emailParam = loggedInUser && loggedInUser.email ? `&email=${encodeURIComponent(loggedInUser.email)}` : "";
             const userData = await fetchJson(`/api/user?userId=${state.userId}${emailParam}`);
             if (userData.ok && userData.user) {
+                if (userData.user.user_id) {
+                    state.userId = userData.user.user_id;
+                    try { localStorage.setItem("wondrilla_user_id", state.userId); } catch (e) {}
+                }
                 state.plan = userData.user.plan || "free";
                 state.used = userData.user.messages_used || 0;
                 state.customInstructions = {
@@ -2510,6 +2542,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 localStorage.setItem("wondrilla_plan", state.plan);
                 updateUsage();
                 updatePlanUI();
+                updateProfileUI();
             }
 
             // Sync conversation history index from Supabase
