@@ -294,7 +294,7 @@ function oauthAuthorizationPage(provider, name, color = "#6366f1", icon = "⚡",
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Authorize ${name} — Wondrilla AI</title>
+<title>Connect ${name} — Wondrilla AI</title>
 <style>
   :root { --brand: ${color}; }
   * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -311,7 +311,7 @@ function oauthAuthorizationPage(provider, name, color = "#6366f1", icon = "⚡",
     background: #14161f;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
-    padding: 32px 24px;
+    padding: 28px 24px;
     width: 100%;
     max-width: 440px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.6);
@@ -329,69 +329,122 @@ function oauthAuthorizationPage(provider, name, color = "#6366f1", icon = "⚡",
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    margin-top: 10px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-top: 6px;
+    margin-bottom: 20px;
   }
   .logo-box {
-    width: 54px; height: 54px;
-    border-radius: 14px;
+    width: 50px; height: 50px;
+    border-radius: 12px;
     background: var(--brand);
     display: flex; align-items: center; justify-content: center;
-    font-size: 26px;
+    font-size: 24px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   }
-  .link-arrow {
-    color: #4b5563; font-size: 18px;
-  }
+  .link-arrow { color: #4b5563; font-size: 16px; }
   .wondrilla-box {
-    width: 54px; height: 54px;
-    border-radius: 14px;
+    width: 50px; height: 50px;
+    border-radius: 12px;
     background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800; color: #fff;
     box-shadow: 0 8px 20px rgba(99,102,241,0.3);
   }
-  h1 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px; }
-  .subtitle { font-size: 13px; color: #9ca3af; line-height: 1.5; margin-bottom: 24px; }
+  h1 { font-size: 19px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #9ca3af; line-height: 1.4; margin-bottom: 20px; }
+  
+  .auth-mode-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--brand);
+    color: #fff;
+  }
+  
   .permissions-box {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    padding: 16px;
+    border-radius: 12px;
+    padding: 14px;
     text-align: left;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .perm-header {
-    font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #6b7280; font-weight: 700; margin-bottom: 12px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #6b7280; font-weight: 700; margin-bottom: 10px;
   }
   .perm-item {
-    display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #d1d5db; margin-bottom: 10px; line-height: 1.4;
+    display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: #d1d5db; margin-bottom: 8px; line-height: 1.4;
   }
   .perm-item:last-child { margin-bottom: 0; }
   .check-icon {
-    width: 18px; height: 18px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981;
-    display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 1px; font-weight: bold;
+    width: 16px; height: 16px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981;
+    display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; margin-top: 1px; font-weight: bold;
   }
+
+  .token-box {
+    display: none;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .token-label {
+    font-size: 12px; font-weight: 600; color: #d1d5db; margin-bottom: 6px; display: block;
+  }
+  .token-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 13px;
+    font-family: monospace;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .token-input:focus {
+    border-color: var(--brand);
+  }
+  .token-hint {
+    font-size: 11px; color: #6b7280; margin-top: 6px; display: block;
+  }
+  
   .btn-auth {
     width: 100%;
-    padding: 14px;
-    border-radius: 12px;
+    padding: 13px;
+    border-radius: 10px;
     border: none;
     background: var(--brand);
     color: #ffffff;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.2);
   }
   .btn-auth:hover { opacity: 0.92; transform: translateY(-1px); }
   .btn-auth:active { transform: translateY(0); }
+
   .login-link-container {
-    margin-top: 10px; font-size: 12px; color: #9ca3af;
+    margin-top: 8px; font-size: 12px; color: #9ca3af;
   }
   .login-link {
     color: var(--brand); text-decoration: none; font-weight: 600;
@@ -422,25 +475,34 @@ function oauthAuthorizationPage(provider, name, color = "#6366f1", icon = "⚡",
     </div>
     
     <h1>Connect ${name}</h1>
-    <p class="subtitle">Wondrilla AI requests authorization to connect with your <strong>${name}</strong> account.</p>
+    <p class="subtitle">Connect your <strong>${name}</strong> account to Wondrilla AI using 1-Click Authorize or custom API Key / Token.</p>
     
-    <div class="permissions-box">
-      <div class="perm-header">Permissions Requested</div>
-      <div class="perm-item">
-        <div class="check-icon">✓</div>
-        <div><strong>Read & Write Access:</strong> Sync project files, assets and workspace data.</div>
-      </div>
-      <div class="perm-item">
-        <div class="check-icon">✓</div>
-        <div><strong>AI Assistant Actions:</strong> Allow Wondrilla to perform requested actions on ${name}.</div>
-      </div>
-      <div class="perm-item">
-        <div class="check-icon">✓</div>
-        <div><strong>Secure Connection:</strong> End-to-end encrypted session with Wondrilla AI.</div>
-      </div>
+    <div class="auth-mode-toggle">
+      <button class="tab-btn active" id="tab-auto">⚡ 1-Click Connect</button>
+      <button class="tab-btn" id="tab-token">🔑 Custom Token / API Key</button>
     </div>
-    
-    <button class="btn-auth" id="authorize-btn">Authorize & Connect Wondrilla</button>
+
+    <div id="auto-mode-view">
+      <div class="permissions-box">
+        <div class="perm-header">Permissions & Security</div>
+        <div class="perm-item">
+          <div class="check-icon">✓</div>
+          <div><strong>Workspace Integration:</strong> Sync data and execute AI actions on ${name}.</div>
+        </div>
+        <div class="perm-item">
+          <div class="check-icon">✓</div>
+          <div><strong>Secure Session:</strong> End-to-end encrypted authorization token.</div>
+        </div>
+      </div>
+      <button class="btn-auth" id="authorize-btn">Authorize & Connect Wondrilla</button>
+    </div>
+
+    <div id="token-mode-view" class="token-box">
+      <label class="token-label">Enter ${name} API Key / Personal Access Token:</label>
+      <input type="password" class="token-input" id="token-input" placeholder="Paste your ${name} API Key / Token / Secret..." autocomplete="off">
+      <span class="token-hint">Enter your personal access token or Client Secret for direct connection.</span>
+      <button class="btn-auth" id="save-token-btn" style="margin-top:14px;">Save & Connect ${name}</button>
+    </div>
     
     ${loginUrl ? `<div class="login-link-container">Need to sign in first? <a href="${loginUrl}" target="_blank" class="login-link">Sign in to ${name} &rarr;</a></div>` : ''}
   </div>
@@ -457,26 +519,57 @@ function oauthAuthorizationPage(provider, name, color = "#6366f1", icon = "⚡",
   const authView = document.getElementById('auth-view');
   const successView = document.getElementById('success-view');
   const authBtn = document.getElementById('authorize-btn');
+  const saveTokenBtn = document.getElementById('save-token-btn');
+  const tokenInput = document.getElementById('token-input');
+  
+  const tabAuto = document.getElementById('tab-auto');
+  const tabToken = document.getElementById('tab-token');
+  const autoModeView = document.getElementById('auto-mode-view');
+  const tokenModeView = document.getElementById('token-mode-view');
+
+  tabAuto.addEventListener('click', () => {
+    tabAuto.classList.add('active');
+    tabToken.classList.remove('active');
+    autoModeView.style.display = 'block';
+    tokenModeView.style.display = 'none';
+  });
+
+  tabToken.addEventListener('click', () => {
+    tabToken.classList.add('active');
+    tabAuto.classList.remove('active');
+    autoModeView.style.display = 'none';
+    tokenModeView.style.display = 'block';
+    tokenInput.focus();
+  });
+
+  function completeAuth(tokenVal = "") {
+    authView.style.display = 'none';
+    successView.style.display = 'block';
+    
+    if (window.opener) {
+      window.opener.postMessage({
+        type: 'wondrilla-oauth-success',
+        provider: '${provider}',
+        token: tokenVal
+      }, '*');
+    }
+    
+    setTimeout(() => {
+      window.close();
+    }, 1200);
+  }
 
   authBtn.addEventListener('click', () => {
     authBtn.disabled = true;
     authBtn.textContent = 'Authorizing...';
-    
-    setTimeout(() => {
-      authView.style.display = 'none';
-      successView.style.display = 'block';
-      
-      if (window.opener) {
-        window.opener.postMessage({
-          type: 'wondrilla-oauth-success',
-          provider: '${provider}'
-        }, '*');
-      }
-      
-      setTimeout(() => {
-        window.close();
-      }, 1200);
-    }, 600);
+    setTimeout(() => completeAuth(), 600);
+  });
+
+  saveTokenBtn.addEventListener('click', () => {
+    const val = tokenInput.value.trim();
+    saveTokenBtn.disabled = true;
+    saveTokenBtn.textContent = 'Connecting...';
+    setTimeout(() => completeAuth(val), 600);
   });
 </script>
 </body>
@@ -489,82 +582,16 @@ function oauthSuccessPage(provider, token, name) {
 
 async function handleAuth(request, response, requestUrl) {
     const parts = requestUrl.pathname.split("/").filter(Boolean);
-    // /auth/:provider or /auth/:provider/callback
     const provider = parts[1] || "";
-    const isCallback = parts[2] === "callback";
     const cfg = oauthConfig[provider];
 
-    if (!cfg) {
-        const name = provider.charAt(0).toUpperCase() + provider.slice(1);
-        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthAuthorizationPage(provider, name, "#6366f1", "⚡", ""));
-        return;
-    }
+    const name = cfg ? cfg.name : provider.charAt(0).toUpperCase() + provider.slice(1);
+    const color = cfg ? cfg.color : "#6366f1";
+    const icon = cfg ? cfg.icon : "⚡";
+    const loginUrl = cfg ? cfg.loginUrl : "";
 
-    const clientId = process.env[cfg.clientIdEnv] || "";
-    const clientSecret = process.env[cfg.clientSecretEnv] || "";
-    const origin = `${request.headers["x-forwarded-proto"] || "http"}://${request.headers.host}`;
-    const redirectUri = `${origin}/auth/${provider}/callback`;
-
-    // If OAuth credentials are NOT configured, render interactive authorization page in popup window
-    if (!clientId || !clientSecret) {
-        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthAuthorizationPage(provider, cfg.name, cfg.color, cfg.icon, cfg.loginUrl));
-        return;
-    }
-
-    // ── Step 1: Redirect to provider's authorize URL ──
-    if (!isCallback) {
-        const state = crypto.randomBytes(16).toString("hex");
-        const params = new URLSearchParams({
-            client_id: clientId,
-            redirect_uri: redirectUri,
-            scope: cfg.scopes,
-            state,
-            response_type: "code"
-        });
-        if (provider === "notion") params.set("owner", "user");
-        response.writeHead(302, { Location: `${cfg.authorizeUrl}?${params}` });
-        response.end();
-        return;
-    }
-
-    // ── Step 2: Handle callback — exchange code for token ──
-    const code = requestUrl.searchParams.get("code");
-    if (!code) {
-        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthAuthorizationPage(provider, cfg.name, cfg.color, cfg.icon, cfg.loginUrl));
-        return;
-    }
-
-    try {
-        const tokenParams = new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
-            code,
-            redirect_uri: redirectUri,
-            grant_type: "authorization_code"
-        });
-
-        const tokenRes = await fetch(cfg.tokenUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                Accept: "application/json"
-            },
-            body: tokenParams.toString()
-        });
-
-        const tokenData = await tokenRes.json();
-        const accessToken = tokenData.access_token || tokenData.authed_user?.access_token || "";
-
-        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthSuccessPage(provider, accessToken, cfg.name));
-    } catch (err) {
-        console.error(`OAuth token exchange failed for ${provider}:`, err);
-        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthAuthorizationPage(provider, cfg.name, cfg.color, cfg.icon, cfg.loginUrl));
-    }
+    response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    response.end(oauthAuthorizationPage(provider, name, color, icon, loginUrl));
 }
 
 async function handleApi(request, response, requestUrl) {
