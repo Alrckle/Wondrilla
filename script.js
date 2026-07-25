@@ -2346,8 +2346,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const smallEl = elements.profileRow.querySelector("small");
         
         if (avatarEl) avatarEl.textContent = initials;
-        if (strongEl) strongEl.textContent = displayName;
-        if (smallEl) smallEl.textContent = "Synced Account";
+        if (strongEl) strongEl.textContent = initials;
+        if (smallEl) smallEl.style.display = "none";
         
         syncUserAndHistory();
     }
@@ -2360,9 +2360,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const strongEl = elements.profileRow.querySelector("strong");
         const smallEl = elements.profileRow.querySelector("small");
         
-        if (avatarEl) avatarEl.textContent = "?";
-        if (strongEl) strongEl.textContent = "Sign In / Sign Up";
-        if (smallEl) smallEl.textContent = "Create an account";
+        if (avatarEl) avatarEl.textContent = "SK";
+        if (strongEl) strongEl.textContent = "SK";
+        if (smallEl) smallEl.style.display = "none";
         
         syncUserAndHistory();
     }

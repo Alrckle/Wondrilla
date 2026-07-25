@@ -370,10 +370,10 @@ a:focus-visible {
     border-radius: 8px;
     color: var(--ink-soft);
     cursor: pointer;
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: 13px;
+    line-height: 1.35;
     overflow: hidden;
-    padding: 9px 10px;
+    padding: 7px 10px;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
