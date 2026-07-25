@@ -1370,7 +1370,7 @@ textarea::-webkit-scrollbar {
     justify-content: space-between;
     position: sticky;
     top: -26px;
-    background: transparent;
+    background: var(--paper);
     z-index: 10;
     padding-top: 26px;
     padding-bottom: 12px;
