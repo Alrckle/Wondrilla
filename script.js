@@ -1658,6 +1658,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     btn.classList.add("active");
                     panel.classList.remove("hidden");
 
+                    const contentArea = document.querySelector(".settings-content");
+                    if (contentArea) contentArea.scrollTop = 0;
+
                     showMobileSettingsPage(true);
                 });
             }
