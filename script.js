@@ -3397,6 +3397,22 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
         }
     }
 
+    // Synchronous pre-hydration: restore auth state from localStorage BEFORE any rendering
+    try {
+        const savedAuth = localStorage.getItem("wondrilla_auth_user");
+        if (savedAuth) {
+            const parsed = JSON.parse(savedAuth);
+            if (parsed && parsed.email) {
+                loggedInUser = parsed;
+                if (parsed.id) state.userId = parsed.id;
+            }
+        }
+        const savedUserId = localStorage.getItem("wondrilla_user_id");
+        if (savedUserId) state.userId = savedUserId;
+        const savedPlan = localStorage.getItem("wondrilla_plan");
+        if (savedPlan) state.plan = savedPlan;
+    } catch (e) {}
+
     loadHistory();
     renderModels();
     renderHistory();
