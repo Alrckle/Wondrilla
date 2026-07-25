@@ -7,9 +7,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 import { createClient } from "@supabase/supabase-js";
+import { v2 as cloudinary } from "cloudinary";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 loadEnv(path.join(rootDir, ".env"));
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "w23vvtyl",
+    api_key: process.env.CLOUDINARY_API_KEY || "625594129171431",
+    api_secret: process.env.CLOUDINARY_API_SECRET || "bDKR0HPwSmkaVWERbd1YSi2NYss",
+    secure: true
+});
 
 const port = Number.parseInt(process.env.PORT || "4173", 10);
 const requestLimitBytes = 5 * 1024 * 1024;
@@ -1640,15 +1648,29 @@ async function handleApi(request, response, requestUrl) {
                     model_id: answer.modelId
                 }]);
 
-                if (answer.text && answer.text.includes("![") && answer.text.includes("image.pollinations.ai")) {
+                if (answer.text && answer.text.includes("![") && answer.text.includes("http")) {
                     const match = answer.text.match(/!\[(.*?)\]\((.*?)\)/);
                     if (match && match[2]) {
                         const imgAlt = match[1] || prompt;
-                        const imgUrl = match[2];
+                        const originalUrl = match[2];
+                        let finalUrl = originalUrl;
+
+                        try {
+                            const cRes = await cloudinary.uploader.upload(originalUrl, {
+                                folder: "wondrilla_generated_images",
+                                tags: ["wondrilla", "ai_generated"]
+                            });
+                            if (cRes && cRes.secure_url) {
+                                finalUrl = cRes.secure_url;
+                            }
+                        } catch (cErr) {
+                            console.warn("Cloudinary upload fallback to direct URL:", cErr.message);
+                        }
+
                         await supabase.from("wondrilla_generated_images").insert([{
                             user_id: userId,
                             prompt: imgAlt,
-                            image_url: imgUrl,
+                            image_url: finalUrl,
                             created_at: new Date().toISOString()
                         }]).catch((err) => console.error("Failed to insert into wondrilla_generated_images:", err));
                     }
