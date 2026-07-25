@@ -353,7 +353,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function updatePlanUI() {
-        if (!loggedInUser) {
+        if (!isUserLoggedIn()) {
             state.plan = "free";
         }
         const planCapitalized = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
@@ -544,7 +544,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (!elements.historyList) return;
         elements.historyList.innerHTML = "";
 
-        if (!loggedInUser) {
+        if (!isUserLoggedIn()) {
             elements.historyList.innerHTML = `<div style="padding: 12px 10px; font-size: 13px; color: var(--muted); opacity: 0.7; text-align: left;">No recent conversations</div>`;
             return;
         }
@@ -2253,6 +2253,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         showToast("Signed out successfully!");
     }
 
+    function isUserLoggedIn() {
+        if (loggedInUser && loggedInUser.email) return true;
+        if (state.userId && !state.userId.startsWith("user_")) return true;
+        try {
+            const saved = localStorage.getItem("wondrilla_auth_user");
+            if (saved) return true;
+        } catch (e) {}
+        return false;
+    }
+
     function getUserName(user) {
         if (!user) return "Guest";
         return user.user_metadata?.display_name || 
@@ -2418,15 +2428,21 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }, 50);
 
     function handleUserLogin(user) {
+        if (!user) return;
         loggedInUser = user;
-        state.userId = user.id;
+        if (user.id) state.userId = user.id;
         
+        try {
+            localStorage.setItem("wondrilla_auth_user", JSON.stringify(user));
+            if (state.userId) localStorage.setItem("wondrilla_user_id", state.userId);
+        } catch (e) {}
+
         const displayName = getUserName(user);
         const initials = getUserInitials(user);
         
-        const avatarEl = elements.profileRow.querySelector(".avatar");
-        const strongEl = elements.profileRow.querySelector("strong");
-        const smallEl = elements.profileRow.querySelector("small");
+        const avatarEl = elements.profileRow ? elements.profileRow.querySelector(".avatar") : null;
+        const strongEl = elements.profileRow ? elements.profileRow.querySelector("strong") : null;
+        const smallEl = elements.profileRow ? elements.profileRow.querySelector("small") : null;
         
         if (avatarEl) avatarEl.textContent = initials;
         if (strongEl) strongEl.textContent = initials;
@@ -2490,7 +2506,21 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 if (session && session.user) {
                     handleUserLogin(session.user);
                 } else {
-                    handleUserLogoutState();
+                    try {
+                        const savedAuthUser = localStorage.getItem("wondrilla_auth_user");
+                        if (savedAuthUser) {
+                            const parsedUser = JSON.parse(savedAuthUser);
+                            if (parsedUser && parsedUser.email) {
+                                handleUserLogin(parsedUser);
+                            } else {
+                                handleUserLogoutState();
+                            }
+                        } else {
+                            handleUserLogoutState();
+                        }
+                    } catch (e) {
+                        handleUserLogoutState();
+                    }
                 }
                 
                 supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -2499,17 +2529,23 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                         openModal(elements.resetModal);
                     } else if (session && session.user) {
                         handleUserLogin(session.user);
-                    } else {
+                    } else if (event === "SIGNED_OUT") {
                         handleUserLogoutState();
                     }
                 });
             } else {
                 console.warn("Supabase url/key missing on backend.");
-                handleUserLogoutState();
+                try {
+                    const savedAuthUser = localStorage.getItem("wondrilla_auth_user");
+                    if (savedAuthUser) {
+                        const parsedUser = JSON.parse(savedAuthUser);
+                        if (parsedUser && parsedUser.email) handleUserLogin(parsedUser);
+                        else handleUserLogoutState();
+                    } else handleUserLogoutState();
+                } catch (e) { handleUserLogoutState(); }
             }
         } catch (error) {
             console.error("Failed to init Supabase Auth:", error);
-            handleUserLogoutState();
         }
     }
 
@@ -2558,6 +2594,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 if (userData.user.user_id) {
                     state.userId = userData.user.user_id;
                     try { localStorage.setItem("wondrilla_user_id", state.userId); } catch (e) {}
+                }
+                if (!loggedInUser && userData.user.email) {
+                    loggedInUser = { email: userData.user.email, id: userData.user.user_id };
+                    try { localStorage.setItem("wondrilla_auth_user", JSON.stringify(loggedInUser)); } catch (e) {}
                 }
                 state.plan = userData.user.plan || "free";
                 state.used = userData.user.messages_used || 0;
