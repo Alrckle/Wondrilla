@@ -635,6 +635,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     async function loadConversation(convId) {
         saveCurrentConversation();
         state.currentConversationId = convId;
+        localStorage.setItem("wondrilla_active_conv_id", convId);
         setView("chat");
         
         // Always clear current message list immediately so previous conversation never lingers
@@ -700,10 +701,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         text = text.replace(/^#\s+(.*$)/gim, '<h2 style="margin: 16px 0 8px; font-size: 19px; font-weight: 800; color: var(--ink);">$1</h2>');
 
         // Markdown images: ![alt](url)
-        text = text.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--line-soft); display: block;">');
+        text = text.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
+            const cleanUrl = url.replaceAll("&amp;", "&");
+            return `<img src="${cleanUrl}" alt="${alt}" loading="lazy" style="max-width: 100%; max-height: 512px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--line-soft); display: block; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">`;
+        });
         
         // Markdown links: [text](url)
-        text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: var(--acid); text-decoration: underline;">$1</a>');
+        text = text.replace(/\[(.*?)\]\((.*?)\)/g, (match, linkText, url) => {
+            const cleanUrl = url.replaceAll("&amp;", "&");
+            return `<a href="${cleanUrl}" target="_blank" style="color: var(--acid); text-decoration: underline;">${linkText}</a>`;
+        });
 
         // Bold: **text** or __text__
         text = text.replace(/\*\*((?:[^*]|\*[^*])*?)\*\*/g, "<strong>$1</strong>");
@@ -2523,8 +2530,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 }
             }
 
-            if (state.currentConversationId) {
-                await loadConversation(state.currentConversationId);
+            const savedConvId = localStorage.getItem("wondrilla_active_conv_id");
+            const historyIdx = loadHistoryIndex();
+            const targetConvId = state.currentConversationId || savedConvId || (historyIdx[0] ? historyIdx[0].id : null);
+            if (targetConvId) {
+                await loadConversation(targetConvId);
             }
         } catch (error) {
             console.error("Failed to sync user and history with Supabase:", error);
@@ -2554,8 +2564,56 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         } catch (e) {}
     }
 
+    function removeConnectedApp(appKey) {
+        try {
+            let apps = getConnectedApps();
+            apps = apps.filter(a => a !== appKey);
+            localStorage.setItem("wondrilla_connected_apps", JSON.stringify(apps));
+        } catch (e) {}
+    }
+
+    function updateFeaturedConnectors(servers = []) {
+        const connectedApps = getConnectedApps();
+        document.querySelectorAll(".connector-card").forEach(card => {
+            const appKey = card.getAttribute("data-app");
+            const btn = card.querySelector(".connector-btn");
+            if (!btn || !appKey) return;
+
+            const isServerConnected = Array.isArray(servers) && servers.some(s => 
+                s && s.name && s.name.toLowerCase().includes(appKey.toLowerCase()) && s.status === "Connected"
+            );
+            const isConnected = connectedApps.includes(appKey) || isServerConnected;
+
+            if (isConnected) {
+                btn.textContent = "✓ Connected";
+                btn.classList.add("connected");
+                btn.style.background = "#10b981";
+                btn.style.color = "#ffffff";
+                btn.style.borderColor = "#10b981";
+                btn.style.opacity = "1";
+                btn.style.fontWeight = "700";
+                btn.style.boxShadow = "0 2px 8px rgba(16, 185, 129, 0.3)";
+            } else {
+                btn.textContent = "Connect";
+                btn.classList.remove("connected");
+                btn.style.background = "transparent";
+                btn.style.color = "inherit";
+                btn.style.borderColor = "var(--line)";
+                btn.style.opacity = "1";
+                btn.style.fontWeight = "500";
+                btn.style.boxShadow = "none";
+            }
+        });
+    }
+
     async function initMcpUi() {
         if (!elements.settingsMcpBtn) return;
+
+        // Refresh connector states on UI load & on tab click
+        updateFeaturedConnectors(mcpServers);
+        elements.settingsMcpBtn.addEventListener("click", () => {
+            updateFeaturedConnectors(mcpServers);
+        });
 
         if (elements.mcpType) {
             elements.mcpType.addEventListener("change", (e) => {
@@ -2766,9 +2824,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 const app = btn.getAttribute("data-app");
                 const formattedName = appNames[app] || app.charAt(0).toUpperCase() + app.slice(1);
 
-                // If already connected, notify user
+                // If already connected, offer to disconnect
                 if (btn.textContent.includes("Connected") || btn.classList.contains("connected")) {
-                    showToast(`${formattedName} is already connected!`);
+                    if (confirm(`Disconnect ${formattedName} from Wondrilla?`)) {
+                        removeConnectedApp(app);
+                        showToast(`${formattedName} disconnected.`);
+                        updateFeaturedConnectors(mcpServers);
+                    }
                     return;
                 }
 
