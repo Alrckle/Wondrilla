@@ -181,16 +181,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         mcpConnectSubmitBtn: document.getElementById("mcp-connect-submit-btn")
     };
 
-    function openModal(modalEl) {
-        if (modalEl) modalEl.classList.remove("hidden");
-    }
-
     function closeModal(modalEl) {
         if (modalEl) modalEl.classList.add("hidden");
-    }
-
-    function closeModals() {
-        document.querySelectorAll(".modal-shell").forEach(m => m.classList.add("hidden"));
+        // Also clear scrim and body overflow if no other modals visible
+        const anyVisible = document.querySelector(".modal-shell:not(.hidden)");
+        if (!anyVisible) {
+            if (elements.scrim) elements.scrim.classList.add("hidden");
+            document.body.style.overflow = "";
+        }
     }
     function modelById(id) {
         return models.find((model) => model.id === id) || models[0];
