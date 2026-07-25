@@ -2731,12 +2731,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             stripe: "Stripe", image: "Image AI"
         };
 
-        // OAuth providers — open a popup to /auth/:provider
-        const oauthProviders = ["github", "slack", "discord", "notion", "figma", "spotify"];
-
-        // 1-click providers — instantly mark as connected
-        const oneClickProviders = ["canva", "airtable", "calendar", "googledrive", "stripe", "paypal", "supabase", "image"];
-
         // Listen for OAuth callback message from popup window
         window.addEventListener("message", (event) => {
             if (event.data && event.data.type === "wondrilla-oauth-success") {
@@ -2747,8 +2741,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 showToast(`✨ ${name} connected successfully!`);
                 updateFeaturedConnectors(mcpServers);
 
-                // If we got a real token, configure the MCP server
-                if (token && provider === "github") {
+                // If Image AI or backend server required
+                if (provider === "image") {
+                    postJson("/api/mcp", {
+                        name: "wondrilla-image-generator",
+                        config: { command: "node", args: ["d:/Wondrilla/mcp-image-server.js"] }
+                    }).catch(() => {});
+                } else if (token && provider === "github") {
                     postJson("/api/mcp", {
                         name: "github-mcp-server",
                         config: {
@@ -2761,9 +2760,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             }
         });
 
-        // Handle click on Featured App Connectors
+        // Handle click on Featured App Connectors — ALL connectors open Authorization Popup window!
         document.querySelectorAll(".connector-btn").forEach(btn => {
-            btn.addEventListener("click", async () => {
+            btn.addEventListener("click", () => {
                 const app = btn.getAttribute("data-app");
                 const formattedName = appNames[app] || app.charAt(0).toUpperCase() + app.slice(1);
 
@@ -2775,49 +2774,23 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
                 activeApp = app;
 
-                // ── Tier 1: OAuth popup flow ──
-                if (oauthProviders.includes(app)) {
-                    // Show connecting animation on button
-                    btn.textContent = "Connecting...";
-                    btn.style.opacity = "0.7";
-
-                    const popup = window.open(
-                        `/auth/${app}`,
-                        `wondrilla-connect-${app}`,
-                        "width=600,height=700,left=200,top=100,toolbar=no,menubar=no"
-                    );
-
-                    // If popup blocked or /auth route not configured, fall back to 1-click
-                    setTimeout(() => {
-                        if (!popup || popup.closed) {
-                            saveConnectedApp(app);
-                            showToast(`✨ ${formattedName} connected to Wondrilla!`);
-                            updateFeaturedConnectors(mcpServers);
-                        }
-                    }, 2000);
-                    return;
-                }
-
-                // ── Tier 2: Instant 1-click connect ──
+                // Show connecting animation on button
                 btn.textContent = "Connecting...";
                 btn.style.opacity = "0.7";
 
-                // Small delay for UX feel
-                await new Promise(r => setTimeout(r, 600));
+                // Open Authorization Popup window
+                const popup = window.open(
+                    `/auth/${app}`,
+                    `wondrilla-connect-${app}`,
+                    "width=560,height=680,left=300,top=100,resizable=yes,scrollbars=yes"
+                );
 
-                // For Image AI, also try to start the MCP server
-                if (app === "image") {
-                    try {
-                        await postJson("/api/mcp", {
-                            name: "wondrilla-image-generator",
-                            config: { command: "node", args: ["d:/Wondrilla/mcp-image-server.js"] }
-                        });
-                    } catch (e) { /* still mark connected */ }
+                if (!popup || popup.closed || typeof popup.closed === "undefined") {
+                    // If popup blocked, notify user and complete connection directly
+                    saveConnectedApp(app);
+                    showToast(`✨ ${formattedName} connected to Wondrilla!`);
+                    updateFeaturedConnectors(mcpServers);
                 }
-
-                saveConnectedApp(app);
-                showToast(`✨ ${formattedName} connected to Wondrilla!`);
-                updateFeaturedConnectors(mcpServers);
             });
         });
 

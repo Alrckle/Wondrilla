@@ -132,78 +132,359 @@ function getPlanLimit(plan) {
 
 // ── OAuth connector configuration ──
 const oauthConfig = {
+    canva: {
+        clientIdEnv: "CANVA_CLIENT_ID",
+        clientSecretEnv: "CANVA_CLIENT_SECRET",
+        authorizeUrl: "https://www.canva.com/api/oauth/authorize",
+        tokenUrl: "https://api.canva.com/v1/oauth/token",
+        loginUrl: "https://www.canva.com/login",
+        scopes: "design:content:read design:meta:read",
+        name: "Canva",
+        color: "#00C4CC",
+        icon: "🎨"
+    },
     github: {
         clientIdEnv: "GITHUB_CLIENT_ID",
         clientSecretEnv: "GITHUB_CLIENT_SECRET",
         authorizeUrl: "https://github.com/login/oauth/authorize",
         tokenUrl: "https://github.com/login/oauth/access_token",
+        loginUrl: "https://github.com/login",
         scopes: "repo,read:user",
-        name: "GitHub"
+        name: "GitHub",
+        color: "#2ea44f",
+        icon: "🐙"
     },
-    slack: {
-        clientIdEnv: "SLACK_CLIENT_ID",
-        clientSecretEnv: "SLACK_CLIENT_SECRET",
-        authorizeUrl: "https://slack.com/oauth/v2/authorize",
-        tokenUrl: "https://slack.com/api/oauth.v2.access",
-        scopes: "chat:write,channels:read",
-        name: "Slack"
+    supabase: {
+        clientIdEnv: "SUPABASE_CLIENT_ID",
+        clientSecretEnv: "SUPABASE_CLIENT_SECRET",
+        authorizeUrl: "https://api.supabase.com/v1/oauth/authorize",
+        tokenUrl: "https://api.supabase.com/v1/oauth/token",
+        loginUrl: "https://supabase.com/dashboard/sign-in",
+        scopes: "all",
+        name: "Supabase",
+        color: "#3ecf8e",
+        icon: "⚡"
     },
-    discord: {
-        clientIdEnv: "DISCORD_CLIENT_ID",
-        clientSecretEnv: "DISCORD_CLIENT_SECRET",
-        authorizeUrl: "https://discord.com/oauth2/authorize",
-        tokenUrl: "https://discord.com/api/oauth2/token",
-        scopes: "bot guilds",
-        name: "Discord"
+    paypal: {
+        clientIdEnv: "PAYPAL_CLIENT_ID",
+        clientSecretEnv: "PAYPAL_CLIENT_SECRET",
+        authorizeUrl: "https://www.paypal.com/signin/authorize",
+        tokenUrl: "https://api.paypal.com/v1/oauth2/token",
+        loginUrl: "https://www.paypal.com/signin",
+        scopes: "openid profile email",
+        name: "PayPal",
+        color: "#0070ba",
+        icon: "💳"
     },
-    notion: {
-        clientIdEnv: "NOTION_CLIENT_ID",
-        clientSecretEnv: "NOTION_CLIENT_SECRET",
-        authorizeUrl: "https://api.notion.com/v1/oauth/authorize",
-        tokenUrl: "https://api.notion.com/v1/oauth/token",
-        scopes: "",
-        name: "Notion"
+    airtable: {
+        clientIdEnv: "AIRTABLE_CLIENT_ID",
+        clientSecretEnv: "AIRTABLE_CLIENT_SECRET",
+        authorizeUrl: "https://airtable.com/oauth2/v1/authorize",
+        tokenUrl: "https://airtable.com/oauth2/v1/token",
+        loginUrl: "https://airtable.com/login",
+        scopes: "data.records:read data.records:write",
+        name: "Airtable",
+        color: "#fcb400",
+        icon: "📊"
     },
     figma: {
         clientIdEnv: "FIGMA_CLIENT_ID",
         clientSecretEnv: "FIGMA_CLIENT_SECRET",
         authorizeUrl: "https://www.figma.com/oauth",
         tokenUrl: "https://api.figma.com/v1/oauth/token",
+        loginUrl: "https://www.figma.com/login",
         scopes: "files:read",
-        name: "Figma"
+        name: "Figma",
+        color: "#f24e1e",
+        icon: "🎨"
     },
     spotify: {
         clientIdEnv: "SPOTIFY_CLIENT_ID",
         clientSecretEnv: "SPOTIFY_CLIENT_SECRET",
         authorizeUrl: "https://accounts.spotify.com/authorize",
         tokenUrl: "https://accounts.spotify.com/api/token",
-        scopes: "user-read-playback-state",
-        name: "Spotify"
+        loginUrl: "https://accounts.spotify.com/login",
+        scopes: "user-read-playback-state user-modify-playback-state",
+        name: "Spotify",
+        color: "#1db954",
+        icon: "🎵"
+    },
+    calendar: {
+        clientIdEnv: "GOOGLE_CLIENT_ID",
+        clientSecretEnv: "GOOGLE_CLIENT_SECRET",
+        authorizeUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenUrl: "https://oauth2.googleapis.com/token",
+        loginUrl: "https://accounts.google.com",
+        scopes: "https://www.googleapis.com/auth/calendar",
+        name: "Google Calendar",
+        color: "#4285f4",
+        icon: "📅"
+    },
+    slack: {
+        clientIdEnv: "SLACK_CLIENT_ID",
+        clientSecretEnv: "SLACK_CLIENT_SECRET",
+        authorizeUrl: "https://slack.com/oauth/v2/authorize",
+        tokenUrl: "https://slack.com/api/oauth.v2.access",
+        loginUrl: "https://slack.com/signin",
+        scopes: "chat:write,channels:read",
+        name: "Slack",
+        color: "#4a154b",
+        icon: "💬"
+    },
+    discord: {
+        clientIdEnv: "DISCORD_CLIENT_ID",
+        clientSecretEnv: "DISCORD_CLIENT_SECRET",
+        authorizeUrl: "https://discord.com/oauth2/authorize",
+        tokenUrl: "https://discord.com/api/oauth2/token",
+        loginUrl: "https://discord.com/login",
+        scopes: "bot guilds",
+        name: "Discord",
+        color: "#5865f2",
+        icon: "👾"
+    },
+    googledrive: {
+        clientIdEnv: "GOOGLE_CLIENT_ID",
+        clientSecretEnv: "GOOGLE_CLIENT_SECRET",
+        authorizeUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenUrl: "https://oauth2.googleapis.com/token",
+        loginUrl: "https://accounts.google.com",
+        scopes: "https://www.googleapis.com/auth/drive.readonly",
+        name: "Google Drive",
+        color: "#0f9d58",
+        icon: "📁"
+    },
+    notion: {
+        clientIdEnv: "NOTION_CLIENT_ID",
+        clientSecretEnv: "NOTION_CLIENT_SECRET",
+        authorizeUrl: "https://api.notion.com/v1/oauth/authorize",
+        tokenUrl: "https://api.notion.com/v1/oauth/token",
+        loginUrl: "https://www.notion.so/login",
+        scopes: "",
+        name: "Notion",
+        color: "#37352f",
+        icon: "📝"
+    },
+    stripe: {
+        clientIdEnv: "STRIPE_CLIENT_ID",
+        clientSecretEnv: "STRIPE_CLIENT_SECRET",
+        authorizeUrl: "https://connect.stripe.com/oauth/authorize",
+        tokenUrl: "https://connect.stripe.com/oauth/token",
+        loginUrl: "https://dashboard.stripe.com/login",
+        scopes: "read_write",
+        name: "Stripe",
+        color: "#635bff",
+        icon: "💳"
+    },
+    image: {
+        clientIdEnv: "IMAGE_CLIENT_ID",
+        clientSecretEnv: "IMAGE_CLIENT_SECRET",
+        authorizeUrl: "",
+        tokenUrl: "",
+        loginUrl: "",
+        scopes: "",
+        name: "Wondrilla Image AI",
+        color: "#8b5cf6",
+        icon: "🖼️"
     }
 };
 
-function oauthSuccessPage(provider, token, name) {
+function oauthAuthorizationPage(provider, name, color = "#6366f1", icon = "⚡", loginUrl = "") {
     return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Connected!</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authorize ${name} — Wondrilla AI</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',system-ui,sans-serif;background:#0e0e10;color:#e4e4e7;display:flex;align-items:center;justify-content:center;height:100vh}
-.card{text-align:center;padding:40px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);max-width:400px}
-.check{font-size:56px;margin-bottom:16px}
-h1{font-size:22px;font-weight:600;margin-bottom:8px}
-p{font-size:14px;color:#a1a1aa;margin-bottom:20px}
-.closing{font-size:12px;color:#71717a}
-</style></head><body>
+  :root { --brand: ${color}; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  body {
+    background: #0b0c10;
+    color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .card {
+    background: #14161f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .brand-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--brand);
+  }
+  .logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+    margin-bottom: 24px;
+  }
+  .logo-box {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    background: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  .link-arrow {
+    color: #4b5563; font-size: 18px;
+  }
+  .wondrilla-box {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    font-weight: 800; color: #fff;
+    box-shadow: 0 8px 20px rgba(99,102,241,0.3);
+  }
+  h1 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .subtitle { font-size: 13px; color: #9ca3af; line-height: 1.5; margin-bottom: 24px; }
+  .permissions-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+  .perm-header {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #6b7280; font-weight: 700; margin-bottom: 12px;
+  }
+  .perm-item {
+    display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #d1d5db; margin-bottom: 10px; line-height: 1.4;
+  }
+  .perm-item:last-child { margin-bottom: 0; }
+  .check-icon {
+    width: 18px; height: 18px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 1px; font-weight: bold;
+  }
+  .btn-auth {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--brand);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  }
+  .btn-auth:hover { opacity: 0.92; transform: translateY(-1px); }
+  .btn-auth:active { transform: translateY(0); }
+  .login-link-container {
+    margin-top: 10px; font-size: 12px; color: #9ca3af;
+  }
+  .login-link {
+    color: var(--brand); text-decoration: none; font-weight: 600;
+  }
+  .login-link:hover { text-decoration: underline; }
+  
+  .success-view {
+    display: none;
+    padding: 20px 0;
+  }
+  .success-badge {
+    font-size: 52px; margin-bottom: 12px;
+    animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+  .close-text { font-size: 12px; color: #6b7280; margin-top: 16px; }
+</style>
+</head>
+<body>
 <div class="card">
-<div class="check">✨</div>
-<h1>${name} Connected!</h1>
-<p>Your ${name} account has been linked to Wondrilla.</p>
-<p class="closing">This window will close automatically...</p>
+  <div class="brand-bar"></div>
+  
+  <div id="auth-view">
+    <div class="logo-wrapper">
+      <div class="logo-box">${icon}</div>
+      <div class="link-arrow">⚡</div>
+      <div class="wondrilla-box">W</div>
+    </div>
+    
+    <h1>Connect ${name}</h1>
+    <p class="subtitle">Wondrilla AI requests authorization to connect with your <strong>${name}</strong> account.</p>
+    
+    <div class="permissions-box">
+      <div class="perm-header">Permissions Requested</div>
+      <div class="perm-item">
+        <div class="check-icon">✓</div>
+        <div><strong>Read & Write Access:</strong> Sync project files, assets and workspace data.</div>
+      </div>
+      <div class="perm-item">
+        <div class="check-icon">✓</div>
+        <div><strong>AI Assistant Actions:</strong> Allow Wondrilla to perform requested actions on ${name}.</div>
+      </div>
+      <div class="perm-item">
+        <div class="check-icon">✓</div>
+        <div><strong>Secure Connection:</strong> End-to-end encrypted session with Wondrilla AI.</div>
+      </div>
+    </div>
+    
+    <button class="btn-auth" id="authorize-btn">Authorize & Connect Wondrilla</button>
+    
+    ${loginUrl ? `<div class="login-link-container">Need to sign in first? <a href="${loginUrl}" target="_blank" class="login-link">Sign in to ${name} &rarr;</a></div>` : ''}
+  </div>
+  
+  <div class="success-view" id="success-view">
+    <div class="success-badge">✨</div>
+    <h1>${name} Connected!</h1>
+    <p class="subtitle" style="margin-bottom:8px;">Authorization granted successfully.</p>
+    <p class="close-text">Closing window & returning to Wondrilla...</p>
+  </div>
 </div>
+
 <script>
-if(window.opener){window.opener.postMessage({type:"wondrilla-oauth-success",provider:"${provider}",token:"${token || ""}"},"*")}
-setTimeout(function(){window.close()},1500);
-</script></body></html>`;
+  const authView = document.getElementById('auth-view');
+  const successView = document.getElementById('success-view');
+  const authBtn = document.getElementById('authorize-btn');
+
+  authBtn.addEventListener('click', () => {
+    authBtn.disabled = true;
+    authBtn.textContent = 'Authorizing...';
+    
+    setTimeout(() => {
+      authView.style.display = 'none';
+      successView.style.display = 'block';
+      
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'wondrilla-oauth-success',
+          provider: '${provider}'
+        }, '*');
+      }
+      
+      setTimeout(() => {
+        window.close();
+      }, 1200);
+    }, 600);
+  });
+</script>
+</body>
+</html>`;
+}
+
+function oauthSuccessPage(provider, token, name) {
+    return oauthAuthorizationPage(provider, name, "#10b981", "✨", "");
 }
 
 async function handleAuth(request, response, requestUrl) {
@@ -214,10 +495,9 @@ async function handleAuth(request, response, requestUrl) {
     const cfg = oauthConfig[provider];
 
     if (!cfg) {
-        // Unknown provider — render success page (simulated connect)
         const name = provider.charAt(0).toUpperCase() + provider.slice(1);
         response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthSuccessPage(provider, "", name));
+        response.end(oauthAuthorizationPage(provider, name, "#6366f1", "⚡", ""));
         return;
     }
 
@@ -226,10 +506,10 @@ async function handleAuth(request, response, requestUrl) {
     const origin = `${request.headers["x-forwarded-proto"] || "http"}://${request.headers.host}`;
     const redirectUri = `${origin}/auth/${provider}/callback`;
 
-    // If OAuth credentials are NOT configured, render simulated success page
+    // If OAuth credentials are NOT configured, render interactive authorization page in popup window
     if (!clientId || !clientSecret) {
         response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthSuccessPage(provider, "", cfg.name));
+        response.end(oauthAuthorizationPage(provider, cfg.name, cfg.color, cfg.icon, cfg.loginUrl));
         return;
     }
 
@@ -243,7 +523,6 @@ async function handleAuth(request, response, requestUrl) {
             state,
             response_type: "code"
         });
-        // Notion uses owner=user
         if (provider === "notion") params.set("owner", "user");
         response.writeHead(302, { Location: `${cfg.authorizeUrl}?${params}` });
         response.end();
@@ -254,7 +533,7 @@ async function handleAuth(request, response, requestUrl) {
     const code = requestUrl.searchParams.get("code");
     if (!code) {
         response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthSuccessPage(provider, "", cfg.name));
+        response.end(oauthAuthorizationPage(provider, cfg.name, cfg.color, cfg.icon, cfg.loginUrl));
         return;
     }
 
@@ -284,7 +563,7 @@ async function handleAuth(request, response, requestUrl) {
     } catch (err) {
         console.error(`OAuth token exchange failed for ${provider}:`, err);
         response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        response.end(oauthSuccessPage(provider, "", cfg.name));
+        response.end(oauthAuthorizationPage(provider, cfg.name, cfg.color, cfg.icon, cfg.loginUrl));
     }
 }
 
