@@ -180,6 +180,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         mcpConnectLead: document.getElementById("mcp-connect-lead"),
         mcpConnectSubmitBtn: document.getElementById("mcp-connect-submit-btn")
     };
+
+    function openModal(modalEl) {
+        if (modalEl) modalEl.classList.remove("hidden");
+    }
+
+    function closeModal(modalEl) {
+        if (modalEl) modalEl.classList.add("hidden");
+    }
+
+    function closeModals() {
+        document.querySelectorAll(".modal-shell").forEach(m => m.classList.add("hidden"));
+    }
     function modelById(id) {
         return models.find((model) => model.id === id) || models[0];
     }
