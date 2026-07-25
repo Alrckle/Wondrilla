@@ -4737,3 +4737,39 @@ html.has-active-chat .welcome-state {
     }
 }
 
+/* Footer Row Buttons Styling (ChatGPT Style) */
+.footer-chat-btn {
+    background: var(--acid, #2563eb) !important;
+    color: #ffffff !important;
+}
+
+.footer-chat-btn:hover {
+    background: var(--acid-deep, #1d4ed8) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4) !important;
+}
+
+.profile-row {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid var(--line, rgba(255, 255, 255, 0.12)) !important;
+    border-radius: 50% !important;
+}
+
+.profile-row:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1.05);
+}
+
+[data-theme="light"] .profile-row,
+body.light-mode .profile-row {
+    background: rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="light"] .profile-row .avatar,
+body.light-mode .profile-row .avatar {
+    color: #0f172a !important;
+}
+
+
