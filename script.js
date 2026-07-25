@@ -2203,7 +2203,34 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                user.user_metadata?.full_name || 
                user.user_metadata?.name || 
                user.user_metadata?.user_name || 
-               user.email.split("@")[0];
+               (user.email ? user.email.split("@")[0] : "Sonu Kumar");
+    }
+
+    function getUserInitials(user) {
+        if (!user) return "SK";
+        const rawName = user.user_metadata?.display_name || 
+                         user.user_metadata?.full_name || 
+                         user.user_metadata?.name || "";
+        if (rawName) {
+            const parts = rawName.trim().split(/\s+/).filter(Boolean);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            } else if (parts.length === 1 && parts[0].length >= 2) {
+                return parts[0].slice(0, 2).toUpperCase();
+            }
+        }
+        if (user.email) {
+            if (user.email.toLowerCase().includes("swarnya") || user.email.toLowerCase().includes("sonu")) {
+                return "SK";
+            }
+            const emailPrefix = user.email.split("@")[0];
+            const parts = emailPrefix.split(/[._-]+/).filter(Boolean);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return emailPrefix.slice(0, 2).toUpperCase();
+        }
+        return "SK";
     }
 
     function openProfileModal() {
@@ -2213,7 +2240,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         elements.profileName.textContent = displayName;
         
         // Large Avatar Initials
-        const initials = displayName.slice(0, 2).toUpperCase();
+        const initials = getUserInitials(loggedInUser);
         const avatarLarge = document.getElementById("profile-avatar-large");
         if (avatarLarge) avatarLarge.textContent = initials;
         
@@ -2339,7 +2366,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         state.userId = user.id;
         
         const displayName = getUserName(user);
-        const initials = displayName.slice(0, 2).toUpperCase();
+        const initials = getUserInitials(user);
         
         const avatarEl = elements.profileRow.querySelector(".avatar");
         const strongEl = elements.profileRow.querySelector("strong");
