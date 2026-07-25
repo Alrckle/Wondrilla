@@ -1308,40 +1308,45 @@ async function handleApi(request, response, requestUrl) {
                 if (uData && uData.user_id) targetUserId = uData.user_id;
             }
 
-            let { data: conversations, error } = await supabase
+            const activeUserId = targetUserId || userId;
+
+            let { data: conversations } = await supabase
                 .from("wondrilla_conversations")
                 .select("*")
-                .eq("user_id", targetUserId || userId)
+                .eq("user_id", activeUserId)
                 .order("updated_at", { ascending: false });
 
-            if (error) throw error;
+            const { data: msgConvs } = await supabase
+                .from("wondrilla_messages")
+                .select("conversation_id, content, created_at")
+                .eq("user_id", activeUserId)
+                .eq("role", "user")
+                .order("created_at", { ascending: false });
 
-            // Fallback: If wondrilla_conversations is missing entries, sync dynamically from wondrilla_messages
-            if (!conversations || conversations.length === 0) {
-                const { data: msgConvs } = await supabase
-                    .from("wondrilla_messages")
-                    .select("conversation_id, content, created_at")
-                    .eq("user_id", targetUserId || userId)
-                    .eq("role", "user")
-                    .order("created_at", { ascending: false });
+            const map = new Map();
 
-                if (msgConvs && msgConvs.length > 0) {
-                    const map = new Map();
-                    msgConvs.forEach(m => {
-                        if (m.conversation_id && !map.has(m.conversation_id)) {
-                            map.set(m.conversation_id, {
-                                id: m.conversation_id,
-                                user_id: targetUserId || userId,
-                                title: (m.content || "New conversation").slice(0, 40),
-                                updated_at: m.created_at
-                            });
-                        }
-                    });
-                    conversations = Array.from(map.values());
-                }
+            if (Array.isArray(conversations)) {
+                conversations.forEach(c => {
+                    if (c && c.id) map.set(c.id, c);
+                });
             }
 
-            sendJson(response, 200, { ok: true, conversations: conversations || [] });
+            if (Array.isArray(msgConvs)) {
+                msgConvs.forEach(m => {
+                    if (m.conversation_id && !map.has(m.conversation_id)) {
+                        map.set(m.conversation_id, {
+                            id: m.conversation_id,
+                            user_id: activeUserId,
+                            title: (m.content || "New conversation").slice(0, 40),
+                            updated_at: m.created_at
+                        });
+                    }
+                });
+            }
+
+            const allConvs = Array.from(map.values()).sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+
+            sendJson(response, 200, { ok: true, conversations: allConvs });
         } catch (err) {
             sendJson(response, 500, { ok: false, error: err.message });
         }
