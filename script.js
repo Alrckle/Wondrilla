@@ -1100,14 +1100,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             button.addEventListener("click", closeModals);
         });
 
-        ["upgrade-sidebar", "upgrade-top"].forEach((id) => {
-            const btn = document.getElementById(id);
-            if (btn) {
-                btn.addEventListener("click", () => {
-                    if (!requireAuth("Please sign in or create an account to upgrade")) return;
-                    openModal(elements.pricingModal);
-                });
-            }
+        document.querySelectorAll("#mobile-upgrade-action, #upgrade-top, #upgrade-sidebar, .upgrade-btn, .upgrade-action").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeModals();
+                if (!requireAuth("Please sign in or create an account to upgrade")) return;
+                openModal(elements.pricingModal);
+            });
         });
 
         document.querySelectorAll(".nav-item").forEach((item) => {

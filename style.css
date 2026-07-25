@@ -4690,3 +4690,50 @@ html.has-active-chat .welcome-state {
         }
     }
 }
+
+/* Responsive Fixes for Pricing Modal, Model Modal, and Settings Upgrade Action */
+@media (max-width: 767px) {
+    .pricing-modal-card {
+        padding: 20px 16px !important;
+        width: 95% !important;
+        max-height: 90vh !important;
+    }
+
+    .pricing-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .price-card {
+        min-height: auto !important;
+        padding: 22px 18px !important;
+        transform: none !important;
+    }
+
+    .price-card.featured {
+        transform: none !important;
+        border-width: 2px !important;
+    }
+
+    .price-card.featured:hover {
+        transform: none !important;
+    }
+
+    .popular-tag {
+        position: relative !important;
+        top: 0 !important;
+        right: 0 !important;
+        align-self: flex-start !important;
+        margin-bottom: 10px !important;
+    }
+
+    .modal-model-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .connectors-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
