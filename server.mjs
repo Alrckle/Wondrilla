@@ -757,52 +757,56 @@ async function handleApi(request, response, requestUrl) {
     if (request.method === "GET" && requestUrl.pathname === "/api/user") {
         const userId = requestUrl.searchParams.get("userId");
         const emailVal = requestUrl.searchParams.get("email") ? decodeURIComponent(requestUrl.searchParams.get("email")).trim() : null;
-        if (!userId) {
-            sendJson(response, 400, { ok: false, error: "userId is required." });
+        if (!userId && !emailVal) {
+            sendJson(response, 400, { ok: false, error: "userId or email is required." });
             return;
         }
 
         if (!supabase) {
             sendJson(response, 200, {
                 ok: true,
-                user: { user_id: userId, plan: "free", messages_used: 0 }
+                user: { user_id: userId || "guest", plan: "free", messages_used: 0 }
             });
             return;
         }
 
         try {
-            let { data: user, error } = await supabase
-                .from("wondrilla_users")
-                .select("*")
-                .eq("user_id", userId)
-                .single();
+            let user = null;
 
-            if (error && error.code === "PGRST116") {
+            // 1. Look up by email first if email is provided
+            if (emailVal) {
+                const { data: byEmail } = await supabase
+                    .from("wondrilla_users")
+                    .select("*")
+                    .eq("email", emailVal)
+                    .single();
+                if (byEmail) user = byEmail;
+            }
+
+            // 2. If no user found by email, look up by userId
+            if (!user && userId) {
+                const { data: byId } = await supabase
+                    .from("wondrilla_users")
+                    .select("*")
+                    .eq("user_id", userId)
+                    .single();
+                if (byId) user = byId;
+            }
+
+            // 3. Create a new user record if none found
+            if (!user) {
+                const effectiveId = (userId && !userId.startsWith("user_")) ? userId : crypto.randomUUID();
                 const { data: newUser, error: insertError } = await supabase
                     .from("wondrilla_users")
-                    .insert([{ user_id: userId, email: emailVal, plan: "free", messages_used: 0 }])
+                    .insert([{ user_id: effectiveId, email: emailVal, plan: "free", messages_used: 0 }])
                     .select()
                     .single();
 
-                if (insertError) throw insertError;
-                user = newUser;
-
-                if (emailVal) {
-                    sendWelcomeEmail(emailVal).catch(console.error);
-                }
-            } else if (error) {
-                throw error;
-            } else {
-                if (emailVal && !user.email) {
-                    const { data: updatedUser, error: updateError } = await supabase
-                        .from("wondrilla_users")
-                        .update({ email: emailVal })
-                        .eq("user_id", userId)
-                        .select()
-                        .single();
-                    if (!updateError && updatedUser) {
-                        user = updatedUser;
-                    }
+                if (!insertError && newUser) {
+                    user = newUser;
+                    if (emailVal) sendWelcomeEmail(emailVal).catch(console.error);
+                } else if (insertError) {
+                    throw insertError;
                 }
             }
 
