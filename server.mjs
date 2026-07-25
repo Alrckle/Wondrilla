@@ -779,8 +779,10 @@ async function handleApi(request, response, requestUrl) {
                     .from("wondrilla_users")
                     .select("*")
                     .eq("email", emailVal)
-                    .single();
-                if (byEmail) user = byEmail;
+                    .order("created_at", { ascending: true });
+                if (byEmail && byEmail.length > 0) {
+                    user = byEmail.find(u => u.plan === "pro" || u.plan === "studio") || byEmail[0];
+                }
             }
 
             // 2. If no user found by email, look up by userId
@@ -789,8 +791,8 @@ async function handleApi(request, response, requestUrl) {
                     .from("wondrilla_users")
                     .select("*")
                     .eq("user_id", userId)
-                    .single();
-                if (byId) user = byId;
+                    .order("created_at", { ascending: true });
+                if (byId && byId.length > 0) user = byId[0];
             }
 
             // 3. Create a new user record if none found
