@@ -2634,19 +2634,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             emailParam = loggedInUser && loggedInUser.email ? `&email=${encodeURIComponent(loggedInUser.email)}` : "";
             const activeUserId = state.userId || (loggedInUser ? loggedInUser.id : null);
 
-            // Sync conversation history index from Supabase
+            // Sync conversation history index from Supabase with two-way merge
             if (activeUserId || (loggedInUser && loggedInUser.email)) {
                 try {
+                    const localItems = loadHistoryIndex();
                     const convRes = await fetchJson(`/api/conversations?userId=${activeUserId || ""}${emailParam}`);
-                    if (convRes.ok && Array.isArray(convRes.conversations)) {
-                        const historyIndex = convRes.conversations
-                            .filter(c => c && c.id && c.title && !isDummyTitle(c.title))
-                            .map(c => ({ id: c.id, title: c.title }));
-                        localStorage.setItem("wondrilla_history_index", JSON.stringify(historyIndex));
-                        state.history = historyIndex.map(h => h.title);
-                        localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
-                        renderHistory();
+                    let remoteConvs = (convRes.ok && Array.isArray(convRes.conversations)) ? convRes.conversations : [];
+                    const remoteIdSet = new Set(remoteConvs.map(c => c.id));
+
+                    // Push any local conversation that is not on server to Supabase
+                    for (const local of localItems) {
+                        if (local && local.id && local.title && !remoteIdSet.has(local.id) && !isDummyTitle(local.title)) {
+                            await postJson("/api/conversations", {
+                                userId: activeUserId,
+                                email: loggedInUser ? loggedInUser.email : null,
+                                id: local.id,
+                                title: local.title
+                            }).catch(() => {});
+                            remoteConvs.push({ id: local.id, title: local.title, updated_at: new Date().toISOString() });
+                            remoteIdSet.add(local.id);
+                        }
                     }
+
+                    const historyIndex = remoteConvs
+                        .filter(c => c && c.id && c.title && !isDummyTitle(c.title))
+                        .map(c => ({ id: c.id, title: c.title }));
+                    localStorage.setItem("wondrilla_history_index", JSON.stringify(historyIndex));
+                    state.history = historyIndex.map(h => h.title);
+                    localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
+                    renderHistory();
                 } catch (e) {
                     console.warn("Could not sync conversations from Supabase:", e);
                 }
