@@ -566,11 +566,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             btn.setAttribute("title", item.title);
             btn.innerHTML = `<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">${escapeHtml(item.title)}</span>`;
             btn.addEventListener("click", async () => {
-                if (state.currentConversationId === item.id) {
-                    toggleSidebar(false);
+                toggleSidebar(false);
+                if (state.currentConversationId === item.id && elements.messages.children.length > 0) {
                     return;
                 }
-                toggleSidebar(false);
                 await loadConversation(item.id);
                 showToast(`Loaded: ${item.title}`);
                 renderHistory();
