@@ -606,9 +606,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         } catch (e) {}
         
         // Sync conversation title to Supabase
-        if (state.userId) {
+        if (state.userId || (loggedInUser && loggedInUser.email)) {
             postJson("/api/conversations", {
                 userId: state.userId,
+                email: loggedInUser ? loggedInUser.email : null,
                 id: convId,
                 title: cleanTitle
             }).catch(() => {});
@@ -675,6 +676,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             console.warn('Could not load cached conversation:', e);
         }
 
+        let hasMessages = loadedLocal;
+
         // 2. Fetch latest conversation messages from Supabase by conversationId
         try {
             const res = await fetchJson(`/api/messages?conversationId=${convId}`);
@@ -685,13 +688,20 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 });
                 scrollToBottom();
                 saveCurrentConversation();
+                hasMessages = true;
                 return true;
             }
         } catch (err) {
             console.warn("Could not fetch messages from Supabase:", err);
         }
 
-        return loadedLocal;
+        if (!hasMessages) {
+            elements.messages.innerHTML = '';
+            elements.welcomeState.classList.remove("hidden");
+            document.documentElement.classList.remove("has-active-chat");
+        }
+
+        return hasMessages;
     }
 
     function escapeHtml(value) {
@@ -938,6 +948,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             try {
                 const response = await gatewayChat({
                     userId: state.userId,
+                    email: loggedInUser && loggedInUser.email ? loggedInUser.email : null,
                     conversationId: state.currentConversationId,
                     conversationTitle: cleanText.slice(0, 40),
                     modelId: state.selectedModel,
@@ -973,6 +984,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         try {
             const response = await gatewayChat({
                 userId: state.userId,
+                email: loggedInUser && loggedInUser.email ? loggedInUser.email : null,
                 conversationId: state.currentConversationId,
                 conversationTitle: cleanText.slice(0, 40),
                 modelId: state.selectedModel,
@@ -3419,7 +3431,7 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
             }
         }
         const savedUserId = localStorage.getItem("wondrilla_user_id");
-        if (savedUserId) state.userId = savedUserId;
+        if (savedUserId && (!loggedInUser || !state.userId)) state.userId = savedUserId;
         const savedPlan = localStorage.getItem("wondrilla_plan");
         if (savedPlan) state.plan = savedPlan;
     } catch (e) {}

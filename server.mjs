@@ -1309,12 +1309,29 @@ async function handleApi(request, response, requestUrl) {
         }
         try {
             let targetUserId = userId;
-            if (email && (!targetUserId || targetUserId.startsWith("user_"))) {
-                const { data: uData } = await supabase.from("wondrilla_users").select("user_id").eq("email", email).single();
-                if (uData && uData.user_id) targetUserId = uData.user_id;
+            if (email) {
+                const { data: uDataList } = await supabase
+                    .from("wondrilla_users")
+                    .select("user_id, plan")
+                    .eq("email", email)
+                    .order("created_at", { ascending: false });
+                if (uDataList && uDataList.length > 0) {
+                    const bestUser = uDataList.find(u => u.plan === "pro" || u.plan === "studio") || uDataList[0];
+                    if (bestUser && bestUser.user_id) targetUserId = bestUser.user_id;
+                }
             }
 
             const activeUserId = targetUserId || userId;
+
+            // If user previously had guest conversations under an anonymous ID, link them to the logged-in user
+            if (userId && userId.startsWith("user_") && targetUserId && targetUserId !== userId) {
+                try {
+                    await supabase.from("wondrilla_conversations").update({ user_id: targetUserId }).eq("user_id", userId);
+                    await supabase.from("wondrilla_messages").update({ user_id: targetUserId }).eq("user_id", userId);
+                } catch (linkErr) {
+                    console.warn("Could not link guest conversations:", linkErr);
+                }
+            }
 
             let { data: conversations } = await supabase
                 .from("wondrilla_conversations")
@@ -1361,11 +1378,12 @@ async function handleApi(request, response, requestUrl) {
 
     if (request.method === "POST" && requestUrl.pathname === "/api/conversations") {
         const body = await readJsonBody(request);
-        const userId = String(body.userId || "").trim();
+        let userId = String(body.userId || "").trim();
+        const email = body.email ? String(body.email).trim().toLowerCase() : null;
         const id = String(body.id || "").trim();
         const title = String(body.title || "").trim();
-        if (!userId || !id || !title) {
-            sendJson(response, 400, { ok: false, error: "userId, id, and title are required." });
+        if ((!userId && !email) || !id || !title) {
+            sendJson(response, 400, { ok: false, error: "userId or email, id, and title are required." });
             return;
         }
         if (!supabase) {
@@ -1373,6 +1391,20 @@ async function handleApi(request, response, requestUrl) {
             return;
         }
         try {
+            if (email) {
+                try {
+                    const { data: uList } = await supabase
+                        .from("wondrilla_users")
+                        .select("user_id, plan")
+                        .eq("email", email)
+                        .order("created_at", { ascending: false });
+                    if (uList && uList.length > 0) {
+                        const matchedUser = uList.find(u => u.plan === "pro" || u.plan === "studio") || uList[0];
+                        if (matchedUser && matchedUser.user_id) userId = matchedUser.user_id;
+                    }
+                } catch (e) {}
+            }
+
             const { data, error } = await supabase
                 .from("wondrilla_conversations")
                 .upsert([{ id, user_id: userId, title, updated_at: new Date().toISOString() }], { onConflict: "id" })
@@ -1571,7 +1603,8 @@ async function handleApi(request, response, requestUrl) {
     if (request.method === "POST" && requestUrl.pathname === "/api/chat") {
         const body = await readJsonBody(request);
         const prompt = String(body.prompt || "").trim();
-        const userId = String(body.userId || "").trim();
+        let userId = String(body.userId || "").trim();
+        const email = body.email ? String(body.email).trim().toLowerCase() : null;
 
         if (!prompt) {
             sendJson(response, 400, { ok: false, error: "Prompt is required." });
@@ -1581,21 +1614,32 @@ async function handleApi(request, response, requestUrl) {
         let userPlan = "free";
         let messagesUsed = 0;
 
-        if (supabase && userId) {
+        if (supabase) {
             try {
-                const { data: user, error } = await supabase
-                    .from("wondrilla_users")
-                    .select("*")
-                    .eq("user_id", userId)
-                    .single();
-
-                if (error) {
-                    if (error.code !== "PGRST116") {
-                        console.error("Error fetching user profile:", error);
+                if (email) {
+                    const { data: uList } = await supabase
+                        .from("wondrilla_users")
+                        .select("*")
+                        .eq("email", email)
+                        .order("created_at", { ascending: false });
+                    if (uList && uList.length > 0) {
+                        const matchedUser = uList.find(u => u.plan === "pro" || u.plan === "studio") || uList[0];
+                        if (matchedUser) {
+                            userId = matchedUser.user_id;
+                            userPlan = matchedUser.plan || "free";
+                            messagesUsed = matchedUser.messages_used || 0;
+                        }
                     }
-                } else if (user) {
-                    userPlan = user.plan || "free";
-                    messagesUsed = user.messages_used || 0;
+                } else if (userId) {
+                    const { data: user } = await supabase
+                        .from("wondrilla_users")
+                        .select("*")
+                        .eq("user_id", userId)
+                        .maybeSingle();
+                    if (user) {
+                        userPlan = user.plan || "free";
+                        messagesUsed = user.messages_used || 0;
+                    }
                 }
             } catch (err) {
                 console.error("Failed to query user profile:", err);
