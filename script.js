@@ -2162,6 +2162,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     password
                 });
                 if (error) throw error;
+                if (data?.user) {
+                    handleUserLogin(data.user);
+                }
                 showToast("Signed in successfully!");
                 closeModals();
             } else if (authMode === "forgot") {
@@ -2678,6 +2681,57 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             console.error("Failed to sync user and history with Supabase:", error);
         } finally {
             hideAppLoadingScreen();
+        }
+    }
+
+    let isSyncingRealtime = false;
+    async function syncConversationsRealtime() {
+        if (isSyncingRealtime) return;
+        if (!isUserLoggedIn()) return;
+        
+        isSyncingRealtime = true;
+        try {
+            const emailParam = loggedInUser && loggedInUser.email ? `&email=${encodeURIComponent(loggedInUser.email)}` : "";
+            const activeUserId = state.userId || (loggedInUser ? loggedInUser.id : null);
+            if (!activeUserId && (!loggedInUser || !loggedInUser.email)) return;
+
+            const convRes = await fetchJson(`/api/conversations?userId=${activeUserId || ""}${emailParam}`);
+            if (convRes.ok && Array.isArray(convRes.conversations)) {
+                const currentHistoryIndex = loadHistoryIndex();
+                const newHistoryIndex = convRes.conversations
+                    .filter(c => c && c.id && c.title && !isDummyTitle(c.title))
+                    .map(c => ({ id: c.id, title: c.title }));
+
+                const currentIds = currentHistoryIndex.map(c => c.id).join(",");
+                const newIds = newHistoryIndex.map(c => c.id).join(",");
+
+                if (currentIds !== newIds) {
+                    localStorage.setItem("wondrilla_history_index", JSON.stringify(newHistoryIndex));
+                    state.history = newHistoryIndex.map(h => h.title);
+                    localStorage.setItem("wondrilla_history", JSON.stringify(state.history));
+                    renderHistory();
+                }
+
+                // If currently viewing a conversation, sync any new incoming messages live
+                if (state.currentConversationId) {
+                    const msgRes = await fetchJson(`/api/messages?conversationId=${state.currentConversationId}`);
+                    if (msgRes.ok && Array.isArray(msgRes.messages)) {
+                        const currentBubbles = elements.messages ? elements.messages.querySelectorAll(".message").length : 0;
+                        if (msgRes.messages.length > currentBubbles) {
+                            elements.messages.innerHTML = "";
+                            msgRes.messages.forEach((msg) => {
+                                addChatBubble(msg.role, msg.content, msg.model_id);
+                            });
+                            scrollToBottom();
+                            saveCurrentConversation();
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            // silent background sync
+        } finally {
+            isSyncingRealtime = false;
         }
     }
 
@@ -3466,5 +3520,25 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
     initMcpUi();
     initMarketingHub();
     preventWelcomeFlicker();
+
+    // Realtime Auto-Sync: Poll every 3.5 seconds and on focus/tab switch so Mobile chats appear on Desktop automatically
+    setInterval(() => {
+        if (!document.hidden && isUserLoggedIn()) {
+            syncConversationsRealtime();
+        }
+    }, 3500);
+
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && isUserLoggedIn()) {
+            syncConversationsRealtime();
+        }
+    });
+
+    window.addEventListener("focus", () => {
+        if (isUserLoggedIn()) {
+            syncConversationsRealtime();
+        }
+    });
+
     hideLoadingScreen();
 })();
