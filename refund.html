@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Refund & Cancellation Policy | Wondrilla AI</title>
+    <meta name="description" content="Refund and cancellation policy for Wondrilla AI subscription plans.">
+    <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0d0e;
+            --surface: #141618;
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.2);
+            --font-heading: 'Manrope', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-brand: 'DM Serif Display', Georgia, serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 60px;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(16px);
+            background: rgba(12, 13, 14, 0.85);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-brand img { width: 32px; height: 32px; border-radius: 8px; }
+        .nav-brand span { font-family: var(--font-brand); font-size: 22px; letter-spacing: -0.02em; }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        .doc-header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--surface-border);
+            padding-bottom: 24px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-glow);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-title {
+            font-family: var(--font-heading);
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .doc-meta { font-size: 14px; color: var(--text-muted); }
+
+        .doc-section {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+
+        .doc-section h2 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #ffffff;
+        }
+
+        .doc-section p {
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .doc-section p:last-child { margin-bottom: 0; }
+        .doc-section ul, .doc-section ol { margin-left: 20px; margin-bottom: 14px; color: var(--text-secondary); font-size: 15px; }
+        .doc-section li { margin-bottom: 6px; }
+
+        .highlight-box {
+            background: rgba(37, 99, 235, 0.08);
+            border-left: 4px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .footer {
+            max-width: 860px;
+            margin: 60px auto 0;
+            padding: 24px;
+            border-top: 1px solid var(--surface-border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: #ffffff; }
+
+        @media (max-width: 640px) {
+            .doc-title { font-size: 28px; }
+            .doc-section { padding: 20px; }
+            .footer { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <img src="assets/wondrilla-favicon.png" alt="Wondrilla Logo">
+            <span>Wondrilla</span>
+        </a>
+        <div class="nav-actions">
+            <a href="/" class="btn-back">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Launch App
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="doc-header">
+            <span class="badge">Billing Policy</span>
+            <h1 class="doc-title">Refund & Cancellation Policy</h1>
+            <p class="doc-meta">Effective Date: October 29, 2026 • Platform: Wondrilla AI</p>
+        </header>
+
+        <section class="doc-section">
+            <h2>1. Overview</h2>
+            <p>At <strong>Wondrilla AI</strong> (operated by <strong>Alrckle</strong>), customer satisfaction and trust are paramount. We want you to feel completely confident when subscribing to our premium plans (Pro at $24/month and Studio at $79/month). This Refund & Cancellation Policy explains your rights and our transparent process for cancellations and refund requests.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>2. 7-Day Money-Back Guarantee</h2>
+            <div class="highlight-box">
+                <strong>Peace of Mind Guarantee:</strong> If you are new to Wondrilla Pro or Studio and are not completely satisfied with our service, you are eligible for a <strong>100% full refund</strong> within 7 calendar days of your initial subscription purchase.
+            </div>
+            <p>To request a guarantee refund, simply email our support team at <a href="mailto:support@wondrilla.com" style="color: var(--accent); text-decoration: none;">support@wondrilla.com</a> or <a href="mailto:alrckle@gmail.com" style="color: var(--accent); text-decoration: none;">alrckle@gmail.com</a> with your registered account email and order details. No complicated questions asked.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>3. Subscription Cancellation</h2>
+            <p>You can cancel your subscription at any time without fees or penalties:</p>
+            <ul>
+                <li><strong>How to Cancel:</strong> You can cancel directly from your profile settings in the app, or submit a request to <a href="mailto:support@wondrilla.com" style="color: var(--accent); text-decoration: none;">support@wondrilla.com</a>.</li>
+                <li><strong>Continued Access:</strong> When you cancel your subscription, auto-renewal is immediately stopped. You will continue to have full access to your Pro or Studio benefits until the end of your current paid billing period.</li>
+                <li><strong>No Lock-In:</strong> After your billing period ends, your account will smoothly revert to our Free plan with 20 free monthly messages, and your saved conversation history will remain intact.</li>
+            </ul>
+        </section>
+
+        <section class="doc-section">
+            <h2>4. Duplicate or Erroneous Charges</h2>
+            <p>In the unlikely event of technical error resulting in an accidental duplicate payment, or if an unauthorized charge occurs, please contact us immediately. We will verify the transaction logs and issue a full refund immediately.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>5. Refund Processing Timeline</h2>
+            <p>Once approved, refunds are processed immediately on our end:</p>
+            <ul>
+                <li><strong>Payment Gateway Timing:</strong> The refund is credited back to your original payment method (Credit Card, Debit Card, UPI, Net Banking, or PayPal) via Razorpay or PayPal.</li>
+                <li><strong>Bank Processing Period:</strong> Depending on your financial institution or credit card issuer, the funds typically reflect in your statement within <strong>5 to 7 business days</strong>.</li>
+            </ul>
+        </section>
+
+        <section class="doc-section">
+            <h2>6. Contact Us for Billing Support</h2>
+            <p>If you have any questions regarding your billing, invoices, subscription status, or wish to request a refund, our dedicated support team is here to assist you:</p>
+            <ul>
+                <li><strong>Brand / Platform:</strong> Wondrilla AI</li>
+                <li><strong>Operating Entity:</strong> Alrckle</li>
+                <li><strong>Billing Support Email:</strong> <a href="mailto:support@wondrilla.com" style="color: var(--accent); text-decoration: none;">support@wondrilla.com</a></li>
+                <li><strong>Alternative Contact:</strong> <a href="mailto:alrckle@gmail.com" style="color: var(--accent); text-decoration: none;">alrckle@gmail.com</a></li>
+            </ul>
+        </section>
+
+        <footer class="footer">
+            <div>© 2026 Wondrilla (Alrckle). All rights reserved.</div>
+            <div class="footer-links">
+                <a href="about.html">About Us</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="refund.html" style="color:#ffffff; font-weight: 600;">Refund Policy</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>

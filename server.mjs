@@ -2599,9 +2599,17 @@ async function serveStatic(pathname, response, headOnly) {
     }
 
     try {
-        const file = await readFile(resolvedPath);
+        let targetFile = resolvedPath;
+        let file;
+        try {
+            file = await readFile(targetFile);
+        } catch (e) {
+            targetFile = resolvedPath + ".html";
+            file = await readFile(targetFile);
+        }
+
         response.writeHead(200, {
-            "Content-Type": mimeType(resolvedPath),
+            "Content-Type": mimeType(targetFile),
             "Cache-Control": "no-cache"
         });
 

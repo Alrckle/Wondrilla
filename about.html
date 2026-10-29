@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>About Us | Wondrilla AI</title>
+    <meta name="description" content="Learn about Wondrilla AI. Our mission, technology, and vision for unified multi-model artificial intelligence.">
+    <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0d0e;
+            --surface: #141618;
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.2);
+            --coral: #f26b4a;
+            --emerald: #10a37f;
+            --font-heading: 'Manrope', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-brand: 'DM Serif Display', Georgia, serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 60px;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(16px);
+            background: rgba(12, 13, 14, 0.85);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-brand img { width: 32px; height: 32px; border-radius: 8px; }
+        .nav-brand span { font-family: var(--font-brand); font-size: 22px; letter-spacing: -0.02em; }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        .hero-banner {
+            text-align: center;
+            padding: 40px 0 60px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-glow);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-title {
+            font-family: var(--font-brand);
+            font-size: 48px;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            color: #ffffff;
+            line-height: 1.15;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .doc-section {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .doc-section h2 {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .doc-section p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .doc-section p:last-child { margin-bottom: 0; }
+
+        /* Feature Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin: 24px 0 8px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--surface-border);
+            border-radius: 10px;
+            padding: 20px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-card .icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .feature-card h3 {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        .cta-box {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(242, 107, 74, 0.1));
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 16px;
+            padding: 40px 24px;
+            margin-top: 40px;
+        }
+
+        .cta-box h3 {
+            font-family: var(--font-heading);
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .cta-box p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #ffffff;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(37, 99, 235, 0.55);
+        }
+
+        .footer {
+            max-width: 860px;
+            margin: 60px auto 0;
+            padding: 24px;
+            border-top: 1px solid var(--surface-border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: #ffffff; }
+
+        @media (max-width: 640px) {
+            .hero-title { font-size: 36px; }
+            .hero-subtitle { font-size: 16px; }
+            .doc-section { padding: 20px; }
+            .footer { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <img src="assets/wondrilla-favicon.png" alt="Wondrilla Logo">
+            <span>Wondrilla</span>
+        </a>
+        <div class="nav-actions">
+            <a href="/" class="btn-back">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Launch App
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="hero-banner">
+            <span class="badge">About Wondrilla</span>
+            <h1 class="hero-title">Every mind, one workspace.</h1>
+            <p class="hero-subtitle">We bring the world's best artificial intelligence models into a single, unified, and lightning-fast workspace.</p>
+        </header>
+
+        <section class="doc-section">
+            <h2>The Wondrilla Story</h2>
+            <p>Artificial intelligence is transforming how people research, write code, analyze data, and create content. However, the ecosystem has become fragmented: to get the best results, knowledge workers find themselves subscribing to multiple services (ChatGPT, Claude, Gemini, Grok) at $20/month each, constantly copy-pasting prompts across dozens of open tabs.</p>
+            <p>We created <strong>Wondrilla AI</strong> to solve this fragmentation. Instead of locking you into a single proprietary ecosystem, Wondrilla provides a unified platform where you can compare answers side-by-side, let our smart routing engine automatically choose the optimal model for your query, and seamlessly sync your entire conversation history across all your devices.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>Why Choose Wondrilla?</h2>
+            <div class="grid-2">
+                <div class="feature-card">
+                    <span class="icon">⚡</span>
+                    <h3>Smart Model Routing</h3>
+                    <p>Wondrilla Auto intelligently assesses your query and routes it to the specialized model best equipped to answer it with accuracy and speed.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">⚖️</span>
+                    <h3>Side-by-Side Comparison</h3>
+                    <p>Compare responses from ChatGPT, Claude, and DeepSeek in parallel to evaluate reasoning, catch hallucinations, and pick the best answer.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🔄</span>
+                    <h3>Real-Time Cloud Sync</h3>
+                    <p>Start a conversation on your Android phone during your commute and pick it up instantly on your desktop browser without missing a word.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="icon">🛡️</span>
+                    <h3>Private & Transparent</h3>
+                    <p>Your conversations are protected with enterprise-grade encryption. We do not sell your data or use your chats to train public models.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="doc-section">
+            <h2>Our Team & Engineering</h2>
+            <p>Wondrilla is developed, maintained, and operated by <strong>Alrckle</strong>, an innovative software studio focused on building high-performance knowledge worker tools, educational technology, and AI applications.</p>
+            <p>We believe that AI should be accessible, transparent, and built to empower human capability rather than replace it. Our team continuously optimizes backend latency, integrates emerging open-weights and proprietary models, and adheres to strict security standards.</p>
+        </section>
+
+        <div class="cta-box">
+            <h3>Ready to experience unified AI?</h3>
+            <p>Join thousands of professionals, students, and developers working smarter with Wondrilla.</p>
+            <a href="/" class="btn-primary">
+                Get Started for Free
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+
+        <footer class="footer">
+            <div>© 2026 Wondrilla (Alrckle). All rights reserved.</div>
+            <div class="footer-links">
+                <a href="about.html" style="color:#ffffff; font-weight: 600;">About Us</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="refund.html">Refund Policy</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>

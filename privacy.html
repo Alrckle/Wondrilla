@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Privacy Policy | Wondrilla AI</title>
+    <meta name="description" content="Privacy Policy for Wondrilla AI. Understand how we collect, use, and protect your data across our unified AI workspace.">
+    <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0d0e;
+            --surface: #141618;
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.2);
+            --coral: #f26b4a;
+            --font-heading: 'Manrope', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-brand: 'DM Serif Display', Georgia, serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 60px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(16px);
+            background: rgba(12, 13, 14, 0.85);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-brand img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .nav-brand span {
+            font-family: var(--font-brand);
+            font-size: 22px;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Container */
+        .container {
+            max-width: 860px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        .doc-header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--surface-border);
+            padding-bottom: 24px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-glow);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-title {
+            font-family: var(--font-heading);
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .doc-meta {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Content Sections */
+        .doc-section {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+
+        .doc-section h2 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .doc-section p {
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .doc-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .doc-section ul, .doc-section ol {
+            margin-left: 20px;
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .doc-section li {
+            margin-bottom: 6px;
+        }
+
+        .highlight-box {
+            background: rgba(37, 99, 235, 0.08);
+            border-left: 4px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            max-width: 860px;
+            margin: 60px auto 0;
+            padding: 24px;
+            border-top: 1px solid var(--surface-border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        @media (max-width: 640px) {
+            .doc-title {
+                font-size: 28px;
+            }
+            .doc-section {
+                padding: 20px;
+            }
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <img src="assets/wondrilla-favicon.png" alt="Wondrilla Logo">
+            <span>Wondrilla</span>
+        </a>
+        <div class="nav-actions">
+            <a href="/" class="btn-back">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Launch App
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="doc-header">
+            <span class="badge">Legal Document</span>
+            <h1 class="doc-title">Privacy Policy</h1>
+            <p class="doc-meta">Effective Date: October 29, 2026 • Platform: Wondrilla AI (Web & Mobile Application)</p>
+        </header>
+
+        <section class="doc-section">
+            <h2>1. Introduction</h2>
+            <p>Welcome to <strong>Wondrilla AI</strong> ("Wondrilla", "we", "us", or "our"), operated under the entity <strong>Alrckle</strong>. Wondrilla is a unified artificial intelligence workspace accessible at <a href="https://wondrilla.com" style="color: var(--accent); text-decoration: none;">https://wondrilla.com</a> and its official Google Play Store mobile application.</p>
+            <p>We respect your privacy and are committed to protecting the personal data and interactions you entrust to us. This Privacy Policy details how we collect, use, store, and disclose your information when you use our web platform, Android application, APIs, and associated services.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>2. Information We Collect</h2>
+            <p>To provide you with seamless multi-model AI routing, cross-device conversation synchronization, and account functionality, we collect the following categories of information:</p>
+            <ul>
+                <li><strong>Account Information:</strong> When you sign up or log in, we collect your email address, user identification string, and authentication metadata managed via Supabase Auth and Google OAuth.</li>
+                <li><strong>Conversation Data:</strong> The text prompts you submit, the generated AI responses, conversation titles, and conversation identifiers are stored in our secure database to enable you to view, resume, and manage your conversation history across both desktop and mobile devices.</li>
+                <li><strong>Subscription & Billing Data:</strong> If you upgrade to a paid subscription (such as Pro or Studio), our payment processing partners (Razorpay and PayPal) process your payment transactions. We do not store raw credit card numbers or banking passwords on our servers; we only store transaction reference IDs, plan status, and renewal dates.</li>
+                <li><strong>Usage & Device Analytics:</strong> We collect technical diagnostic information including browser type, operating system version, timestamps, and message usage counts to enforce plan limits and troubleshoot operational issues.</li>
+            </ul>
+        </section>
+
+        <section class="doc-section">
+            <h2>3. How We Use Your Information</h2>
+            <p>We use the collected information solely for the following legitimate business purposes:</p>
+            <ul>
+                <li>To route your prompt queries to leading AI models (including OpenAI ChatGPT, Anthropic Claude, Google Gemini, xAI Grok, DeepSeek, Zhipu, and Moonshot) and return responses.</li>
+                <li>To synchronize your recent chat history seamlessly across desktop browsers and the Android application.</li>
+                <li>To track message usage quotas corresponding to your Free, Pro, or Studio subscription tiers.</li>
+                <li>To provide customer support, verify subscriptions, and communicate essential system or service notices.</li>
+                <li>To detect, prevent, and mitigate fraud, spam, automated abuse, or unauthorized access.</li>
+            </ul>
+            <div class="highlight-box">
+                <strong>Our Commitment on AI Training:</strong> We do not sell your personal data, chat prompts, or conversation histories to third-party data brokers or advertisers. We do not use your private conversations to train public foundation models without your explicit consent.
+            </div>
+        </section>
+
+        <section class="doc-section">
+            <h2>4. Third-Party AI Providers & Service Integrations</h2>
+            <p>Wondrilla functions as a multi-model workspace aggregator. When you submit a prompt to an AI model, the query payload is transmitted via encrypted API connections to the designated model provider for inference:</p>
+            <ul>
+                <li><strong>OpenAI:</strong> Processes queries routed to ChatGPT models.</li>
+                <li><strong>Anthropic:</strong> Processes queries routed to Claude models.</li>
+                <li><strong>Google Cloud / Gemini:</strong> Processes queries routed to Google Gemini models.</li>
+                <li><strong>xAI:</strong> Processes queries routed to Grok models.</li>
+                <li><strong>DeepSeek / OpenRouter:</strong> Processes queries routed to DeepSeek or open models.</li>
+                <li><strong>Supabase:</strong> Provides encrypted database hosting and user authentication.</li>
+                <li><strong>Razorpay / PayPal:</strong> Provide PCI-DSS compliant payment processing.</li>
+            </ul>
+            <p>Each model provider operates under their respective enterprise security standards and data privacy terms.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>5. Data Storage, Security & Retention</h2>
+            <p>Your conversation history and user profile data are hosted on enterprise-grade Supabase infrastructure utilizing industry-standard TLS/SSL encryption in transit and AES-256 encryption at rest.</p>
+            <p>We retain your conversation history as long as your account remains active so that you can access your saved work. You have the right at any time to delete individual conversations or clear your entire chat history directly within the application.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>6. User Rights & Data Deletion</h2>
+            <p>Under applicable international data protection regulations (including GDPR, CCPA, and the Indian Digital Personal Data Protection Act), you have rights regarding your information:</p>
+            <ul>
+                <li><strong>Access & Portability:</strong> You may view your stored chat history and account details at any time in the application.</li>
+                <li><strong>Deletion / Right to be Forgotten:</strong> You can delete any chat conversation at any time. To request complete deletion of your account and all associated database records, email us at <a href="mailto:support@wondrilla.com" style="color: var(--accent); text-decoration: none;">support@wondrilla.com</a> or <a href="mailto:alrckle@gmail.com" style="color: var(--accent); text-decoration: none;">alrckle@gmail.com</a>. We fulfill verified requests within 30 days.</li>
+            </ul>
+        </section>
+
+        <section class="doc-section">
+            <h2>7. Children's Privacy</h2>
+            <p>Wondrilla is intended for general audiences, professionals, and students aged 13 and above (or 18+ where required by local law). We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal information, please contact us immediately.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>8. Changes to This Privacy Policy</h2>
+            <p>We may update this Privacy Policy from time to time to reflect operational, legal, or regulatory updates. We will post the revised version with an updated "Effective Date" on this page.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>9. Contact Us</h2>
+            <p>If you have any questions, feedback, or data privacy requests, you can contact our privacy officer directly:</p>
+            <ul>
+                <li><strong>Brand / Platform:</strong> Wondrilla AI</li>
+                <li><strong>Parent Entity:</strong> Alrckle</li>
+                <li><strong>Support Email:</strong> <a href="mailto:support@wondrilla.com" style="color: var(--accent); text-decoration: none;">support@wondrilla.com</a></li>
+                <li><strong>Alternative Developer Email:</strong> <a href="mailto:alrckle@gmail.com" style="color: var(--accent); text-decoration: none;">alrckle@gmail.com</a></li>
+                <li><strong>Website:</strong> <a href="https://wondrilla.com" style="color: var(--accent); text-decoration: none;">https://wondrilla.com</a></li>
+            </ul>
+        </section>
+
+        <footer class="footer">
+            <div>© 2026 Wondrilla (Alrckle). All rights reserved.</div>
+            <div class="footer-links">
+                <a href="about.html">About Us</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html" style="color:#ffffff; font-weight: 600;">Privacy Policy</a>
+                <a href="refund.html">Refund Policy</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>
