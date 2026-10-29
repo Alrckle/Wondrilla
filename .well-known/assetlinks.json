@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.wondrilla.app",
+      "sha256_cert_fingerprints": [
+        "81:97:2A:B5:05:AD:E0:94:A2:1A:72:A2:11:E2:BF:F7:59:17:FF:9A:EF:66:21:B5:4F:77:0A:F0:C5:CD:69:67"
+      ]
+    }
+  }
+]
