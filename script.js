@@ -717,10 +717,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         let text = escapeHtml(value);
 
         // Code blocks: ```lang ... ```
-        text = text.replace(/```([\s\S]*?)```/g, '<pre style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; overflow-x: auto; font-family: monospace; margin: 8px 0; font-size: 13px; line-height: 1.5;"><code>$1</code></pre>');
+        text = text.replace(/```([\s\S]*?)```/g, '<pre class="md-code-block"><code>$1</code></pre>');
 
         // Inline code: `code`
-        text = text.replace(/`([^`]+)`/g, '<code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px;">$1</code>');
+        text = text.replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>');
 
         // Headings: ### Header, ## Header, # Header
         text = text.replace(/^###\s+(.*$)/gim, '<h4 style="margin: 12px 0 6px; font-size: 15px; font-weight: 700; color: var(--ink);">$1</h4>');
@@ -2389,12 +2389,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const useLight = theme === "light" || (theme === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
         if (useLight) {
             document.documentElement.setAttribute("data-theme", "light");
+            document.documentElement.classList.add("light-mode", "light-theme");
             document.body.classList.add("light-mode");
             document.body.classList.add("light-theme");
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) metaTheme.setAttribute("content", "#ffffff");
         } else {
             document.documentElement.setAttribute("data-theme", "dark");
+            document.documentElement.classList.remove("light-mode", "light-theme");
             document.body.classList.remove("light-mode");
             document.body.classList.remove("light-theme");
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) metaTheme.setAttribute("content", "#0e100d");
         }
 
         const themeText = document.getElementById("theme-toggle-text");

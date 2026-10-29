@@ -12,10 +12,32 @@
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=41.0">
+    <link rel="stylesheet" href="style.css?v=42.0">
     <script>
         (function() {
             try {
+                var theme = localStorage.getItem("wondrilla_theme") || "dark";
+                var useLight = theme === "light" || (theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+                if (useLight) {
+                    document.documentElement.setAttribute("data-theme", "light");
+                    document.documentElement.classList.add("light-mode", "light-theme");
+                } else {
+                    document.documentElement.setAttribute("data-theme", "dark");
+                    document.documentElement.classList.remove("light-mode", "light-theme");
+                }
+                
+                var accent = localStorage.getItem("wondrilla_accent") || "blue";
+                var accentMap = {
+                    blue: { acid: "#2563eb", acidDeep: "#1d4ed8" },
+                    coral: { acid: "#f26b4a", acidDeep: "#e25533" },
+                    green: { acid: "#4f8f75", acidDeep: "#3e735d" },
+                    gold: { acid: "#d49a2a", acidDeep: "#b5801e" }
+                };
+                if (accentMap[accent]) {
+                    document.documentElement.style.setProperty("--acid", accentMap[accent].acid);
+                    document.documentElement.style.setProperty("--acid-deep", accentMap[accent].acidDeep);
+                }
+
                 var hist = localStorage.getItem("wondrilla_history");
                 var messages = localStorage.getItem("wondrilla_messages");
                 var used = localStorage.getItem("wondrilla_used");

@@ -10,19 +10,71 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <style>
-        :root {
+                :root {
             --bg: #0c0d0e;
             --surface: #141618;
             --surface-border: rgba(255, 255, 255, 0.08);
+            --nav-bg: rgba(12, 13, 14, 0.85);
             --text-primary: #f3f4f6;
             --text-secondary: #9ca3af;
             --text-muted: #6b7280;
             --accent: #2563eb;
             --accent-glow: rgba(37, 99, 235, 0.2);
+            --coral: #f26b4a;
+            --emerald: #10a37f;
             --font-heading: 'Manrope', sans-serif;
             --font-body: 'DM Sans', sans-serif;
             --font-brand: 'DM Serif Display', Georgia, serif;
         }
+
+        :root[data-theme="light"],
+        body.light-mode {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-border: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.92);
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.1);
+            --coral: #ea580c;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root:not([data-theme="dark"]) {
+                --bg: #f8fafc;
+                --surface: #ffffff;
+                --surface-border: #e2e8f0;
+                --nav-bg: rgba(255, 255, 255, 0.92);
+                --text-primary: #0f172a;
+                --text-secondary: #334155;
+                --text-muted: #64748b;
+                --accent: #2563eb;
+                --accent-glow: rgba(37, 99, 235, 0.1);
+                --coral: #ea580c;
+            }
+        }
+
+        .theme-toggle-btn {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -39,7 +91,7 @@
             top: 0;
             z-index: 50;
             backdrop-filter: blur(16px);
-            background: rgba(12, 13, 14, 0.85);
+            background: var(--nav-bg);
             border-bottom: 1px solid var(--surface-border);
             padding: 16px 24px;
             display: flex;
@@ -110,7 +162,7 @@
             font-weight: 800;
             letter-spacing: -0.03em;
             margin-bottom: 8px;
-            color: #ffffff;
+            color: var(--text-primary);
         }
 
         .doc-meta { font-size: 14px; color: var(--text-muted); }
@@ -128,7 +180,7 @@
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 14px;
-            color: #ffffff;
+            color: var(--text-primary);
         }
 
         .doc-section p {
@@ -172,7 +224,7 @@
         }
 
         .footer-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
-        .footer-links a:hover { color: #ffffff; }
+        .footer-links a:hover { color: var(--accent); }
 
         @media (max-width: 640px) {
             .doc-title { font-size: 28px; }
@@ -180,6 +232,21 @@
             .footer { flex-direction: column; align-items: flex-start; }
         }
     </style>
+    <script>
+        (function() {
+            try {
+                var theme = localStorage.getItem("wondrilla_theme");
+                var useLight = theme === "light" || (!theme && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) || (theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+                if (useLight) {
+                    document.documentElement.setAttribute("data-theme", "light");
+                    document.documentElement.classList.add("light-mode");
+                } else {
+                    document.documentElement.setAttribute("data-theme", "dark");
+                    document.documentElement.classList.remove("light-mode");
+                }
+            } catch(e) {}
+        })();
+    </script>
 </head>
 <body>
 
@@ -189,6 +256,10 @@
             <span>Wondrilla</span>
         </a>
         <div class="nav-actions">
+            <button class="theme-toggle-btn" id="theme-toggle-btn" type="button" aria-label="Toggle Theme" title="Toggle Appearance">
+                <svg id="theme-icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg id="theme-icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
             <a href="/" class="btn-back">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 Launch App
@@ -257,11 +328,49 @@
                 <a href="about.html">About Us</a>
                 <a href="terms.html">Terms of Service</a>
                 <a href="privacy.html">Privacy Policy</a>
-                <a href="refund.html" style="color:#ffffff; font-weight: 600;">Refund Policy</a>
+                <a href="refund.html" style="color:var(--accent); font-weight: 600;">Refund Policy</a>
                 <a href="contact.html">Contact Us</a>
             </div>
         </footer>
     </div>
 
+    <script>
+        (function() {
+            var toggleBtn = document.getElementById("theme-toggle-btn");
+            var iconSun = document.getElementById("theme-icon-sun");
+            var iconMoon = document.getElementById("theme-icon-moon");
+
+            function updateIcons(isLight) {
+                if (iconSun && iconMoon) {
+                    iconSun.style.display = isLight ? "none" : "block";
+                    iconMoon.style.display = isLight ? "block" : "none";
+                }
+            }
+
+            var isCurrentlyLight = document.documentElement.getAttribute("data-theme") === "light" || 
+                (!document.documentElement.getAttribute("data-theme") && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+            updateIcons(isCurrentlyLight);
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener("click", function() {
+                    var current = document.documentElement.getAttribute("data-theme");
+                    var next = current === "light" ? "dark" : "light";
+                    document.documentElement.setAttribute("data-theme", next);
+                    if (next === "light") {
+                        document.documentElement.classList.add("light-mode");
+                        document.body.classList.add("light-mode");
+                        localStorage.setItem("wondrilla_theme", "light");
+                        updateIcons(true);
+                    } else {
+                        document.documentElement.classList.remove("light-mode");
+                        document.body.classList.remove("light-mode");
+                        localStorage.setItem("wondrilla_theme", "dark");
+                        updateIcons(false);
+                    }
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
+

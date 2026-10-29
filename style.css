@@ -4788,6 +4788,283 @@ body.light-mode .profile-row .avatar {
     transform: scale(1.1);
 }
 
+/* ==========================================================================
+   GLOBAL THEME SYSTEM & HIGH-CONTRAST LIGHT MODE REFINEMENTS
+   ========================================================================== */
+
+/* Markdown Code Blocks & Inline Code */
+.md-code-block {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+    padding: 12px 16px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    margin: 10px 0;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.md-inline-code {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--acid);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+}
+
+[data-theme="light"] .md-code-block,
+body.light-mode .md-code-block {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme="light"] .md-inline-code,
+body.light-mode .md-inline-code {
+    background: #eff6ff !important;
+    border: 1px solid #dbeafe !important;
+    color: #1d4ed8 !important;
+}
+
+/* App Loading Screen Light Mode */
+[data-theme="light"] .app-loading-screen,
+body.light-mode .app-loading-screen {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] .loading-mark,
+body.light-mode .loading-mark {
+    background: #f1f5f9 !important;
+}
+
+/* Settings Modal Theme Pickers */
+[data-theme="light"] .theme-btn,
+body.light-mode .theme-btn {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+[data-theme="light"] .theme-btn:hover,
+body.light-mode .theme-btn:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .theme-btn.active,
+body.light-mode .theme-btn.active {
+    background: #eff6ff !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important;
+    box-shadow: 0 0 0 1px #2563eb !important;
+}
+
+/* Danger Zone Light Mode */
+[data-theme="light"] .danger-section,
+body.light-mode .danger-section {
+    background: #fff5f5 !important;
+    border: 1px solid #fed7d7 !important;
+}
+
+[data-theme="light"] .danger-action-info strong,
+body.light-mode .danger-action-info strong {
+    color: #991b1b !important;
+}
+
+[data-theme="light"] .danger-action-info small,
+body.light-mode .danger-action-info small {
+    color: #b91c1c !important;
+}
+
+/* Pricing Modal Light Mode Overhauls */
+[data-theme="light"] .price-card,
+body.light-mode .price-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .price-card:hover,
+body.light-mode .price-card:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .price-card.featured,
+body.light-mode .price-card.featured {
+    background: #ffffff !important;
+    border: 2px solid #2563eb !important;
+    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.12) !important;
+}
+
+[data-theme="light"] .price-card h3,
+[data-theme="light"] .price-card .price-val,
+[data-theme="light"] .price-card strong,
+body.light-mode .price-card h3,
+body.light-mode .price-card .price-val,
+body.light-mode .price-card strong {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .price-card p,
+[data-theme="light"] .price-card ul,
+body.light-mode .price-card p,
+body.light-mode .price-card ul {
+    color: #475569 !important;
+}
+
+[data-theme="light"] .billing-toggle,
+body.light-mode .billing-toggle {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .billing-btn,
+body.light-mode .billing-btn {
+    color: #64748b !important;
+}
+
+[data-theme="light"] .billing-btn.active,
+body.light-mode .billing-btn.active {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Right Model Dock Insight Box Light Mode */
+[data-theme="light"] .dock-insight,
+body.light-mode .dock-insight {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .dock-insight p,
+body.light-mode .dock-insight p {
+    color: #475569 !important;
+}
+
+[data-theme="light"] .dock-insight strong,
+body.light-mode .dock-insight strong {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .insight-mark,
+body.light-mode .insight-mark {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+/* Model Router Modal Light Mode */
+[data-theme="light"] .model-modal-card,
+body.light-mode .model-modal-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.18) !important;
+}
+
+[data-theme="light"] .model-option,
+body.light-mode .model-option {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .model-option:hover,
+body.light-mode .model-option:hover {
+    background: #f1f5f9 !important;
+    border-color: #2563eb !important;
+}
+
+[data-theme="light"] .model-option strong,
+body.light-mode .model-option strong {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .model-option small,
+body.light-mode .model-option small {
+    color: #64748b !important;
+}
+
+/* Library View Light Mode */
+[data-theme="light"] .library-card,
+body.light-mode .library-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .library-card:hover,
+body.light-mode .library-card:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12) !important;
+}
+
+[data-theme="light"] .library-card strong,
+body.light-mode .library-card strong {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .library-card small,
+body.light-mode .library-card small {
+    color: #64748b !important;
+}
+
+/* Compare View Light Mode */
+[data-theme="light"] .compare-answer,
+body.light-mode .compare-answer {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .compare-answer p,
+body.light-mode .compare-answer p {
+    color: #334155 !important;
+}
+
+[data-theme="light"] .compare-answer .message-meta strong,
+body.light-mode .compare-answer .message-meta strong {
+    color: #0f172a !important;
+}
+
+/* Marketing Hub Light Mode */
+[data-theme="light"] #marketing-view article,
+body.light-mode #marketing-view article {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] #marketing-view article strong,
+body.light-mode #marketing-view article strong {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] #mkt-ig-caption,
+[data-theme="light"] #mkt-facebook-content,
+[data-theme="light"] #mkt-youtube-content,
+body.light-mode #mkt-ig-caption,
+body.light-mode #mkt-facebook-content,
+body.light-mode #mkt-youtube-content {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #334155 !important;
+}
+
+[data-theme="light"] #mkt-webhook-url,
+body.light-mode #mkt-webhook-url {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
 
 
 
