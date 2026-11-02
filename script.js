@@ -2673,7 +2673,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
         if (elements.profileUsed) elements.profileUsed.textContent = `${used.toLocaleString()} / ${limit.toLocaleString()} messages`;
         const profileUsedCount = document.getElementById("profile-used-count");
-        if (profileUsedCount) profileUsedCount.textContent = `${used.toLocaleString()} / ${limit.toLocaleString()} messages`;
+        if (profileUsedCount) profileUsedCount.textContent = used.toLocaleString();
+        const profileLimitSmall = document.querySelector(".usage-meter-numbers small");
+        if (profileLimitSmall) profileLimitSmall.textContent = `/ ${limit.toLocaleString()} messages`;
 
         const usagePercentBadge = document.getElementById("usage-percent-badge");
         if (usagePercentBadge) usagePercentBadge.textContent = `${percentage.toFixed(0)}% Used`;
