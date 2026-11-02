@@ -1912,7 +1912,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     lines.push(`\n## Conversation ${i + 1}: ${conv.title || "Untitled"}`);
                     lines.push(`*Date: ${new Date(conv.updatedAt || Date.now()).toLocaleString()}*\n`);
                     (conv.messages || []).forEach(m => {
-                        const role = m.role === "user" ? "**User**" : `**Assistant (${m.model || "Wondrilla"})``;
+                        const role = m.role === "user" ? "**User**" : `**Assistant (${m.model || "Wondrilla"})**`;
                         lines.push(`${role}:\n${m.content || m.text || ""}\n`);
                     });
                     lines.push("\n---");
