@@ -5160,7 +5160,7 @@ body.light-mode .compare-answer .message-meta strong {
 
 #marketing-topic-input::placeholder {
     color: var(--muted);
-    opacity: 0.85;
+    opacity: 0.55;
 }
 
 #marketing-topic-input:focus {
@@ -5275,7 +5275,7 @@ body.light-mode #marketing-topic-input {
 [data-theme="light"] #marketing-topic-input::placeholder,
 body.light-mode #marketing-topic-input::placeholder {
     color: #64748b !important;
-    opacity: 1 !important;
+    opacity: 0.55 !important;
 }
 
 [data-theme="light"] #marketing-topic-input:focus,
@@ -5340,7 +5340,7 @@ body.light-mode #mkt-webhook-url {
 [data-theme="light"] #mkt-webhook-url::placeholder,
 body.light-mode #mkt-webhook-url::placeholder {
     color: #64748b !important;
-    opacity: 1 !important;
+    opacity: 0.55 !important;
 }
 
 [data-theme="light"] #mkt-webhook-url:focus,
