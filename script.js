@@ -367,7 +367,87 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         return 20;
     }
 
+    
+    function updatePricingModalUI() {
+        const currentPlan = (state.plan || "free").toLowerCase();
+
+        const freeBtn = document.getElementById("plan-btn-free");
+        const proBtn = document.getElementById("plan-btn-pro");
+        const studioBtn = document.getElementById("plan-btn-studio");
+
+        const freeCard = document.querySelector('[data-plan-card="free"]');
+        const proCard = document.querySelector('[data-plan-card="pro"]');
+        const studioCard = document.querySelector('[data-plan-card="studio"]');
+
+        const proTag = document.getElementById("pro-card-tag");
+        const studioTag = document.getElementById("studio-card-tag");
+
+        if (freeCard) freeCard.classList.toggle("active-plan", currentPlan === "free");
+        if (proCard) proCard.classList.toggle("active-plan", currentPlan === "pro");
+        if (studioCard) studioCard.classList.toggle("active-plan", currentPlan === "studio");
+
+        if (currentPlan === "free") {
+            if (freeBtn) {
+                freeBtn.textContent = "✓ Current plan";
+                freeBtn.className = "plan-btn secondary current";
+                freeBtn.disabled = true;
+            }
+            if (proBtn) {
+                proBtn.textContent = "Start Pro";
+                proBtn.className = "plan-btn primary choose-plan";
+                proBtn.disabled = false;
+            }
+            if (studioBtn) {
+                studioBtn.textContent = "Choose Studio";
+                studioBtn.className = "plan-btn dark choose-plan";
+                studioBtn.disabled = false;
+            }
+            if (proTag) proTag.textContent = "MOST POPULAR";
+            if (studioTag) studioTag.style.display = "none";
+        } else if (currentPlan === "pro") {
+            if (freeBtn) {
+                freeBtn.textContent = "Free Tier";
+                freeBtn.className = "plan-btn secondary";
+                freeBtn.disabled = true;
+            }
+            if (proBtn) {
+                proBtn.textContent = "✓ Current plan";
+                proBtn.className = "plan-btn secondary current";
+                proBtn.disabled = true;
+            }
+            if (studioBtn) {
+                studioBtn.textContent = "Upgrade to Studio";
+                studioBtn.className = "plan-btn primary choose-plan";
+                studioBtn.disabled = false;
+            }
+            if (proTag) proTag.textContent = "CURRENT ACTIVE";
+            if (studioTag) studioTag.style.display = "none";
+        } else if (currentPlan === "studio") {
+            if (freeBtn) {
+                freeBtn.textContent = "Free Tier";
+                freeBtn.className = "plan-btn secondary";
+                freeBtn.disabled = true;
+            }
+            if (proBtn) {
+                proBtn.textContent = "Included in Studio";
+                proBtn.className = "plan-btn secondary";
+                proBtn.disabled = true;
+            }
+            if (studioBtn) {
+                studioBtn.textContent = "✓ Current plan";
+                studioBtn.className = "plan-btn secondary current";
+                studioBtn.disabled = true;
+            }
+            if (proTag) proTag.textContent = "MOST POPULAR";
+            if (studioTag) {
+                studioTag.style.display = "inline-block";
+                studioTag.textContent = "CURRENT ACTIVE";
+            }
+        }
+    }
+
     function updatePlanUI() {
+        updatePricingModalUI();
         if (!isUserLoggedIn()) {
             state.plan = "free";
         }
@@ -469,6 +549,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         document.body.style.overflow = "hidden";
         if (modal === elements.authModal) {
             setAuthMode("signin");
+        }
+        if (modal === elements.pricingModal) {
+            updatePricingModalUI();
         }
     }
 
@@ -2642,6 +2725,53 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.profilePlan) elements.profilePlan.textContent = planName + " Plan";
         const profilePlanTitle = document.getElementById("profile-plan-title");
         if (profilePlanTitle) profilePlanTitle.textContent = planName + " Plan";
+
+        // Showcase Card in Settings
+        const showcasePlanTitle = document.getElementById("showcase-plan-title");
+        if (showcasePlanTitle) showcasePlanTitle.textContent = `Wondrilla ${planName} Plan`;
+        
+        const showcasePlanDesc = document.getElementById("showcase-plan-desc");
+        if (showcasePlanDesc) {
+            if (state.plan === "studio") {
+                showcasePlanDesc.textContent = "Full flagship access with 10,000 pooled messages, 5 team seats, and priority model routing.";
+            } else if (state.plan === "pro") {
+                showcasePlanDesc.textContent = "Full access to 9 flagship models, concurrent comparison, and persistent memory.";
+            } else {
+                showcasePlanDesc.textContent = "Explore Wondrilla with standard models and 20 monthly messages.";
+            }
+        }
+
+        const showcasePlanPerks = document.getElementById("showcase-plan-perks");
+        if (showcasePlanPerks) {
+            const checkIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+            if (state.plan === "studio") {
+                showcasePlanPerks.innerHTML = `
+                    <div class="plan-perk-item">${checkIcon} <span>10,000 Pooled Messages</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>5 Team Seats Included</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Priority Model Routing</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Cross-Session AI Memory</span></div>
+                `;
+            } else if (state.plan === "pro") {
+                showcasePlanPerks.innerHTML = `
+                    <div class="plan-perk-item">${checkIcon} <span>3-Model Comparison</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Cross-Session AI Memory</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Unlimited MCP Connectors</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Priority Model Routing</span></div>
+                `;
+            } else {
+                showcasePlanPerks.innerHTML = `
+                    <div class="plan-perk-item">${checkIcon} <span>20 Messages / Month</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Standard Model Access</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Single Model Chat</span></div>
+                    <div class="plan-perk-item">${checkIcon} <span>Conversation History</span></div>
+                `;
+            }
+        }
+
+        const managePlanBtn = document.getElementById("profile-manage-plan-btn");
+        if (managePlanBtn) {
+            managePlanBtn.textContent = state.plan === "free" ? "Upgrade Plan" : "Change Plan";
+        }
         
         const badgePro = document.getElementById("profile-badge-pro");
         const mobileHeroBadge = document.getElementById("mobile-hero-badge");
@@ -2711,6 +2841,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
         // Reset Settings tab to Profile
         if (elements.settingsProfileBtn) elements.settingsProfileBtn.click();
+        const manageBtn = document.getElementById("profile-manage-plan-btn");
+        if (manageBtn && !manageBtn._bound) {
+            manageBtn._bound = true;
+            manageBtn.addEventListener("click", () => {
+                closeModals();
+                openModal(elements.pricingModal);
+            });
+        }
         
         openModal(elements.profileModal);
     }

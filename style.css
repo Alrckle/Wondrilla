@@ -6465,3 +6465,28 @@ body.light-mode .name-edit-box input {
         padding: 12px 14px !important;
     }
 }
+
+/* Pricing Modal Active Plan Indicator */
+.price-card.active-plan {
+    border: 2px solid var(--blue, #2563eb) !important;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15) !important;
+}
+
+.plan-btn.current {
+    cursor: default !important;
+    opacity: 0.9 !important;
+}
+
+[data-theme="light"] .plan-btn.secondary.current,
+body.light-mode .plan-btn.secondary.current {
+    background: #e2e8f0 !important;
+    border: 1px solid #94a3b8 !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+
+[data-theme="light"] .price-card.active-plan,
+body.light-mode .price-card.active-plan {
+    border: 2px solid #2563eb !important;
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.14) !important;
+}
