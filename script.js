@@ -1195,6 +1195,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         });
 
         document.getElementById("new-chat-btn").addEventListener("click", resetConversation);
+        const marketingBackBtn = document.getElementById("marketing-back-btn");
+        if (marketingBackBtn) marketingBackBtn.addEventListener("click", () => setView("chat"));
+        const libraryBackBtn = document.getElementById("library-back-btn");
+        if (libraryBackBtn) libraryBackBtn.addEventListener("click", () => setView("chat"));
+        const brandLink = document.querySelector(".brand");
+        if (brandLink) brandLink.addEventListener("click", (e) => { e.preventDefault(); setView("chat"); });
 
         const brandLogo = document.querySelector(".brand");
         if (brandLogo) {

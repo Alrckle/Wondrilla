@@ -12,7 +12,7 @@
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=47.0">
+    <link rel="stylesheet" href="style.css?v=48.0">
     <script>
         (function() {
             try {
@@ -66,6 +66,10 @@
             </div>
 
             <nav class="primary-nav" aria-label="Primary">
+                <button class="nav-item active" type="button" data-view="chat">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+                    Chat
+                </button>
                 <button class="nav-item" type="button" data-view="compare">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18"></path></svg></span>
                     Compare
@@ -210,6 +214,10 @@
             </section>
 
             <section class="library-view hidden" id="library-view">
+                <button class="ghost-btn compact" id="library-back-btn" type="button" style="margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <span>Back to Chat</span>
+                </button>
                 <div class="page-heading">
                     <span class="overline">YOUR WORK</span>
                     <h1>Everything worth keeping.</h1>
@@ -229,6 +237,10 @@
                     100% { transform: rotate(360deg); }
                 }
                 </style>
+                <button class="ghost-btn compact" id="marketing-back-btn" type="button" style="margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <span>Back to Chat</span>
+                </button>
                 <div class="page-heading" style="margin-bottom: 25px;">
                     <span class="overline" style="color: var(--gold); font-weight: 700; letter-spacing: 0.1em;">PROMOTION TOOLS</span>
                     <h1 style="font-size: 28px; margin: 5px 0 10px; font-weight: 800; font-family: var(--font-heading);">AI Marketing & Automation Hub</h1>
@@ -1527,7 +1539,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=47.0"></script>
+    <script type="module" src="script.js?v=48.0"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
