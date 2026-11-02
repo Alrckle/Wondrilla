@@ -1447,6 +1447,17 @@ textarea::-webkit-scrollbar {
     box-sizing: border-box;
 }
 
+.pricing-modal-card .modal-header {
+    background: transparent !important;
+    border-bottom: none !important;
+    position: relative !important;
+    top: auto !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
 .billing-toggle {
     background: var(--line-soft);
     border: 1px solid var(--line);
@@ -6474,6 +6485,20 @@ body.light-mode .name-edit-box input {
     .quick-setting-row {
         padding: 12px 14px !important;
     }
+}
+
+/* Pricing Modal Full Uniform Background (no side/center color split) */
+[data-theme="light"] .pricing-modal-card,
+body.light-mode .pricing-modal-card,
+body.light-theme .pricing-modal-card {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] .pricing-modal-card .modal-header,
+body.light-mode .pricing-modal-card .modal-header,
+body.light-theme .pricing-modal-card .modal-header {
+    background: transparent !important;
+    border-bottom: none !important;
 }
 
 /* Pricing Modal Active Plan Indicator */
