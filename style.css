@@ -5092,12 +5092,204 @@ body.light-mode .compare-answer .message-meta strong {
     color: #0f172a !important;
 }
 
-/* Marketing Hub Light Mode */
+/* ==========================================================================
+   AI MARKETING & AUTOMATION HUB - COMPLETE RESPONSIVE & THEME STYLING
+   ========================================================================== */
+
+#marketing-view {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow-y: auto;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+#marketing-view .page-heading h1 {
+    font-size: 28px;
+    margin: 5px 0 10px;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    color: var(--ink);
+}
+
+#marketing-view .page-heading p {
+    color: var(--muted);
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Campaign Builder Card (Top Input Section) */
+.campaign-builder-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+}
+
+.campaign-builder-card h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+/* The Prompt / Topic Input Box */
+#marketing-topic-input {
+    width: 100%;
+    height: 100px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--ink);
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    font-family: inherit;
+    resize: none;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    box-sizing: border-box;
+    display: block;
+}
+
+#marketing-topic-input::placeholder {
+    color: var(--muted);
+    opacity: 0.85;
+}
+
+#marketing-topic-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Marketing Result Cards */
+#marketing-view article {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#marketing-view article strong {
+    font-size: 14px;
+    color: var(--ink);
+}
+
+/* Content Boxes (Twitter, IG, FB, YT) */
+#mkt-twitter-content,
+#mkt-ig-caption,
+#mkt-facebook-content,
+#mkt-youtube-content {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-sizing: border-box;
+}
+
+#mkt-twitter-content { min-height: 110px; }
+#mkt-ig-caption { min-height: 90px; max-height: 140px; overflow-y: auto; }
+#mkt-facebook-content { min-height: 110px; max-height: 220px; overflow-y: auto; }
+#mkt-youtube-content { min-height: 110px; max-height: 220px; overflow-y: auto; }
+
+/* Webhook Automation Card */
+.marketing-webhook-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+#mkt-webhook-url {
+    flex: 1;
+    min-width: 250px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink);
+    padding: 11px 14px;
+    font-size: 12.5px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#mkt-webhook-url:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.marketing-webhook-guide {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.marketing-webhook-guide strong {
+    color: var(--ink);
+}
+
+/* ==========================================================================
+   MARKETING HUB - LIGHT MODE HIGH CONTRAST THEME
+   ========================================================================== */
+[data-theme="light"] .campaign-builder-card,
+body.light-mode .campaign-builder-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="light"] .campaign-builder-card h3,
+body.light-mode .campaign-builder-card h3 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] #marketing-topic-input,
+body.light-mode #marketing-topic-input {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="light"] #marketing-topic-input::placeholder,
+body.light-mode #marketing-topic-input::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+
+[data-theme="light"] #marketing-topic-input:focus,
+body.light-mode #marketing-topic-input:focus {
+    background: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
 [data-theme="light"] #marketing-view article,
 body.light-mode #marketing-view article {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
 }
 
 [data-theme="light"] #marketing-view article strong,
@@ -5105,22 +5297,96 @@ body.light-mode #marketing-view article strong {
     color: #0f172a !important;
 }
 
+[data-theme="light"] #mkt-twitter-content,
 [data-theme="light"] #mkt-ig-caption,
 [data-theme="light"] #mkt-facebook-content,
 [data-theme="light"] #mkt-youtube-content,
+body.light-mode #mkt-twitter-content,
 body.light-mode #mkt-ig-caption,
 body.light-mode #mkt-facebook-content,
 body.light-mode #mkt-youtube-content {
     background: #f8fafc !important;
     border: 1px solid #e2e8f0 !important;
-    color: #334155 !important;
+    color: #1e293b !important;
+}
+
+[data-theme="light"] #marketing-view article button.ghost-btn,
+body.light-mode #marketing-view article button.ghost-btn {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+[data-theme="light"] #marketing-view article button.ghost-btn:hover,
+body.light-mode #marketing-view article button.ghost-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .marketing-webhook-card,
+body.light-mode .marketing-webhook-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
 }
 
 [data-theme="light"] #mkt-webhook-url,
 body.light-mode #mkt-webhook-url {
     background: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1.5px solid #cbd5e1 !important;
     color: #0f172a !important;
+}
+
+[data-theme="light"] #mkt-webhook-url::placeholder,
+body.light-mode #mkt-webhook-url::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+
+[data-theme="light"] #mkt-webhook-url:focus,
+body.light-mode #mkt-webhook-url:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+[data-theme="light"] .marketing-webhook-guide,
+body.light-mode .marketing-webhook-guide {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+[data-theme="light"] .marketing-webhook-guide strong,
+body.light-mode .marketing-webhook-guide strong {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] .marketing-webhook-guide a,
+body.light-mode .marketing-webhook-guide a {
+    color: #2563eb !important;
+}
+
+[data-theme="light"] #marketing-back-btn,
+body.light-mode #marketing-back-btn {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+[data-theme="light"] #marketing-back-btn:hover,
+body.light-mode #marketing-back-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+[data-theme="light"] #marketing-view .page-heading h1,
+body.light-mode #marketing-view .page-heading h1 {
+    color: #0f172a !important;
+}
+
+[data-theme="light"] #marketing-view .page-heading p,
+body.light-mode #marketing-view .page-heading p {
+    color: #64748b !important;
 }
 
 
