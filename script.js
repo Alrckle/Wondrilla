@@ -53,7 +53,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             about: "",
             response: "",
             enabled: true
-        }
+        },
+        memories: JSON.parse(localStorage.getItem("wondrilla_memories") || JSON.stringify([
+            "Prefers clean code in TypeScript & modern ES Modules",
+            "Speaks English & Hindi",
+            "Building full-stack app on Wondrilla"
+        ])),
+        memoryEnabled: localStorage.getItem("wondrilla_memory_enabled") !== "false"
     };
 
     let supabaseClient = null;
@@ -136,11 +142,20 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         settingsProfileBtn: document.getElementById("settings-profile-btn"),
         settingsGeneralBtn: document.getElementById("settings-general-btn"),
         settingsPersonalizationBtn: document.getElementById("settings-personalization-btn"),
+        settingsMemoryBtn: document.getElementById("settings-memory-btn"),
         settingsMcpBtn: document.getElementById("settings-mcp-btn"),
+        settingsUsageBtn: document.getElementById("settings-usage-btn"),
+        settingsWorkspaceBtn: document.getElementById("settings-workspace-btn"),
+        settingsDataBtn: document.getElementById("settings-data-btn"),
         tabProfile: document.getElementById("tab-profile"),
         tabGeneral: document.getElementById("tab-general"),
         tabPersonalization: document.getElementById("tab-personalization"),
+        tabMemory: document.getElementById("tab-memory"),
         tabMcp: document.getElementById("tab-mcp"),
+        tabUsage: document.getElementById("tab-usage"),
+        tabWorkspace: document.getElementById("tab-workspace"),
+        tabData: document.getElementById("tab-data"),
+        settingsNavSearch: document.getElementById("settings-nav-search"),
         themeDarkBtn: document.getElementById("theme-dark-btn"),
         themeLightBtn: document.getElementById("theme-light-btn"),
         themeSystemBtn: document.getElementById("theme-system-btn"),
@@ -392,6 +407,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 upgradeTop.style.borderColor = "var(--acid-deep)";
             }
         }
+
+        const activeUser = loggedInUser || { email: localStorage.getItem("wondrilla_email") || "alrckle@gmail.com" };
+        const displayName = getUserName(activeUser);
+        const initials = getUserInitials(activeUser);
+        const sidebarAvatar = document.getElementById("sidebar-avatar");
+        if (sidebarAvatar) sidebarAvatar.textContent = initials;
+        const mobileHeroAvatar = document.getElementById("mobile-hero-avatar");
+        if (mobileHeroAvatar) mobileHeroAvatar.textContent = initials;
+        const mobileHeroName = document.getElementById("mobile-hero-name");
+        if (mobileHeroName) mobileHeroName.textContent = displayName;
+        const mobileHeroBadge = document.getElementById("mobile-hero-badge");
+        if (mobileHeroBadge) mobileHeroBadge.textContent = state.plan === "free" ? "Free Member" : `${planCapitalized} Member`;
     }
 
     async function loadRuntimeStatus() {
@@ -1010,6 +1037,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
     }
     async function gatewayChat(payload) {
+        if (!payload.memories && state.memoryEnabled && Array.isArray(state.memories) && state.memories.length > 0) {
+            payload.memories = state.memories;
+        }
         const response = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1696,26 +1726,245 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             { btn: elements.settingsProfileBtn, panel: elements.tabProfile },
             { btn: elements.settingsGeneralBtn, panel: elements.tabGeneral },
             { btn: elements.settingsPersonalizationBtn, panel: elements.tabPersonalization },
-            { btn: elements.settingsMcpBtn, panel: elements.tabMcp }
+            { btn: elements.settingsMemoryBtn, panel: elements.tabMemory },
+            { btn: elements.settingsMcpBtn, panel: elements.tabMcp },
+            { btn: elements.settingsUsageBtn, panel: elements.tabUsage },
+            { btn: elements.settingsWorkspaceBtn, panel: elements.tabWorkspace },
+            { btn: elements.settingsDataBtn, panel: elements.tabData }
         ];
+
+        // Settings navigation function to switch cleanly between tabs
+        const switchSettingsTab = (targetBtn, targetPanel) => {
+            settingsTabs.forEach(t => {
+                if (t.btn) t.btn.classList.remove("active");
+                if (t.panel) t.panel.classList.add("hidden");
+            });
+            if (targetBtn) targetBtn.classList.add("active");
+            if (targetPanel) targetPanel.classList.remove("hidden");
+            const contentArea = document.querySelector(".settings-content");
+            if (contentArea) contentArea.scrollTop = 0;
+            showMobileSettingsPage(true);
+        };
 
         settingsTabs.forEach(({ btn, panel }) => {
             if (btn && panel) {
                 btn.addEventListener("click", () => {
-                    settingsTabs.forEach(t => {
-                        if (t.btn) t.btn.classList.remove("active");
-                        if (t.panel) t.panel.classList.add("hidden");
-                    });
-                    btn.classList.add("active");
-                    panel.classList.remove("hidden");
-
-                    const contentArea = document.querySelector(".settings-content");
-                    if (contentArea) contentArea.scrollTop = 0;
-
-                    showMobileSettingsPage(true);
+                    switchSettingsTab(btn, panel);
                 });
             }
         });
+
+        // Quick Settings Rows in Profile & Plan (Fast Drill-Down)
+        const quickRowPersonalization = document.getElementById("quick-row-personalization");
+        if (quickRowPersonalization) {
+            quickRowPersonalization.addEventListener("click", () => {
+                switchSettingsTab(elements.settingsPersonalizationBtn, elements.tabPersonalization);
+            });
+        }
+        const quickRowMemory = document.getElementById("quick-row-memory");
+        if (quickRowMemory) {
+            quickRowMemory.addEventListener("click", () => {
+                switchSettingsTab(elements.settingsMemoryBtn, elements.tabMemory);
+            });
+        }
+        const quickRowConnectors = document.getElementById("quick-row-connectors");
+        if (quickRowConnectors) {
+            quickRowConnectors.addEventListener("click", () => {
+                switchSettingsTab(elements.settingsMcpBtn, elements.tabMcp);
+            });
+        }
+        const quickRowExport = document.getElementById("quick-row-export");
+        if (quickRowExport) {
+            quickRowExport.addEventListener("click", () => {
+                switchSettingsTab(elements.settingsDataBtn, elements.tabData);
+            });
+        }
+
+        // Live Real-Time Settings Search
+        const settingsNavSearch = document.getElementById("settings-nav-search");
+        if (settingsNavSearch) {
+            settingsNavSearch.addEventListener("input", (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const tabBtns = document.querySelectorAll(".settings-tab-btn");
+                tabBtns.forEach(btn => {
+                    const text = (btn.textContent || "").toLowerCase();
+                    const matches = !query || text.includes(query);
+                    btn.style.display = matches ? "flex" : "none";
+                });
+                document.querySelectorAll(".settings-nav-group").forEach(group => {
+                    const visibleBtns = group.querySelectorAll(".settings-tab-btn[style*='display: flex'], .settings-tab-btn:not([style*='display: none'])");
+                    const prevKicker = group.previousElementSibling;
+                    if (prevKicker && prevKicker.classList.contains("settings-section-kicker")) {
+                        prevKicker.style.display = visibleBtns.length > 0 ? "block" : "none";
+                    }
+                });
+            });
+        }
+
+        // Display Name Editing Modal Sheet
+        const nameEditModalSheet = document.getElementById("name-edit-modal-sheet");
+        const nameEditInput = document.getElementById("name-edit-input");
+        const nameEditCancelBtn = document.getElementById("name-edit-cancel-btn");
+        const nameEditSaveBtn = document.getElementById("name-edit-save-btn");
+
+        const openNameEditModal = () => {
+            if (!nameEditModalSheet) return;
+            const currentName = getUserName(loggedInUser);
+            if (nameEditInput) {
+                nameEditInput.value = currentName;
+                setTimeout(() => nameEditInput.focus(), 60);
+            }
+            nameEditModalSheet.classList.remove("hidden");
+        };
+
+        const closeNameEditModal = () => {
+            if (nameEditModalSheet) nameEditModalSheet.classList.add("hidden");
+        };
+
+        const avatarEditPencilBtn = document.getElementById("avatar-edit-pencil-btn");
+        if (avatarEditPencilBtn) avatarEditPencilBtn.addEventListener("click", openNameEditModal);
+        const mobileAvatarEditBtn = document.getElementById("mobile-avatar-edit-btn");
+        if (mobileAvatarEditBtn) mobileAvatarEditBtn.addEventListener("click", openNameEditModal);
+        if (nameEditCancelBtn) nameEditCancelBtn.addEventListener("click", closeNameEditModal);
+
+        if (nameEditSaveBtn && nameEditInput) {
+            nameEditSaveBtn.addEventListener("click", () => {
+                const val = nameEditInput.value.trim();
+                if (!val) {
+                    showToast("Please enter a valid name");
+                    return;
+                }
+                localStorage.setItem("wondrilla_custom_display_name", val);
+                closeNameEditModal();
+                openProfileModal();
+                updatePlanUI();
+                showToast("Display name updated!");
+            });
+        }
+
+        // Smart Memory Controls
+        const addMemoryForm = document.getElementById("add-memory-form");
+        const addMemoryInput = document.getElementById("add-memory-input");
+        if (addMemoryForm && addMemoryInput) {
+            addMemoryForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const text = addMemoryInput.value.trim();
+                if (!text) return;
+                state.memories.push(text);
+                localStorage.setItem("wondrilla_memories", JSON.stringify(state.memories));
+                addMemoryInput.value = "";
+                renderMemories();
+                showToast("New memory remembered!");
+            });
+        }
+
+        const clearAllMemoriesBtn = document.getElementById("clear-all-memories-btn");
+        if (clearAllMemoriesBtn) {
+            clearAllMemoriesBtn.addEventListener("click", () => {
+                if (confirm("Clear all remembered facts?")) {
+                    state.memories = [];
+                    localStorage.setItem("wondrilla_memories", JSON.stringify(state.memories));
+                    renderMemories();
+                    showToast("All memories cleared");
+                }
+            });
+        }
+
+        const memoryToggle = document.getElementById("memory-enabled-toggle");
+        if (memoryToggle) {
+            memoryToggle.addEventListener("change", (e) => {
+                state.memoryEnabled = e.target.checked;
+                localStorage.setItem("wondrilla_memory_enabled", state.memoryEnabled ? "true" : "false");
+                showToast(state.memoryEnabled ? "Smart memory enabled" : "Smart memory paused");
+            });
+        }
+
+        // Chat History Export (JSON & Markdown)
+        const exportChatHistory = (format) => {
+            const history = state.history || [];
+            if (history.length === 0) {
+                showToast("No chat history to export");
+                return;
+            }
+
+            let content = "";
+            let filename = "";
+            let mime = "";
+
+            if (format === "json") {
+                content = JSON.stringify({
+                    exportedAt: new Date().toISOString(),
+                    user: getUserName(loggedInUser),
+                    conversations: history,
+                    memories: state.memories,
+                    customInstructions: state.customInstructions
+                }, null, 2);
+                filename = `wondrilla-export-${Date.now()}.json`;
+                mime = "application/json";
+            } else {
+                const lines = [
+                    "# Wondrilla Chat Export",
+                    `Exported on: ${new Date().toLocaleString()}`,
+                    `User: ${getUserName(loggedInUser)}`,
+                    "\n---"
+                ];
+                history.forEach((conv, i) => {
+                    lines.push(`\n## Conversation ${i + 1}: ${conv.title || "Untitled"}`);
+                    lines.push(`*Date: ${new Date(conv.updatedAt || Date.now()).toLocaleString()}*\n`);
+                    (conv.messages || []).forEach(m => {
+                        const role = m.role === "user" ? "**User**" : `**Assistant (${m.model || "Wondrilla"})``;
+                        lines.push(`${role}:\n${m.content || m.text || ""}\n`);
+                    });
+                    lines.push("\n---");
+                });
+                content = lines.join("\n");
+                filename = `wondrilla-export-${Date.now()}.md`;
+                mime = "text/markdown";
+            }
+
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Exported history as ${format.toUpperCase()}`);
+        };
+
+        const exportJsonBtn = document.getElementById("export-json-btn");
+        if (exportJsonBtn) exportJsonBtn.addEventListener("click", () => exportChatHistory("json"));
+
+        const exportMarkdownBtn = document.getElementById("export-markdown-btn");
+        if (exportMarkdownBtn) exportMarkdownBtn.addEventListener("click", () => exportChatHistory("markdown"));
+
+        const clearChatsBtnData = document.getElementById("clear-chats-btn-data");
+        if (clearChatsBtnData && elements.clearChatsBtn) {
+            clearChatsBtnData.addEventListener("click", () => elements.clearChatsBtn.click());
+        }
+
+        const deleteAccountBtnData = document.getElementById("delete-account-btn-data");
+        if (deleteAccountBtnData && elements.deleteAccountBtn) {
+            deleteAccountBtnData.addEventListener("click", () => elements.deleteAccountBtn.click());
+        }
+
+        const usageUpgradeBtn = document.getElementById("usage-upgrade-btn");
+        if (usageUpgradeBtn) {
+            usageUpgradeBtn.addEventListener("click", () => {
+                closeModals();
+                openModal(elements.pricingModal);
+            });
+        }
+
+        const profilePlanAction = document.getElementById("profile-plan-action");
+        if (profilePlanAction) {
+            profilePlanAction.addEventListener("click", () => {
+                closeModals();
+                openModal(elements.pricingModal);
+            });
+        }
 
         if (mobileBackBtn) {
             mobileBackBtn.addEventListener("click", () => {
@@ -2286,7 +2535,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function getUserName(user) {
-        if (!user) return "Guest";
+        const customName = localStorage.getItem("wondrilla_custom_display_name");
+        if (customName && customName.trim()) return customName.trim();
+        if (!user) return "Sonu Kumar";
         return user.user_metadata?.display_name || 
                user.user_metadata?.full_name || 
                user.user_metadata?.name || 
@@ -2295,19 +2546,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     }
 
     function getUserInitials(user) {
-        if (!user) return "G";
-        const rawName = user.user_metadata?.display_name || 
-                         user.user_metadata?.full_name || 
-                         user.user_metadata?.name || "";
-        if (rawName) {
-            const parts = rawName.trim().split(/\s+/).filter(Boolean);
+        const name = getUserName(user);
+        if (name) {
+            const parts = name.trim().split(/\s+/).filter(Boolean);
             if (parts.length >= 2) {
                 return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
             } else if (parts.length === 1 && parts[0].length >= 2) {
                 return parts[0].slice(0, 2).toUpperCase();
+            } else if (parts.length === 1 && parts[0].length === 1) {
+                return parts[0].toUpperCase();
             }
         }
-        if (user.email) {
+        if (user && user.email) {
             if (user.email.toLowerCase().includes("swarnya") || user.email.toLowerCase().includes("sonu")) {
                 return "SK";
             }
@@ -2318,52 +2568,138 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             }
             return emailPrefix.slice(0, 2).toUpperCase();
         }
-        return "G";
+        return "SK";
+    }
+
+    function renderMemories() {
+        const wrap = document.getElementById("memory-chips-wrap");
+        const countText = document.getElementById("memory-count-text");
+        const countPill = document.getElementById("memory-count-pill");
+        const quickMemoryStatus = document.getElementById("quick-memory-status");
+        const toggle = document.getElementById("memory-enabled-toggle");
+
+        if (toggle) toggle.checked = state.memoryEnabled;
+        const count = (state.memories || []).length;
+        if (countText) countText.textContent = count;
+        if (countPill) countPill.textContent = count;
+        if (quickMemoryStatus) {
+            quickMemoryStatus.textContent = state.memoryEnabled ? `Active (${count} memories saved)` : "Paused";
+        }
+
+        if (!wrap) return;
+        if (count === 0) {
+            wrap.innerHTML = '<div style="font-size: 13px; color: var(--muted); padding: 12px 0;">No memories saved yet. Teach Wondrilla something new below!</div>';
+            return;
+        }
+
+        wrap.innerHTML = state.memories.map((mem, idx) => `
+            <div class="memory-chip" data-idx="${idx}">
+                <span class="memory-chip-dot"></span>
+                <span class="memory-chip-text">${escapeHtml(mem)}</span>
+                <button class="memory-chip-remove" data-idx="${idx}" type="button" title="Delete memory">&times;</button>
+            </div>
+        `).join("");
+
+        wrap.querySelectorAll(".memory-chip-remove").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const idx = Number.parseInt(btn.getAttribute("data-idx"), 10);
+                if (!Number.isNaN(idx)) {
+                    state.memories.splice(idx, 1);
+                    localStorage.setItem("wondrilla_memories", JSON.stringify(state.memories));
+                    renderMemories();
+                    showToast("Memory deleted");
+                }
+            });
+        });
     }
 
     function openProfileModal() {
-        if (!loggedInUser) return;
-        const displayName = getUserName(loggedInUser);
-        elements.profileEmail.textContent = loggedInUser.email;
-        elements.profileName.textContent = displayName;
+        const user = loggedInUser || { email: localStorage.getItem("wondrilla_email") || "alrckle@gmail.com" };
+        const displayName = getUserName(user);
+        if (elements.profileEmail) elements.profileEmail.textContent = user.email || "alrckle@gmail.com";
+        if (elements.profileName) elements.profileName.textContent = displayName;
         
-        // Large Avatar Initials
-        const initials = getUserInitials(loggedInUser);
+        // Large Avatar Initials & Header Sync
+        const initials = getUserInitials(user);
         const avatarLarge = document.getElementById("profile-avatar-large");
         if (avatarLarge) avatarLarge.textContent = initials;
+        const mobileHeroAvatar = document.getElementById("mobile-hero-avatar");
+        if (mobileHeroAvatar) mobileHeroAvatar.textContent = initials;
+        const mobileHeroName = document.getElementById("mobile-hero-name");
+        if (mobileHeroName) mobileHeroName.textContent = displayName;
+        const sidebarAvatar = document.getElementById("sidebar-avatar");
+        if (sidebarAvatar) sidebarAvatar.textContent = initials;
         
         // Plan & Badge
         const planName = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
-        elements.profilePlan.textContent = planName + " Plan";
+        if (elements.profilePlan) elements.profilePlan.textContent = planName + " Plan";
+        const profilePlanTitle = document.getElementById("profile-plan-title");
+        if (profilePlanTitle) profilePlanTitle.textContent = planName + " Plan";
         
         const badgePro = document.getElementById("profile-badge-pro");
+        const mobileHeroBadge = document.getElementById("mobile-hero-badge");
+        const navPlanLabel = document.getElementById("nav-plan-label");
+        const usageTierName = document.getElementById("usage-tier-name");
+
+        let badgeText = "Pro Member";
+        let badgeClass = "profile-badge pro";
+        let badgeHtml = '<i class="dot"></i>Pro Member';
+
+        if (state.plan === "studio") {
+            badgeText = "Studio Member";
+            badgeClass = "profile-badge studio";
+            badgeHtml = '<i class="dot" style="background:#c084fc; box-shadow: 0 0 8px #c084fc;"></i>Studio Member';
+        } else if (state.plan === "free") {
+            badgeText = "Free Member";
+            badgeClass = "profile-badge free";
+            badgeHtml = "Free Plan";
+        }
+
         if (badgePro) {
-            if (state.plan === "studio") {
-                badgePro.className = "profile-badge studio";
-                badgePro.innerHTML = '<i class="dot" style="background:#c084fc; box-shadow: 0 0 8px #c084fc;"></i>Studio Member';
-            } else if (state.plan === "pro") {
-                badgePro.className = "profile-badge pro";
-                badgePro.innerHTML = '<i class="dot"></i>Pro Member';
-            } else {
-                badgePro.className = "profile-badge free";
-                badgePro.innerHTML = "Free Plan";
-            }
+            badgePro.className = badgeClass;
+            badgePro.innerHTML = badgeHtml;
         }
+        if (mobileHeroBadge) mobileHeroBadge.textContent = badgeText;
+        if (navPlanLabel) navPlanLabel.textContent = badgeText;
+        if (usageTierName) usageTierName.textContent = planName + " Tier";
         
-        // Usage progress bar
+        // Usage progress bar & executive meters
         const limit = planLimit();
-        elements.profileUsed.textContent = `${state.used} / ${limit.toLocaleString()} messages`;
-        
+        const used = state.used || 0;
+        const remaining = Math.max(0, limit - used);
+        const percentage = Math.min(100, Math.max(0, (used / limit) * 100));
+        const pctRemaining = (100 - percentage).toFixed(1);
+
+        if (elements.profileUsed) elements.profileUsed.textContent = `${used.toLocaleString()} / ${limit.toLocaleString()} messages`;
+        const profileUsedCount = document.getElementById("profile-used-count");
+        if (profileUsedCount) profileUsedCount.textContent = `${used.toLocaleString()} / ${limit.toLocaleString()} messages`;
+
+        const usagePercentBadge = document.getElementById("usage-percent-badge");
+        if (usagePercentBadge) usagePercentBadge.textContent = `${percentage.toFixed(0)}% Used`;
+
+        const usageGaugeStat = document.getElementById("usage-gauge-stat");
+        if (usageGaugeStat) usageGaugeStat.innerHTML = `${used.toLocaleString()} <small>/ ${limit.toLocaleString()}</small>`;
+
+        const usageGaugeSub = document.getElementById("usage-gauge-sub");
+        if (usageGaugeSub) usageGaugeSub.textContent = `${remaining.toLocaleString()} messages remaining in your ${planName} cycle (${pctRemaining}% balance)`;
+
+        const usageGaugeFill = document.getElementById("usage-gauge-fill");
+        if (usageGaugeFill) usageGaugeFill.style.width = `${percentage}%`;
+
         const progressFill = document.getElementById("profile-progress-fill");
-        if (progressFill) {
-            const percentage = Math.min(100, Math.max(0, (state.used / limit) * 100));
-            progressFill.style.width = `${percentage}%`;
-        }
+        if (progressFill) progressFill.style.width = `${percentage}%`;
+
+        const navUsageLabel = document.getElementById("nav-usage-label");
+        if (navUsageLabel) navUsageLabel.textContent = `${used.toLocaleString()} / ${limit.toLocaleString()}`;
 
         // Custom Instructions
         if (elements.personalizationAbout) elements.personalizationAbout.value = state.customInstructions.about || "";
         if (elements.personalizationResponse) elements.personalizationResponse.value = state.customInstructions.response || "";
         if (elements.personalizationEnabled) elements.personalizationEnabled.checked = state.customInstructions.enabled !== false;
+
+        // Render Memories
+        renderMemories();
 
         // Reset Settings tab to Profile
         if (elements.settingsProfileBtn) elements.settingsProfileBtn.click();

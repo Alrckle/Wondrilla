@@ -1867,6 +1867,14 @@ function buildProviderPrompt(prompt, body) {
         }
     }
 
+    if (body.memories && Array.isArray(body.memories) && body.memories.length > 0) {
+        lines.push("--- REMEMBERED USER PREFERENCES & FACTS (Smart Memory) ---");
+        for (const mem of body.memories) {
+            const clean = String(mem || "").trim();
+            if (clean) lines.push(`• ${clean}`);
+        }
+    }
+
     if (body.web) {
         lines.push("The user enabled web research. If live search context is not provided, say that a search connector is needed before making current claims.");
     }
