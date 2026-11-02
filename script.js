@@ -371,39 +371,51 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     function updatePricingModalUI() {
         const currentPlan = (state.plan || "free").toLowerCase();
 
-        const freeBtn = document.getElementById("plan-btn-free");
-        const proBtn = document.getElementById("plan-btn-pro");
-        const studioBtn = document.getElementById("plan-btn-studio");
+        // Safe fallback selectors by ID or DOM position
+        const grid = document.querySelector(".pricing-grid");
+        const priceCards = grid ? grid.querySelectorAll(".price-card") : document.querySelectorAll(".price-card");
+        const freeCard = document.querySelector('[data-plan-card="free"]') || priceCards[0];
+        const proCard = document.querySelector('[data-plan-card="pro"]') || priceCards[1];
+        const studioCard = document.querySelector('[data-plan-card="studio"]') || priceCards[2];
 
-        const freeCard = document.querySelector('[data-plan-card="free"]');
-        const proCard = document.querySelector('[data-plan-card="pro"]');
-        const studioCard = document.querySelector('[data-plan-card="studio"]');
+        const freeBtn = document.getElementById("plan-btn-free") || (freeCard ? freeCard.querySelector("button") : null);
+        const proBtn = document.getElementById("plan-btn-pro") || (proCard ? proCard.querySelector("button") : null);
+        const studioBtn = document.getElementById("plan-btn-studio") || (studioCard ? studioCard.querySelector("button") : null);
 
-        const proTag = document.getElementById("pro-card-tag");
-        const studioTag = document.getElementById("studio-card-tag");
+        const proTag = document.getElementById("pro-card-tag") || (proCard ? proCard.querySelector(".popular-tag") : null);
+        const studioTag = document.getElementById("studio-card-tag") || (studioCard ? studioCard.querySelector(".popular-tag") : null);
 
         if (freeCard) freeCard.classList.toggle("active-plan", currentPlan === "free");
-        if (proCard) proCard.classList.toggle("active-plan", currentPlan === "pro");
-        if (studioCard) studioCard.classList.toggle("active-plan", currentPlan === "studio");
+        if (proCard) {
+            proCard.classList.toggle("active-plan", currentPlan === "pro");
+            if (currentPlan === "studio") proCard.classList.remove("featured");
+        }
+        if (studioCard) {
+            studioCard.classList.toggle("active-plan", currentPlan === "studio");
+            studioCard.classList.toggle("featured", currentPlan === "studio");
+        }
 
-        if (currentPlan === "free") {
+        if (currentPlan === "studio") {
             if (freeBtn) {
-                freeBtn.textContent = "✓ Current plan";
-                freeBtn.className = "plan-btn secondary current";
+                freeBtn.textContent = "Free Tier";
+                freeBtn.className = "plan-btn secondary";
                 freeBtn.disabled = true;
             }
             if (proBtn) {
-                proBtn.textContent = "Start Pro";
-                proBtn.className = "plan-btn primary choose-plan";
-                proBtn.disabled = false;
+                proBtn.textContent = "Included in Studio";
+                proBtn.className = "plan-btn secondary";
+                proBtn.disabled = true;
             }
             if (studioBtn) {
-                studioBtn.textContent = "Choose Studio";
-                studioBtn.className = "plan-btn dark choose-plan";
-                studioBtn.disabled = false;
+                studioBtn.textContent = "✓ Current plan";
+                studioBtn.className = "plan-btn secondary current";
+                studioBtn.disabled = true;
             }
-            if (proTag) proTag.textContent = "MOST POPULAR";
-            if (studioTag) studioTag.style.display = "none";
+            if (proTag) proTag.style.display = "none";
+            if (studioTag) {
+                studioTag.style.display = "inline-block";
+                studioTag.textContent = "CURRENT PLAN";
+            }
         } else if (currentPlan === "pro") {
             if (freeBtn) {
                 freeBtn.textContent = "Free Tier";
@@ -420,36 +432,44 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                 studioBtn.className = "plan-btn primary choose-plan";
                 studioBtn.disabled = false;
             }
-            if (proTag) proTag.textContent = "CURRENT ACTIVE";
+            if (proTag) {
+                proTag.style.display = "inline-block";
+                proTag.textContent = "CURRENT PLAN";
+            }
             if (studioTag) studioTag.style.display = "none";
-        } else if (currentPlan === "studio") {
+        } else {
+            // Free plan
             if (freeBtn) {
-                freeBtn.textContent = "Free Tier";
-                freeBtn.className = "plan-btn secondary";
+                freeBtn.textContent = "✓ Current plan";
+                freeBtn.className = "plan-btn secondary current";
                 freeBtn.disabled = true;
             }
             if (proBtn) {
-                proBtn.textContent = "Included in Studio";
-                proBtn.className = "plan-btn secondary";
-                proBtn.disabled = true;
+                proBtn.textContent = "Start Pro";
+                proBtn.className = "plan-btn primary choose-plan";
+                proBtn.disabled = false;
             }
             if (studioBtn) {
-                studioBtn.textContent = "✓ Current plan";
-                studioBtn.className = "plan-btn secondary current";
-                studioBtn.disabled = true;
+                studioBtn.textContent = "Choose Studio";
+                studioBtn.className = "plan-btn dark choose-plan";
+                studioBtn.disabled = false;
             }
-            if (proTag) proTag.textContent = "MOST POPULAR";
-            if (studioTag) {
-                studioTag.style.display = "inline-block";
-                studioTag.textContent = "CURRENT ACTIVE";
+            if (proTag) {
+                proTag.style.display = "inline-block";
+                proTag.textContent = "MOST POPULAR";
             }
+            if (studioTag) studioTag.style.display = "none";
         }
     }
 
     function updatePlanUI() {
-        updatePricingModalUI();
         if (!isUserLoggedIn()) {
             state.plan = "free";
+        }
+        const activeEmail = (loggedInUser?.email || localStorage.getItem("wondrilla_email") || "").toLowerCase().trim();
+        if (activeEmail === "alrckle@gmail.com") {
+            state.plan = "studio";
+            try { localStorage.setItem("wondrilla_plan", "studio"); } catch(e){}
         }
         const planCapitalized = state.plan.charAt(0).toUpperCase() + state.plan.slice(1);
         const usageCardKicker = document.querySelector(".usage-card .eyebrow");
@@ -499,6 +519,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (mobileHeroName) mobileHeroName.textContent = displayName;
         const mobileHeroBadge = document.getElementById("mobile-hero-badge");
         if (mobileHeroBadge) mobileHeroBadge.textContent = state.plan === "free" ? "Free Member" : `${planCapitalized} Member`;
+        updatePricingModalUI();
     }
 
     async function loadRuntimeStatus() {

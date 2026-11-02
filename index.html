@@ -12,7 +12,7 @@
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=51.0">
+    <link rel="stylesheet" href="style.css?v=52.0">
     <script>
         (function() {
             try {
@@ -394,7 +394,7 @@
                 <button type="button" data-billing="yearly">Yearly <span>Save 20%</span></button>
             </div>
             <div class="pricing-grid">
-                <article class="price-card">
+                <article class="price-card" data-plan-card="free">
                     <span class="plan-name">Free</span>
                     <div class="price"><strong>$0</strong><span>/ month</span></div>
                     <p>Explore Wondrilla and find your favorite models.</p>
@@ -403,10 +403,10 @@
                         <li>Standard model access</li>
                         <li>Conversation history</li>
                     </ul>
-                    <button class="plan-btn secondary" type="button">Current plan</button>
+                    <button class="plan-btn secondary current" id="plan-btn-free" type="button">Current plan</button>
                 </article>
-                <article class="price-card featured">
-                    <span class="popular-tag">MOST POPULAR</span>
+                <article class="price-card featured" data-plan-card="pro">
+                    <span class="popular-tag" id="pro-card-tag">MOST POPULAR</span>
                     <span class="plan-name">Pro</span>
                     <div class="price"><strong data-monthly="$24" data-yearly="$19">$24</strong><span>/ month</span></div>
                     <p>Serious creative and knowledge work, all in one place.</p>
@@ -416,9 +416,10 @@
                         <li>3-model comparison</li>
                         <li>Web research and file uploads</li>
                     </ul>
-                    <button class="plan-btn primary choose-plan" type="button" data-plan="Pro">Start Pro</button>
+                    <button class="plan-btn primary choose-plan" id="plan-btn-pro" type="button" data-plan="Pro">Start Pro</button>
                 </article>
-                <article class="price-card">
+                <article class="price-card" data-plan-card="studio">
+                    <span class="popular-tag" id="studio-card-tag" style="display: none; background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff;">TOP TIER</span>
                     <span class="plan-name">Studio</span>
                     <div class="price"><strong data-monthly="$79" data-yearly="$63">$79</strong><span>/ month</span></div>
                     <p>Shared intelligence for fast-moving teams.</p>
@@ -428,7 +429,7 @@
                         <li>Shared prompt library</li>
                         <li>Priority model routing</li>
                     </ul>
-                    <button class="plan-btn dark choose-plan" type="button" data-plan="Studio">Choose Studio</button>
+                    <button class="plan-btn dark choose-plan" id="plan-btn-studio" type="button" data-plan="Studio">Choose Studio</button>
                 </article>
             </div>
             <p class="pricing-footnote">Provider names are trademarks of their respective owners. Model availability and usage limits may change.</p>
@@ -1539,7 +1540,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=51.0"></script>
+    <script type="module" src="script.js?v=52.0"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
