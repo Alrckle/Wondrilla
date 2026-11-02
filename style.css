@@ -3928,8 +3928,8 @@ body.light-mode .custom-connector-modal-card textarea {
 
 /* Anthropic Claude-Style Settings Modal Layout & Backdrop Blur */
 .settings-modal-card {
-    width: min(900px, 92vw) !important;
-    max-height: 85vh !important;
+    width: min(940px, 94vw) !important;
+    max-height: 90vh !important;
     padding: 0 !important;
     position: relative !important;
     overflow: hidden !important;
@@ -3945,21 +3945,24 @@ body.light-mode .custom-connector-modal-card textarea {
 
 .settings-layout {
     display: flex !important;
-    height: min(600px, 85vh) !important;
+    height: min(660px, 86vh) !important;
     margin-top: 0 !important;
     min-height: 0 !important;
 }
 
 .settings-sidebar {
-    width: 220px !important;
+    width: 240px !important;
     flex-shrink: 0 !important;
     background: rgba(255, 255, 255, 0.02) !important;
     border-right: 1px solid var(--line, rgba(255, 255, 255, 0.1)) !important;
-    padding: 24px 16px !important;
+    padding: 18px 12px 48px 12px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 16px !important;
+    gap: 6px !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
 }
 
 .settings-sidebar-header {
@@ -4013,6 +4016,7 @@ body.light-mode .custom-connector-modal-card textarea {
 body.light-mode .settings-sidebar {
     background: #f8fafc !important;
     border-right: 1px solid #cbd5e1 !important;
+    scrollbar-color: #cbd5e1 transparent !important;
 }
 
 [data-theme="light"] .settings-sidebar-title,
@@ -4572,21 +4576,24 @@ html.has-active-chat .welcome-state {
 .tab-btn-content {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
+    min-width: 0;
 }
 
 .tab-btn-titles strong {
     display: block;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--ink);
+    line-height: 1.25;
 }
 
 .tab-btn-titles small {
     display: block;
-    font-size: 13px;
+    font-size: 11px;
     color: var(--muted);
-    margin-top: 2px;
+    margin-top: 1px;
+    line-height: 1.2;
 }
 
 .connector-card-header {
@@ -4642,13 +4649,14 @@ html.has-active-chat .welcome-state {
         background: transparent !important;
         border: none !important;
         border-radius: 0 !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 6px !important;
     }
 
     .settings-nav-group .settings-tab-btn {
-        padding: 12px 14px !important;
-        border-radius: 10px !important;
+        padding: 8px 10px !important;
+        border-radius: 9px !important;
         margin-bottom: 2px !important;
+        min-height: 40px !important;
     }
 
     .settings-nav-group .settings-tab-btn.active {
@@ -5173,20 +5181,25 @@ body.light-mode #mkt-webhook-url {
     font-weight: 800;
     letter-spacing: 0.08em;
     color: var(--muted);
-    margin: 12px 6px 6px;
+    margin: 8px 6px 3px;
     text-transform: uppercase;
 }
 
 /* Icon Badges with vibrant subtle backgrounds */
 .tab-badge-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     color: #ffffff;
+}
+
+.tab-badge-icon svg {
+    width: 14px;
+    height: 14px;
 }
 
 .badge-smile { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
