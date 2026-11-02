@@ -1442,7 +1442,9 @@ textarea::-webkit-scrollbar {
 }
 
 .pricing-modal-card {
-    width: min(960px, 100%);
+    width: min(990px, 95vw);
+    padding: 26px 30px;
+    box-sizing: border-box;
 }
 
 .billing-toggle {
@@ -1480,6 +1482,7 @@ textarea::-webkit-scrollbar {
     display: grid;
     gap: 20px;
     grid-template-columns: repeat(3, 1fr);
+    padding: 4px 2px;
 }
 
 .price-card {
@@ -1579,10 +1582,17 @@ textarea::-webkit-scrollbar {
 .plan-btn {
     border-radius: 8px;
     cursor: pointer;
-    font-size: 10px;
-    font-weight: 800;
+    font-size: 10.5px;
+    font-weight: 700;
     margin-top: auto;
-    padding: 10px;
+    padding: 10px 12px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: normal;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .plan-btn.secondary {
@@ -6466,177 +6476,34 @@ body.light-mode .name-edit-box input {
     }
 }
 
-/* ==========================================================================
-   PRICING MODAL - FULLY RESPONSIVE & SPACIOUS OVERHAUL
-   ========================================================================== */
-
-.pricing-modal-card {
-    width: min(1080px, 94vw) !important;
-    max-width: 1080px !important;
-    padding: 30px 36px 28px !important;
-    border-radius: 20px !important;
-    box-sizing: border-box !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    max-height: min(92vh, 850px) !important;
+/* Pricing Modal Active Plan Indicator */
+.price-card.active-plan {
+    border: 2px solid var(--blue, #2563eb) !important;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15) !important;
 }
 
-.pricing-modal-card .modal-header {
-    position: relative !important;
-    top: 0 !important;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    margin-bottom: 8px !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-    background: transparent !important;
-}
-
-.pricing-modal-card .modal-header h2 {
-    font-size: 26px !important;
-    letter-spacing: -0.03em !important;
-    margin: 4px 0 0 !important;
-}
-
-.pricing-modal-card .billing-toggle {
-    margin: 14px auto 20px !important;
-}
-
-.pricing-modal-card .pricing-grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 22px !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    padding: 6px 4px !important;
-}
-
-.pricing-modal-card .price-card {
-    min-height: auto !important;
-    padding: 24px 22px 22px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    border-radius: 16px !important;
-    box-sizing: border-box !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
-}
-
-.pricing-modal-card .price-card .price {
-    margin: 12px 0 8px !important;
-}
-
-.pricing-modal-card .price-card .price strong {
-    font-size: 38px !important;
-}
-
-.pricing-modal-card .price-card p {
-    font-size: 12.5px !important;
-    line-height: 1.45 !important;
-    margin: 0 0 14px !important;
-}
-
-.pricing-modal-card .price-card ul {
-    gap: 8px !important;
-    margin: 0 0 20px !important;
-    font-size: 12.5px !important;
-    line-height: 1.4 !important;
-}
-
-.pricing-modal-card .price-card li {
-    display: flex !important;
-    align-items: flex-start !important;
-}
-
-/* Plan Action Buttons */
-.pricing-modal-card .plan-btn {
-    width: 100% !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    padding: 0 16px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-    border-radius: 10px !important;
-    line-height: 1 !important;
-    box-sizing: border-box !important;
-    text-align: center !important;
-    margin-top: auto !important;
-    transition: all 0.2s ease !important;
-}
-
-/* Plan Button Colors in Light Mode */
-[data-theme="light"] .pricing-modal-card .plan-btn.secondary,
-body.light-mode .pricing-modal-card .plan-btn.secondary {
-    background: #f8fafc !important;
-    border: 1.5px solid #cbd5e1 !important;
-    color: #475569 !important;
-}
-
-[data-theme="light"] .pricing-modal-card .plan-btn.secondary.current,
-body.light-mode .pricing-modal-card .plan-btn.secondary.current {
-    background: #eff6ff !important;
-    border: 1.5px solid #3b82f6 !important;
-    color: #1d4ed8 !important;
-    font-weight: 700 !important;
-}
-
-[data-theme="light"] .pricing-modal-card .plan-btn.primary,
-body.light-mode .pricing-modal-card .plan-btn.primary {
-    background: #2563eb !important;
-    border: 1.5px solid #1d4ed8 !important;
-    color: #ffffff !important;
-}
-
-[data-theme="light"] .pricing-modal-card .plan-btn.dark,
-body.light-mode .pricing-modal-card .plan-btn.dark {
-    background: #0f172a !important;
-    border: 1.5px solid #0f172a !important;
-    color: #ffffff !important;
-}
-
-/* Dark Mode Plan Buttons */
-.pricing-modal-card .plan-btn.secondary {
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1.5px solid var(--line) !important;
-    color: var(--muted) !important;
-}
-
-.pricing-modal-card .plan-btn.secondary.current {
-    background: rgba(37, 99, 235, 0.15) !important;
-    border: 1.5px solid #3b82f6 !important;
-    color: #93c5fd !important;
-    font-weight: 700 !important;
-}
-
-/* Active Plan Highlights */
-.pricing-modal-card .price-card.active-plan {
-    border: 2px solid #2563eb !important;
-    box-shadow: 0 10px 28px rgba(37, 99, 235, 0.12) !important;
-}
-
-.pricing-modal-card .plan-btn.current {
+.plan-btn.current {
     cursor: default !important;
-    opacity: 0.95 !important;
+    opacity: 0.9 !important;
 }
 
-.pricing-modal-card .pricing-footnote {
-    font-size: 10px !important;
-    margin: 14px 0 6px !important;
-    color: var(--muted) !important;
+[data-theme="light"] .plan-btn.secondary.current,
+body.light-mode .plan-btn.secondary.current {
+    background: #e2e8f0 !important;
+    border: 1px solid #94a3b8 !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
 }
 
-@media (max-width: 900px) {
-    .pricing-modal-card {
-        padding: 24px 20px 20px !important;
-        width: 96vw !important;
-    }
-    
-    .pricing-modal-card .pricing-grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-    }
+[data-theme="light"] .price-card.active-plan,
+body.light-mode .price-card.active-plan {
+    border: 2px solid #2563eb !important;
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.14) !important;
+}
+
+[data-theme="light"] .plan-btn.secondary,
+body.light-mode .plan-btn.secondary {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
 }
