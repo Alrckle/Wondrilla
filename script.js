@@ -570,6 +570,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         document.body.style.overflow = "hidden";
         if (modal === elements.authModal) {
             setAuthMode("signin");
+            setTimeout(renderGoogleSignInButton, 60);
         }
         if (modal === elements.pricingModal) {
             updatePricingModalUI();
@@ -2463,6 +2464,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             elements.authPasswordGroup.classList.add("hidden");
             elements.authPassword.required = false;
         }
+        setTimeout(renderGoogleSignInButton, 30);
     }
 
     function toggleAuthMode() {
@@ -2580,10 +2582,81 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         }
     }
 
+    const GOOGLE_CLIENT_ID = "1026985159987-p6prg2qvdh4f7erfq82jj67rteim0t9j.apps.googleusercontent.com";
+
+    async function handleGoogleCredentialResponse(response) {
+        if (!response || !response.credential) {
+            showToast("No credential received from Google. Please try again.");
+            return;
+        }
+        try {
+            showToast("Signing in with Google...");
+            if (!supabaseClient) {
+                showToast("Supabase Auth is not initialized.");
+                return;
+            }
+            const { data, error } = await supabaseClient.auth.signInWithIdToken({
+                provider: "google",
+                token: response.credential
+            });
+            if (error) throw error;
+            if (data?.session?.user || data?.user) {
+                handleUserLogin(data.session?.user || data.user);
+                showToast("Signed in with Google successfully!");
+                closeModals();
+            }
+        } catch (err) {
+            console.error("Google authentication error:", err);
+            showToast(`Google Sign-In failed: ${err.message || err}`);
+        }
+    }
+    window.handleGoogleCredentialResponse = handleGoogleCredentialResponse;
+
+    function renderGoogleSignInButton() {
+        const wrap = document.getElementById("google-signin-btn-wrap");
+        if (!wrap) return;
+        const win = window;
+        if (win.google && win.google.accounts && win.google.accounts.id) {
+            try {
+                win.google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredentialResponse,
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+                wrap.innerHTML = "";
+                const width = Math.min(Math.max(wrap.offsetWidth || 300, 240), 380);
+                win.google.accounts.id.renderButton(wrap, {
+                    type: "standard",
+                    shape: "rectangular",
+                    theme: document.documentElement.classList.contains("light-mode") ? "outline" : "filled_black",
+                    text: authMode === "signup" ? "signup_with" : "signin_with",
+                    size: "large",
+                    logo_alignment: "left",
+                    width: width
+                });
+            } catch (e) {
+                console.error("Error rendering Google Sign-In button:", e);
+            }
+        }
+    }
+
     async function handleOAuth(provider) {
         if (!supabaseClient) {
             showToast("Supabase Auth is not initialized.");
             return;
+        }
+        if (provider === "google") {
+            const win = window;
+            if (win.google && win.google.accounts && win.google.accounts.id) {
+                try {
+                    renderGoogleSignInButton();
+                    win.google.accounts.id.prompt();
+                    return;
+                } catch (e) {
+                    console.warn("GSI prompt fallback:", e);
+                }
+            }
         }
         try {
             const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -4048,6 +4121,17 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
             syncConversationsRealtime();
         }
     });
+
+    let gsiAttempts = 0;
+    const gsiInterval = setInterval(() => {
+        gsiAttempts++;
+        if (window.google?.accounts?.id || gsiAttempts > 30) {
+            clearInterval(gsiInterval);
+            if (window.google?.accounts?.id) {
+                renderGoogleSignInButton();
+            }
+        }
+    }, 200);
 
     hideLoadingScreen();
 })();
