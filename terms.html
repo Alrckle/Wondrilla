@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Terms of Service | Wondrilla AI</title>
     <meta name="description" content="Terms of Service and User Agreement for Wondrilla AI workspace.">
-    <link rel="icon" href="assets/wondrilla-icon.svg" type="image/svg+xml">
-    <link rel="alternate icon" href="assets/wondrilla-favicon.png" type="image/png">
+    <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
@@ -108,8 +107,20 @@
             color: var(--text-primary);
         }
 
-        .nav-brand img { width: 34px; height: 34px; border-radius: 50%; object-fit: contain; display: block; }
-        .nav-brand span { font-family: var(--font-brand); font-size: 22px; letter-spacing: -0.02em; }
+        .nav-brand-logo {
+            height: 42px;
+            width: auto;
+            max-width: 190px;
+            object-fit: contain;
+            display: block;
+            transition: transform 180ms ease, filter 180ms ease;
+        }
+
+        .nav-brand:hover .nav-brand-logo {
+            transform: scale(1.04);
+            filter: drop-shadow(0 4px 14px rgba(0, 240, 80, 0.35));
+        }
+        
 
         .btn-back {
             display: inline-flex;
@@ -252,9 +263,8 @@
 <body>
 
     <nav class="navbar">
-        <a href="/" class="nav-brand">
-            <img src="assets/wondrilla-icon.svg" alt="Wondrilla Logo">
-            <span>Wondrilla</span>
+        <a href="/" class="nav-brand" aria-label="Wondrilla Home">
+            <img src="assets/wondrilla-logo-transparent.png" alt="Wondrilla" class="nav-brand-logo">
         </a>
         <div class="nav-actions">
             <button class="theme-toggle-btn" id="theme-toggle-btn" type="button" aria-label="Toggle Theme" title="Toggle Appearance">
