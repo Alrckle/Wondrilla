@@ -187,9 +187,14 @@ a:focus-visible {
 }
 
 .loading-logo-img {
-    width: 64px;
+    width: auto;
+    max-width: 220px;
     height: 64px;
-    animation: pulse 1.5s infinite alternate;
+    object-fit: contain;
+    transform: none !important;
+    margin: 0 auto;
+    display: block;
+    animation: loading-pulse 2s infinite ease-in-out;
 }
 
 .brand-mark span,
@@ -3098,9 +3103,13 @@ body.light-theme .profile-detail-card {
 }
 
 .loading-logo-img {
-    width: 64px;
+    width: auto;
+    max-width: 220px;
     height: 64px;
     object-fit: contain;
+    transform: none !important;
+    margin: 0 auto;
+    display: block;
     animation: loading-pulse 2s infinite ease-in-out;
 }
 
@@ -3114,8 +3123,9 @@ body.light-theme .profile-detail-card {
 }
 
 .loading-logo-img {
-    width: 72px;
-    height: 72px;
+    width: auto;
+    max-width: 220px;
+    height: 64px;
     object-fit: contain;
     transform: none !important;
     margin: 0 auto;
