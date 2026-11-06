@@ -112,7 +112,7 @@
             width: auto;
             max-width: 190px;
             object-fit: contain;
-            display: block;
+            content: url('assets/wondrilla-logo-dark.png');
             transition: transform 180ms ease, filter 180ms ease;
         }
 
@@ -243,7 +243,18 @@
             .doc-section { padding: 20px; }
             .footer { flex-direction: column; align-items: flex-start; }
         }
-    </style>
+    
+        :root[data-theme="light"] .nav-brand-logo,
+        body.light-mode .nav-brand-logo {
+            content: url('assets/wondrilla-logo-light.png') !important;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root:not([data-theme="dark"]) .nav-brand-logo {
+                content: url('assets/wondrilla-logo-light.png') !important;
+            }
+        }
+      </style>
     <script>
         (function() {
             try {
