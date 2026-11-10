@@ -1,13 +1,17 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.wondrilla.app",
       "sha256_cert_fingerprints": [
-        "81:97:2A:B5:05:AD:E0:94:A2:1A:72:A2:11:E2:BF:F7:59:17:FF:9A:EF:66:21:B5:4F:77:0A:F0:C5:CD:69:67"
+        "81:97:2A:B5:05:AD:E0:94:A2:1A:72:A2:11:E2:BF:F7:59:17:FF:9A:EF:66:21:B5:4F:77:0A:F0:C5:CD:69:67",
+        "E6:AB:71:0A:82:85:6B:AC:7F:6F:BB:EE:33:71:71:BE:8B:D6:9A:5F:E5:E9:8E:B2:FD:5E:93:56:A0:DA:A5:51",
+        "39:50:A7:D2:B5:8B:AD:7E:6C:24:F6:79:20:61:6E:52:64:3C:1A:C8:63:A4:66:E0:96:8F:89:5B:BE:DB:FC:1C",
+        "20:B9:06:60:DA:02:4B:FC:3D:A8:E2:25:CF:80:D8:F4:D7:88:C5:2E:EB:A0:50:EE:35:F6:61:05:F9:6C:DA:BE"
       ]
     }
   }
 ]
-
