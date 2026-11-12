@@ -1260,6 +1260,48 @@ async function handleApi(request, response, requestUrl) {
         return;
     }
 
+    if (request.method === "POST" && requestUrl.pathname === "/api/report-content") {
+        const body = await readJsonBody(request);
+        const reason = String(body.reason || "").trim().slice(0, 200);
+        if (!reason) {
+            sendJson(response, 400, { ok: false, error: "A report reason is required." });
+            return;
+        }
+
+        const reportPayload = {
+            user_id: String(body.userId || "").trim().slice(0, 200) || null,
+            user_email: String(body.email || "").trim().slice(0, 255) || null,
+            conversation_id: String(body.conversationId || "").trim().slice(0, 200) || null,
+            model_id: String(body.modelId || "").trim().slice(0, 100) || null,
+            reason,
+            details: String(body.details || "").trim().slice(0, 1500) || null,
+            content_snippet: String(body.contentSnippet || "").trim().slice(0, 2000) || null,
+            content_type: String(body.contentType || "chat_response").trim().slice(0, 64) || "chat_response",
+            status: "pending"
+        };
+
+        if (!supabase) {
+            console.log("[Content Report]", reportPayload);
+            sendJson(response, 200, { ok: true, stored: "log" });
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from("wondrilla_content_reports")
+                .insert([reportPayload])
+                .select("id")
+                .single();
+
+            if (error) throw error;
+            sendJson(response, 200, { ok: true, reportId: data?.id || null, stored: "supabase" });
+        } catch (err) {
+            console.error("[Content Report Error]", err);
+            sendJson(response, 500, { ok: false, error: "Could not save report right now." });
+        }
+        return;
+    }
+
     if (request.method === "POST" && requestUrl.pathname === "/api/auth/reset-password") {
         const body = await readJsonBody(request);
         const email = String(body.email || "").trim();

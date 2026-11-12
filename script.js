@@ -128,6 +128,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         resetSubmitBtn: document.getElementById("reset-submit-btn"),
         resetSubmitText: document.getElementById("reset-submit-text"),
         resetClose: document.getElementById("reset-modal-close"),
+        reportModal: document.getElementById("report-content-modal"),
+        reportForm: document.getElementById("report-content-form"),
+        reportDetails: document.getElementById("report-details-input"),
+        reportHideContent: document.getElementById("report-hide-content"),
+        reportSubmitBtn: document.getElementById("report-submit-btn"),
+        reportSubmitText: document.getElementById("report-submit-text"),
         profileRow: document.querySelector(".profile-row"),
         profileModal: document.getElementById("profile-modal"),
         profileEmail: document.getElementById("profile-email"),
@@ -586,6 +592,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         if (elements.profileModal) elements.profileModal.classList.add("hidden");
         if (elements.resetModal) elements.resetModal.classList.add("hidden");
         if (elements.mcpConnectModal) elements.mcpConnectModal.classList.add("hidden");
+        if (elements.reportModal) elements.reportModal.classList.add("hidden");
         document.body.style.overflow = "";
     }
 
@@ -800,6 +807,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const savedHtml = localStorage.getItem('wondrilla_conv_' + convId);
             if (savedHtml && savedHtml.trim()) {
                 elements.messages.innerHTML = savedHtml;
+                ensureAssistantActionBars();
                 scrollToBottom();
                 loadedLocal = true;
             }
@@ -955,9 +963,42 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         return wrapper;
     }
 
+    function buildAssistantActionsHtml(modelId = "auto", contentType = "chat_response") {
+        const safeModel = escapeHtml(modelId || "auto");
+        const safeType = escapeHtml(contentType || "chat_response");
+        return `
+            <div class="message-actions" data-model-id="${safeModel}" data-content-type="${safeType}">
+                <button type="button" class="msg-action-btn copy-content-btn" aria-label="Copy AI response">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy</span>
+                </button>
+                <button type="button" class="msg-action-btn report-content-btn" aria-label="Report offensive AI content">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                    <span>Report</span>
+                </button>
+            </div>
+        `;
+    }
+
+    function ensureAssistantActionBars() {
+        if (!elements.messages) return;
+        elements.messages.querySelectorAll(".message.assistant .message-bubble").forEach((bubble) => {
+            if (bubble.querySelector(".message-actions") || bubble.querySelector(".typing-dots")) return;
+            const hasImg = Boolean(bubble.querySelector("img"));
+            bubble.insertAdjacentHTML("beforeend", buildAssistantActionsHtml("auto", hasImg ? "generated_image" : "chat_response"));
+        });
+        elements.messages.querySelectorAll(".compare-answer").forEach((card) => {
+            if (card.querySelector(".message-actions")) return;
+            const hasImg = Boolean(card.querySelector("img"));
+            card.insertAdjacentHTML("beforeend", buildAssistantActionsHtml("compare", hasImg ? "generated_image" : "compare_response"));
+        });
+    }
+
     function addAssistantMessage(model, text, typingNode, result) {
         const status = result?.mode === "live" ? "Live" : "Demo";
         const statusClass = result?.mode === "live" ? "live" : "demo";
+        const formatted = formatText(text);
+        const contentType = /<img\s/i.test(formatted) ? "generated_image" : "chat_response";
         let webCitationsHtml = "";
 
         if (state.web) {
@@ -979,8 +1020,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                     <strong>${model.name}</strong>
                     <span class="response-status ${statusClass}">${status}</span>
                 </div>
-                <div>${formatText(text)}</div>
+                <div class="ai-output-body">${formatted}</div>
                 ${webCitationsHtml}
+                ${buildAssistantActionsHtml(model.id, contentType)}
             </div>
         `;
     }
@@ -1002,6 +1044,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const statusClass = answer.mode === "live" ? "live" : "demo";
             const status = answer.mode === "live" ? "Live" : "Demo";
             const filePrefix = file ? `Reviewed file metadata: ${file.name}.\n\n` : "";
+            const formatted = formatText(`${filePrefix}${answer.text}`);
+            const contentType = /<img\s/i.test(formatted) ? "generated_image" : "compare_response";
 
             return `
                 <article class="compare-answer">
@@ -1010,7 +1054,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
                         <strong>${model.name}</strong>
                         <span class="response-status ${statusClass}">${status}</span>
                     </div>
-                    <p>${formatText(`${filePrefix}${answer.text}`)}</p>
+                    <div class="ai-output-body"><p>${formatted}</p></div>
+                    ${buildAssistantActionsHtml(model.id, contentType)}
                 </article>
             `;
         }).join("");
@@ -1028,6 +1073,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             const clone = bubble.cloneNode(true);
             const meta = clone.querySelector(".message-meta");
             if (meta) meta.remove();
+            const actions = clone.querySelector(".message-actions");
+            if (actions) actions.remove();
+            const placeholder = clone.querySelector(".reported-placeholder");
+            if (placeholder) placeholder.remove();
             const citationsHeader = clone.querySelector(".search-citations-header");
             if (citationsHeader) citationsHeader.remove();
             const citationGrid = clone.querySelector(".search-citations-grid");
@@ -3174,13 +3223,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
             `;
         } else {
             const model = modelById(modelId);
+            const formatted = formatText(content);
+            const contentType = /<img\s/i.test(formatted) ? "generated_image" : "chat_response";
             wrapper.innerHTML = `
                 <div class="message-bubble">
                     <div class="message-meta">
                         <span class="model-avatar ${model.id === "auto" ? "auto" : ""}" style="${avatarStyle(model)}">${model.svg || model.mark}</span>
                         <strong>${model.name}</strong>
                     </div>
-                    <div>${formatText(content)}</div>
+                    <div class="ai-output-body">${formatted}</div>
+                    ${buildAssistantActionsHtml(model.id, contentType)}
                 </div>
             `;
         }
@@ -4052,6 +4104,161 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
         }
     }
 
+    function initContentReporting() {
+        let pendingReportTarget = null;
+
+        function extractMessageSnippet(container) {
+            if (!container) return "";
+            const clone = container.cloneNode(true);
+            clone.querySelectorAll(".message-meta, .message-actions, .reported-placeholder").forEach((el) => el.remove());
+            const img = clone.querySelector("img");
+            const textPart = clone.textContent ? clone.textContent.trim() : "";
+            const imgSrc = img ? img.getAttribute("src") || "" : "";
+            if (imgSrc && textPart) return `${textPart} [image: ${imgSrc}]`.slice(0, 1900);
+            if (imgSrc) return `[image: ${imgSrc}]`.slice(0, 1900);
+            return textPart.slice(0, 1900);
+        }
+
+        function openReportDialog({ container, button, modelId, contentType, snippet }) {
+            pendingReportTarget = { container, button, modelId, contentType, snippet };
+            if (elements.reportDetails) elements.reportDetails.value = "";
+            if (elements.reportHideContent) elements.reportHideContent.checked = true;
+            const firstRadio = elements.reportForm?.querySelector('input[name="report-reason"]');
+            if (firstRadio) firstRadio.checked = true;
+            if (elements.reportModal) openModal(elements.reportModal);
+        }
+
+        if (elements.messages) {
+            elements.messages.addEventListener("click", (event) => {
+                const copyBtn = event.target.closest(".copy-content-btn");
+                if (copyBtn) {
+                    const container = copyBtn.closest(".message-bubble, .compare-answer");
+                    const text = extractMessageSnippet(container);
+                    if (text && navigator.clipboard) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            showToast("Copied response to clipboard");
+                        }).catch(() => {
+                            showToast("Could not copy response");
+                        });
+                    }
+                    return;
+                }
+
+                const reportBtn = event.target.closest(".report-content-btn");
+                if (reportBtn) {
+                    const actions = reportBtn.closest(".message-actions");
+                    const container = reportBtn.closest(".message-bubble, .compare-answer");
+                    const modelId = actions?.dataset.modelId || state.selectedModel || "auto";
+                    const hasImg = Boolean(container?.querySelector("img"));
+                    const contentType = actions?.dataset.contentType || (hasImg ? "generated_image" : "chat_response");
+                    openReportDialog({
+                        container,
+                        button: reportBtn,
+                        modelId,
+                        contentType,
+                        snippet: extractMessageSnippet(container)
+                    });
+                    return;
+                }
+
+                const showBtn = event.target.closest(".reported-show-btn");
+                if (showBtn) {
+                    const container = showBtn.closest(".message-bubble, .compare-answer");
+                    const hiddenBody = container?.querySelector(".reported-content-hidden");
+                    const placeholder = showBtn.closest(".reported-placeholder");
+                    if (hiddenBody) hiddenBody.classList.remove("reported-content-hidden");
+                    if (placeholder) placeholder.remove();
+                }
+            });
+        }
+
+        const mktReportBtn = document.getElementById("report-mkt-content-btn");
+        if (mktReportBtn) {
+            mktReportBtn.addEventListener("click", () => {
+                const caption = document.getElementById("mkt-ig-caption")?.textContent?.trim() || "";
+                const imgSrc = document.getElementById("mkt-ig-image")?.getAttribute("src") || "";
+                const snippet = [caption, imgSrc ? `[image: ${imgSrc}]` : ""].filter(Boolean).join(" ").slice(0, 1900);
+                openReportDialog({
+                    container: null,
+                    button: mktReportBtn,
+                    modelId: state.selectedModel || "auto",
+                    contentType: "marketing_content",
+                    snippet: snippet || "AI Marketing Campaign output"
+                });
+            });
+        }
+
+        if (elements.reportForm) {
+            elements.reportForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const checkedReason = elements.reportForm.querySelector('input[name="report-reason"]:checked');
+                const reason = checkedReason ? checkedReason.value : "Offensive or inappropriate content";
+                const details = elements.reportDetails ? elements.reportDetails.value.trim() : "";
+                const shouldHide = elements.reportHideContent ? elements.reportHideContent.checked : false;
+
+                if (elements.reportSubmitBtn) elements.reportSubmitBtn.disabled = true;
+                if (elements.reportSubmitText) elements.reportSubmitText.textContent = "Submitting...";
+
+                try {
+                    const res = await fetch("/api/report-content", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            userId: state.userId,
+                            email: loggedInUser && loggedInUser.email ? loggedInUser.email : null,
+                            conversationId: state.currentConversationId,
+                            modelId: pendingReportTarget?.modelId || state.selectedModel,
+                            reason,
+                            details,
+                            contentSnippet: pendingReportTarget?.snippet || "",
+                            contentType: pendingReportTarget?.contentType || "chat_response"
+                        })
+                    });
+
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}`);
+                    }
+
+                    if (pendingReportTarget?.button) {
+                        pendingReportTarget.button.classList.add("reported");
+                        const labelSpan = pendingReportTarget.button.querySelector("span");
+                        if (labelSpan) labelSpan.textContent = "Reported";
+                    }
+
+                    if (shouldHide && pendingReportTarget?.container) {
+                        const container = pendingReportTarget.container;
+                        let bodyTarget = container.querySelector(".ai-output-body");
+                        if (!bodyTarget) {
+                            bodyTarget = Array.from(container.children).find(
+                                (el) => !el.classList.contains("message-meta") && !el.classList.contains("message-actions") && !el.classList.contains("reported-placeholder")
+                            );
+                        }
+                        if (bodyTarget && !container.querySelector(".reported-placeholder")) {
+                            bodyTarget.classList.add("reported-content-hidden");
+                            const notice = document.createElement("div");
+                            notice.className = "reported-placeholder";
+                            notice.innerHTML = `
+                                <span>This AI-generated content has been flagged and hidden.</span>
+                                <button type="button" class="reported-show-btn">Show</button>
+                            `;
+                            bodyTarget.insertAdjacentElement("afterend", notice);
+                            saveCurrentConversation();
+                        }
+                    }
+
+                    closeModals();
+                    showToast("Report submitted. Thank you for helping keep Wondrilla safe.");
+                } catch (err) {
+                    console.error("Content report submission error:", err);
+                    showToast("Could not submit report. Please try again.");
+                } finally {
+                    if (elements.reportSubmitBtn) elements.reportSubmitBtn.disabled = false;
+                    if (elements.reportSubmitText) elements.reportSubmitText.textContent = "Submit Report";
+                }
+            });
+        }
+    }
+
     function preventWelcomeFlicker() {
         const messagesContainer = document.getElementById("messages");
         const welcomeState = document.getElementById("welcome-state");
@@ -4101,6 +4308,8 @@ Do NOT wrap the response in markdown code blocks. Return only raw JSON.`;
     initSupabaseAuth();
     initMcpUi();
     initMarketingHub();
+    initContentReporting();
+    ensureAssistantActionBars();
     preventWelcomeFlicker();
 
     // Realtime Auto-Sync: Poll every 3.5 seconds and on focus/tab switch so Mobile chats appear on Desktop automatically

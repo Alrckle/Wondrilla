@@ -12,7 +12,7 @@
     <link rel="icon" href="assets/wondrilla-favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/wondrilla-favicon.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=55.0">
+    <link rel="stylesheet" href="style.css?v=56.0">
     <script>
         (function() {
             try {
@@ -291,6 +291,7 @@
                             <div style="display: flex; gap: 8px; margin-top: 15px;">
                                 <button class="ghost-btn" id="regenerate-ig-img-btn" type="button" style="flex: 1; border: 1px solid var(--line); font-size: 11px;">Re-gen Image</button>
                                 <button class="ghost-btn" id="copy-ig-btn" type="button" style="flex: 1; border: 1px solid var(--line); font-size: 11px;">Copy Caption</button>
+                                <button class="ghost-btn" id="report-mkt-content-btn" type="button" style="border: 1px solid var(--line); font-size: 11px; color: #f87171;" aria-label="Report AI content">Report</button>
                             </div>
                         </article>
 
@@ -1541,9 +1542,69 @@
         </div>
     </div>
 
+    <!-- Report AI-Generated Content Modal -->
+    <div class="modal-shell hidden" id="report-content-modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+        <div class="modal report-modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="overline">SAFETY &amp; COMPLIANCE</span>
+                    <h2 id="report-modal-title">Report AI Content</h2>
+                </div>
+                <button class="icon-btn modal-close" id="report-modal-close" type="button" aria-label="Close report dialog">&times;</button>
+            </div>
+            <p class="modal-lead">Flag offensive, harmful, or inappropriate AI-generated text or images without leaving the app.</p>
+
+            <form class="report-form" id="report-content-form">
+                <div class="report-reason-list" role="radiogroup" aria-label="Reason for reporting">
+                    <label class="report-reason-option">
+                        <input type="radio" name="report-reason" value="Offensive or hate speech" checked>
+                        <span>Offensive, abusive, or hate speech</span>
+                    </label>
+                    <label class="report-reason-option">
+                        <input type="radio" name="report-reason" value="Harassment or bullying">
+                        <span>Harassment or bullying</span>
+                    </label>
+                    <label class="report-reason-option">
+                        <input type="radio" name="report-reason" value="Sexually explicit or NSFW content">
+                        <span>Sexually explicit or NSFW content</span>
+                    </label>
+                    <label class="report-reason-option">
+                        <input type="radio" name="report-reason" value="Violence, gore, or self-harm">
+                        <span>Violence, gore, or self-harm</span>
+                    </label>
+                    <label class="report-reason-option">
+                        <input type="radio" name="report-reason" value="Dangerous, illegal, or deceptive content">
+                        <span>Dangerous, illegal, or deceptive content</span>
+                    </label>
+                    <label class="report-reason-option">
+                        <input type="radio" name="report-reason" value="Misinformation or other offensive issue">
+                        <span>Misinformation or other offensive issue</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="report-details-input">Additional details (optional)</label>
+                    <textarea id="report-details-input" rows="3" maxlength="1000" placeholder="Share any extra context to help our safety team review this content..."></textarea>
+                </div>
+
+                <label class="report-hide-toggle">
+                    <input type="checkbox" id="report-hide-content" checked>
+                    <span>Hide this AI output from my screen</span>
+                </label>
+
+                <div class="report-form-actions">
+                    <button type="button" class="ghost-btn modal-close" id="report-cancel-btn">Cancel</button>
+                    <button type="submit" class="checkout-submit-btn" id="report-submit-btn">
+                        <span class="btn-text" id="report-submit-text">Submit Report</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="script.js?v=55.0"></script>
+    <script type="module" src="script.js?v=56.0"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
